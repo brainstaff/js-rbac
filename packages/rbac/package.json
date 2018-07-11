@@ -1,0 +1,16 @@
+{
+    "name": "@brainstaff/rbac",
+    "version": "0.1.0",
+    "description": "RBAC library.",
+    "main": "dist/index.js",
+    "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
+    "license": "MIT",
+    "devDependencies": {
+        "mocha": "^5.2.0",
+        "rollup": "^0.62.0"
+    },
+    "scripts": {
+        "build": "rollup -c rollup.config.js",
+        "test": "mocha"
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@brainstaff/rbac-workspaces",
+  "version": "0.1.0",
+  "description": "BrainStaff workspaces.",
+  "main": "index.js",
+  "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
