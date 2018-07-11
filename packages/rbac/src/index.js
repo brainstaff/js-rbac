@@ -3,22 +3,36 @@ export class RbacManager {
     this.rbacCacheAdapter = rbacCacheAdapter;
     this.rbacPersistentAdapter = rbacPersistentAdapter;
     this.rbacRuleFactory = rbacRuleFactory;
+    this.isCacheLoaded = false;
   }
 
+  /**
+   * To be used with @brainstaff/injector.
+   * @returns {string[]}
+   */
   get dependencies() {
     return [
       'rbacCacheAdapter',
       'rbacPersistentAdapter',
       'rbacRuleFactory'
-    ]
+    ];
   }
 
   async loadCache() {
     this.rbacCacheAdapter.store(await this.rbacPersistentAdapter.load());
+    this.isCacheLoaded = true;
+  }
+
+  get currentAdapter() {
+    if (this.isCacheLoaded) {
+      return this.rbacCacheAdapter;
+    } else {
+      return this.rbacPersistentAdapter;
+    }
   }
 
   async checkAccess(userId, permissionOrRoleName, payload) {
-    const assignments = await this.rbacCacheAdapter.findAssignmentsByUserId(userId);
+    const assignments = await this.currentAdapter.findAssignmentsByUserId(userId);
     for (let i = 0; i < assignments.length; i++) {
       if (await this.checkItem(assignments[i].role, permissionOrRoleName, payload)) {
         return true;
@@ -28,7 +42,7 @@ export class RbacManager {
   }
 
   async checkItem(currentItemName, expectedItemName, payload) {
-    const currentItem = await this.rbacCacheAdapter.findItem(currentItemName);
+    const currentItem = await this.currentAdapter.findItem(currentItemName);
     if (!currentItem) {
       return false;
     }
@@ -46,7 +60,7 @@ export class RbacManager {
           return false;
         }
       }
-      const children = await this.rbacCacheAdapter.findItemChildrenByParent(currentItemName);
+      const children = await this.currentAdapter.findItemChildrenByParent(currentItemName);
       for (let i = 0; i < children.length; i++) {
         if (await this.checkItem(children[i].child, expectedItemName, payload)) {
           return true;
@@ -57,28 +71,28 @@ export class RbacManager {
   }
 
   async assign(userId, role) {
-    const item = await this.rbacCacheAdapter.findItem(role);
+    const item = await this.currentAdapter.findItem(role);
     if (!item || item.type !== 'role') {
       throw new Error(`No such role ${role}.`);
     }
-    const assignment = await this.rbacCacheAdapter.findAssignment(userId, role);
+    const assignment = await this.currentAdapter.findAssignment(userId, role);
     if (assignment) {
       return true;
     }
-    return (
-      await this.rbacPersistentAdapter.createAssignment(userId, role) &&
-      await this.rbacCacheAdapter.createAssignment(userId, role)
-    )
+    if (this.isCacheLoaded) {
+      await this.rbacCacheAdapter.createAssignment(userId, role);
+    }
+    return await this.rbacPersistentAdapter.createAssignment(userId, role);
   }
 
   async revoke(userId, role) {
-    const assignment = await this.rbacCacheAdapter.findAssignment(userId, role);
+    const assignment = await this.currentAdapter.findAssignment(userId, role);
     if (!assignment) {
       throw new Error(`Role "${role}" is not attached to the "${userId}".`);
     }
-    return (
-      await this.rbacPersistentAdapter.deleteAssignment(userId, role) &&
-      await this.rbacCacheAdapter.deleteAssignment(userId, role)
-    )
+    if (this.isCacheLoaded) {
+      await this.rbacCacheAdapter.deleteAssignment(userId, role);
+    }
+    return await this.rbacPersistentAdapter.deleteAssignment(userId, role);
   }
 }
