@@ -42,7 +42,7 @@ const createRbacManager = async () => {
     createRule(name) {
       if (name === 'IsOwnProfile') {
         return {
-          execute(payload) {
+          execute: async (payload) => {
             if (payload && payload.user && payload.user.userId && payload.profile && payload.profile.userId) {
               return payload.user.userId === payload.profile.userId;
             }
