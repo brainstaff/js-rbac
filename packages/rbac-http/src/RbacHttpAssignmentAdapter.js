@@ -28,17 +28,16 @@ export default class RbacHttpAssignmentAdapter {
       headers: this.config.headers
     });
   }
-  //
-  // async findByUserId(userId) {
-  //   return this.rbacAssignments.filter(assignment => assignment.userId === userId);
-  // }
-  //
-  // async delete(userId, role) {
-  //   const assignmentIndex = this.rbacAssignments.findIndex(assignment => assignment.userId === userId && assignment.role === role);
-  //   if (assignmentIndex !== -1) {
-  //     this.rbacAssignments.splice(assignmentIndex, 1);
-  //   } else {
-  //     throw new Error(`No assignment between ${userId} and ${role} was found.`);
-  //   }
-  // }
+
+  async findByUserId(userId) {
+    return axios.get(`${this.config.baseUrl}/rbac/assignments/${userId}`, {
+      headers: this.config.headers
+    });
+  }
+
+  async delete(userId, role) {
+    return axios.delete(`${this.config.baseUrl}/rbac/assignments/${userId}/${role}`, {
+      headers: this.config.headers
+    });
+  }
 }

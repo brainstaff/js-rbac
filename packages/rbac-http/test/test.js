@@ -22,9 +22,26 @@ describe('RbacHttpAssignmentAdapter', () => {
     server = app.listen(4000);
     app.use(express.json());
     app.get('/rbac/assignments/:userId/:role', (request, response) => {
+      const {userId, role} = request.params;
       response.json(rbacAssignments.find((assignment) => {
-        return assignment.userId === request.params.userId &&
-          assignment.role === request.params.role;
+        return assignment.userId === userId && assignment.role === role;
+      }));
+    });
+    app.delete('/rbac/assignments/:userId/:role', (request, response) => {
+      const {userId, role} = request.params;
+      const assignmentIndex = rbacAssignments.findIndex((assignment) => {
+        return assignment.userId === userId && assignment.role === role;
+      });
+      if (assignmentIndex !== -1) {
+        rbacAssignments.splice(assignmentIndex, 1);
+      } else {
+        return response.status(400).json({ message: `Role ${role} is already assigned to user ${userId}.` });
+      }
+      response.status(200).send();
+    });
+    app.get('/rbac/assignments/:userId', (request, response) => {
+      response.json(rbacAssignments.filter((assignment) => {
+        return assignment.userId === request.params.userId
       }));
     });
     app.get('/rbac/assignments', (request, response) => {
@@ -55,10 +72,25 @@ describe('RbacHttpAssignmentAdapter', () => {
     assert.deepEqual(response.data, assignment);
   });
 
-  it('should find exact assignment', async () => {
+  it('should find assignments by user', async () => {
+    const assignments = [{ userId: 'alexey', role: 'admin' }];
+    const response = await assignmentAdapter.findByUserId('alexey');
+    assert.deepEqual(response.data, assignments);
+  });
+
+  it('should not delete missing assignment', async () => {
+    const assignment = { userId: 'alexey', role: 'user' };
+    try {
+      await assignmentAdapter.delete(assignment.userId, assignment.role);
+    } catch (error) {
+      assert.deepEqual(error.response.data, { message: `Role ${assignment.role} is already assigned to user ${assignment.userId}.`});
+    }
+  });
+
+  it('should delete assignment', async () => {
     const assignment = { userId: 'alexey', role: 'admin' };
-    const response = await assignmentAdapter.find(assignment.userId, assignment.role);
-    assert.deepEqual(response.data, assignment);
+    await assignmentAdapter.delete(assignment.userId, assignment.role);
+    assert.deepEqual(rbacAssignments.length, 1);
   });
 });
 
