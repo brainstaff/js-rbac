@@ -247,14 +247,31 @@ describe('RbacHttpRuleAdapter', () => {
   const rbacRules = [
     { name: 'IsOwnProfile' }
   ];
+  const ruleAdapter = new RbacHttpRuleAdapter({
+    baseUrl: 'http://localhost:4000',
+    headers: {}
+  });
   let server;
 
   before(async () => {
     const app = express();
     server = app.listen(4000);
+    app.use(express.json());
     app.get('/rbac/rules', (request, response) => {
       response.json({ rbacRules });
-    })
+    });
+    app.post('/rbac/rules', (request, response) => {
+      if (request.body.name) {
+        const { name } = request.body;
+        if (rbacRules.find(itemChild => itemChild.name === name)) {
+          return response.status(400).json({ message: `Rule ${name} already exists.` });
+        }
+        response.status(200).json(request.body);
+      }
+      if (request.body.rbacRules) {
+        response.status(200).json(request.body);
+      }
+    });
   });
 
   after((done) => {
@@ -262,11 +279,28 @@ describe('RbacHttpRuleAdapter', () => {
   });
 
   it('should load data via http', async () => {
-    const ruleAdapter = new RbacHttpRuleAdapter({
-      baseUrl: 'http://localhost:4000',
-      headers: {}
-    });
     const response = await ruleAdapter.load();
     assert.deepEqual(response.data.rbacRules, rbacRules);
+  });
+
+  it('should store data over http', async () => {
+    const response = await ruleAdapter.store(rbacRules);
+    assert.deepEqual(response.data.rbacRules, rbacRules);
+  });
+
+  it('should not create existing item child', async () => {
+    const rule = { name: 'IsOwnProfile' };
+    try {
+      const response = await ruleAdapter.create(rule.name);
+      assert.fail('Should throw on create.');
+    } catch (error) {
+      assert.equal(error.message, `Rule ${rule.name} already exists.`);
+    }
+  });
+
+  it('should create item child', async () => {
+    const rule = { name: 'IsOwnPost' };
+    const response = await ruleAdapter.create(rule.name);
+    assert.deepEqual(response.data, rule);
   });
 });

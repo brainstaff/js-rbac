@@ -5,9 +5,11 @@ export default class RbacHttpRuleAdapter {
     this.config = config;
   }
 
-  // async store(rbacRules) {
-  //   this.rbacRules = rbacRules;
-  // }
+  async store(rbacRules) {
+    return axios.post(`${this.config.baseUrl}/rbac/rules`, { rbacRules }, {
+      headers: this.config.headers
+    });
+  }
 
   async load() {
     return axios.get(`${this.config.baseUrl}/rbac/rules`, {
@@ -15,10 +17,17 @@ export default class RbacHttpRuleAdapter {
     });
   }
 
-  // async create(name) {
-  //   if (this.rbacRules.find(rule => rule.name === name)) {
-  //     throw new Error(`Rule ${name} already exists.`);
-  //   }
-  //   this.rbacRules.push({ name });
-  // }
+  async create(name) {
+    try {
+      return await axios.post(`${this.config.baseUrl}/rbac/rules`, { name }, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
+  }
 }
