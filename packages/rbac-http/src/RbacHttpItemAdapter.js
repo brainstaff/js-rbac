@@ -18,9 +18,17 @@ export default class RbacHttpItemAdapter {
   }
 
   async create(name, type, rule) {
-    return axios.post(`${this.config.baseUrl}/rbac/items`, { name, type, rule }, {
-      headers: this.config.headers
-    });
+    try {
+      return await axios.post(`${this.config.baseUrl}/rbac/items`, { name, type, rule }, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async find(name) {

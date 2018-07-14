@@ -25,7 +25,7 @@ describe('RbacHttpAssignmentAdapter', () => {
       response.json(request.body);
     });
     app.get('/rbac/assignments/:userId/:role', (request, response) => {
-      const {userId, role} = request.params;
+      const { userId, role } = request.params;
       response.json(rbacAssignments.find((assignment) => {
         return assignment.userId === userId && assignment.role === role;
       }));
@@ -39,7 +39,7 @@ describe('RbacHttpAssignmentAdapter', () => {
       response.json({ rbacAssignments });
     });
     app.delete('/rbac/assignments/:userId/:role', (request, response) => {
-      const {userId, role} = request.params;
+      const { userId, role } = request.params;
       const assignmentIndex = rbacAssignments.findIndex((assignment) => {
         return assignment.userId === userId && assignment.role === role;
       });
@@ -83,7 +83,7 @@ describe('RbacHttpAssignmentAdapter', () => {
     try {
       await assignmentAdapter.delete(assignment.userId, assignment.role);
     } catch (error) {
-      assert.deepEqual(error.response.data, { message: `Role ${assignment.role} is already assigned to user ${assignment.userId}.`});
+      assert.deepEqual(error.response.data, { message: `Role ${assignment.role} is already assigned to user ${assignment.userId}.` });
     }
   });
 
@@ -113,13 +113,20 @@ describe('RbacHttpItemAdapter', () => {
     server = app.listen(4000);
     app.use(express.json());
     app.post('/rbac/items', (request, response) => {
+      if (request.body.name) {
+        const { name } = request.body;
+        if (rbacItems.find(item => item.name === name)) {
+          return response.status(400).json({ message: `Item ${name} already exists.` });
+        }
+      }
       response.json(request.body);
     });
     app.get('/rbac/items', (request, response) => {
       response.json({ rbacItems });
     });
     app.get('/rbac/items/:name', (request, response) => {
-
+      const { name } = request.params;
+      response.json(rbacItems.find(item => item.name === name));
     });
   });
 
@@ -137,10 +144,26 @@ describe('RbacHttpItemAdapter', () => {
     assert.deepEqual(response.data.rbacItems, rbacItems);
   });
 
+  it('should not create existing item', async () => {
+    const item = { name: 'updateOwnProfile', type: 'permission', rule: 'IsAuthor' };
+    try {
+      await itemAdapter.create(item.name, item.type, item.rule);
+      assert.fail('Should throw on create.');
+    } catch (error) {
+      assert.equal(error.message, `Item ${item.name} already exists.`)
+    }
+  });
+
   it('should create item', async () => {
     const assignment = { name: 'updateOwnPost', type: 'permission', rule: 'IsAuthor' };
     const response = await itemAdapter.create(assignment.name, assignment.type, assignment.rule);
     assert.deepEqual(response.data, assignment);
+  });
+
+  it('should find item by name', async () => {
+    const item = { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' };
+    const response = await itemAdapter.find('updateOwnProfile');
+    assert.deepEqual(response.data, item);
   });
 });
 
@@ -152,13 +175,34 @@ describe('RbacHttpItemChildAdapter', () => {
     { parent: 'updateOwnProfile', child: 'updateProfile' },
     { parent: 'admin', child: 'updateProfile' }
   ];
+  const itemChildAdapter = new RbacHttpItemChildAdapter({
+    baseUrl: 'http://localhost:4000',
+    headers: {}
+  });
   let server;
 
   before(async () => {
     const app = express();
     server = app.listen(4000);
+    app.use(express.json());
+    app.post('/rbac/item-children', (request, response) => {
+      if (request.body.parent) {
+        const { parent, child } = request.body;
+        if (rbacItemChildren.find(itemChild => itemChild.parent === parent && itemChild.child === child)) {
+          return response.status(400).json({ message: `Association of ${parent} and ${child} already exists.` });
+        }
+        response.status(200).json(request.body);
+      }
+      if (request.body.rbacItemChildren) {
+        response.status(200).json(request.body);
+      }
+    });
     app.get('/rbac/item-children', (request, response) => {
       response.json({ rbacItemChildren });
+    })
+    app.get('/rbac/item-children/:parent', (request, response) => {
+      const {parent} = request.params;
+      response.json(rbacItemChildren.filter(itemChild => itemChild.parent === parent));
     })
   });
 
@@ -167,12 +211,35 @@ describe('RbacHttpItemChildAdapter', () => {
   });
 
   it('should load data via http', async () => {
-    const itemChildAdapter = new RbacHttpItemChildAdapter({
-      baseUrl: 'http://localhost:4000',
-      headers: {}
-    });
     const response = await itemChildAdapter.load();
     assert.deepEqual(response.data.rbacItemChildren, rbacItemChildren);
+  });
+
+  it('should store data over http', async () => {
+    const response = await itemChildAdapter.store(rbacItemChildren);
+    assert.deepEqual(response.data.rbacItemChildren, rbacItemChildren);
+  });
+
+  it('should not create existing item child', async () => {
+    const itemChild = { parent: 'admin', child: 'manager' };
+    try {
+      const response = await itemChildAdapter.create(itemChild.parent, itemChild.child);
+      assert.fail('Should throw on create.');
+    } catch (error) {
+      assert.equal(error.message, `Association of ${itemChild.parent} and ${itemChild.child} already exists.`);
+    }
+  });
+
+  it('should create item child', async () => {
+    const itemChild = { parent: 'admin', child: 'user' };
+    const response = await itemChildAdapter.create(itemChild.parent, itemChild.child);
+    assert.deepEqual(response.data, itemChild);
+  });
+
+  it('should find item children by parent', async () => {
+    const itemChildren = [{ parent: 'user', child: 'updateOwnProfile' }]
+    const response = await itemChildAdapter.findByParent('user');
+    assert.deepEqual(response.data, itemChildren);
   });
 });
 
