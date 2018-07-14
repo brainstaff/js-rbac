@@ -6,38 +6,86 @@ export default class RbacHttpAssignmentAdapter {
   }
 
   async store(rbacAssignments) {
-    return axios.post(`${this.config.baseUrl}/rbac/assignments`, { rbacAssignments }, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.post(`${this.config.baseUrl}/rbac/assignments`, { rbacAssignments }, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async load() {
-    return axios.get(`${this.config.baseUrl}/rbac/assignments`, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.get(`${this.config.baseUrl}/rbac/assignments`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async create(userId, role) {
-    return axios.post(`${this.config.baseUrl}/rbac/assignments`, { userId, role }, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.post(`${this.config.baseUrl}/rbac/assignments`, { userId, role }, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async find(userId, role) {
-    return axios.get(`${this.config.baseUrl}/rbac/assignments/${userId}/${role}`, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.get(`${this.config.baseUrl}/rbac/assignments/${userId}/${role}`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async findByUserId(userId) {
-    return axios.get(`${this.config.baseUrl}/rbac/assignments/${userId}`, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.get(`${this.config.baseUrl}/rbac/assignments/${userId}`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async delete(userId, role) {
-    return axios.delete(`${this.config.baseUrl}/rbac/assignments/${userId}/${role}`, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.delete(`${this.config.baseUrl}/rbac/assignments/${userId}/${role}`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 }

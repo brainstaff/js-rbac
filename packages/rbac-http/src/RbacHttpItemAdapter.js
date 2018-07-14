@@ -6,15 +6,31 @@ export default class RbacHttpItemAdapter {
   }
 
   async store(rbacItems) {
-    return axios.post(`${this.config.baseUrl}/rbac/items`, { rbacItems }, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.post(`${this.config.baseUrl}/rbac/items`, { rbacItems }, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async load() {
-    return axios.get(`${this.config.baseUrl}/rbac/items`, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.get(`${this.config.baseUrl}/rbac/items`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async create(name, type, rule) {
@@ -32,8 +48,16 @@ export default class RbacHttpItemAdapter {
   }
 
   async find(name) {
-    return axios.get(`${this.config.baseUrl}/rbac/items/${name}`, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.get(`${this.config.baseUrl}/rbac/items/${name}`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 }

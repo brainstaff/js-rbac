@@ -6,15 +6,31 @@ export default class RbacHttpRuleAdapter {
   }
 
   async store(rbacRules) {
-    return axios.post(`${this.config.baseUrl}/rbac/rules`, { rbacRules }, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.post(`${this.config.baseUrl}/rbac/rules`, { rbacRules }, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async load() {
-    return axios.get(`${this.config.baseUrl}/rbac/rules`, {
-      headers: this.config.headers
-    });
+    try {
+      return axios.get(`${this.config.baseUrl}/rbac/rules`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
   }
 
   async create(name) {
