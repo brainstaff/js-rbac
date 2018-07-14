@@ -5,6 +5,10 @@
     "main": "dist/index.js",
     "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
     "license": "MIT",
+    "scripts": {
+        "build": "rollup -c rollup.config.js",
+        "test": "mocha"
+    },
     "dependencies": {
         "axios": "^0.18.0"
     },
@@ -12,12 +16,5 @@
         "express": "^4.16.3",
         "mocha": "^5.2.0",
         "rollup": "^0.62.0"
-    },
-    "peerDependencies": {
-        "@brainstaff/rbac": "^0.1.0"
-    },
-    "scripts": {
-        "build": "rollup -c rollup.config.js",
-        "test": "mocha"
     }
 }
