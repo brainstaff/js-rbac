@@ -35,14 +35,14 @@ export class RbacManager {
     if (currentItemName === expectedItemName) {
       // If we found permission we execute business rule
       if (currentItem.type === 'permission' && currentItem.rule) {
-        return this.rbacRuleFactory.createRule(currentItem.rule).execute(payload);
+        return await this.rbacRuleFactory.createRule(currentItem.rule).execute(payload);
       } else {
         return true;
       }
     } else {
       // Before going deeper let's check business rule
       if (currentItem.type === 'permission' && currentItem.rule) {
-        if (!this.rbacRuleFactory.createRule(currentItem.rule).execute(payload)) {
+        if (!(await this.rbacRuleFactory.createRule(currentItem.rule).execute(payload))) {
           return false;
         }
       }

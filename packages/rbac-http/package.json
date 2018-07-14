@@ -1,7 +1,7 @@
 {
-    "name": "@brainstaff/rbac-in-memory",
+    "name": "@brainstaff/rbac-http",
     "version": "0.1.0",
-    "description": "RBAC in-memory adapter.",
+    "description": "RBAC http adapter.",
     "main": "dist/index.js",
     "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
     "license": "MIT",
@@ -9,7 +9,11 @@
         "build": "rollup -c rollup.config.js",
         "test": "mocha"
     },
+    "dependencies": {
+        "axios": "^0.18.0"
+    },
     "devDependencies": {
+        "express": "^4.16.3",
         "mocha": "^5.2.0",
         "rollup": "^0.62.0"
     }
