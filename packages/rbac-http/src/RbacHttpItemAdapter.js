@@ -5,9 +5,11 @@ export default class RbacHttpItemAdapter {
     this.config = config;
   }
 
-  // async store(rbacItems) {
-  //   this.rbacItems = rbacItems;
-  // }
+  async store(rbacItems) {
+    return axios.post(`${this.config.baseUrl}/rbac/items`, { rbacItems }, {
+      headers: this.config.headers
+    });
+  }
 
   async load() {
     return axios.get(`${this.config.baseUrl}/rbac/items`, {
@@ -15,14 +17,15 @@ export default class RbacHttpItemAdapter {
     });
   }
 
-  // async create(name, type, rule) {
-  //   if (this.rbacItems.find(item => item.name === name)) {
-  //     throw new Error(`Item ${name} already exists.`);
-  //   }
-  //   this.rbacItems.push({ name, type, rule });
-  // }
-  //
-  // async find(name) {
-  //   return this.rbacItems.find(rbacItem => rbacItem.name === name);
-  // }
+  async create(name, type, rule) {
+    return axios.post(`${this.config.baseUrl}/rbac/items`, { name, type, rule }, {
+      headers: this.config.headers
+    });
+  }
+
+  async find(name) {
+    return axios.get(`${this.config.baseUrl}/rbac/items/${name}`, {
+      headers: this.config.headers
+    });
+  }
 }
