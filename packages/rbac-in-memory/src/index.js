@@ -15,10 +15,10 @@ export class RbacInMemoryAdapter {
   }
 
   async store(rbacHierarchy) {
-    await this.assignmentAdapter.store(rbacHierarchy.rbacAssignments);
-    await this.itemAdapter.store(rbacHierarchy.rbacItems);
-    await this.itemChildAdapter.store(rbacHierarchy.rbacItemChildren);
-    await this.ruleAdapter.store(rbacHierarchy.rbacRules);
+    await this.assignmentAdapter.store([...rbacHierarchy.rbacAssignments]);
+    await this.itemAdapter.store([...rbacHierarchy.rbacItems]);
+    await this.itemChildAdapter.store([...rbacHierarchy.rbacItemChildren]);
+    await this.ruleAdapter.store([...rbacHierarchy.rbacRules]);
   }
 
   async load() {
