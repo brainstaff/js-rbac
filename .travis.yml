@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - "node"
+  - "10"
+install:
+  - yarn lerna bootstrap
+script:
+  - yarn lerna run clean
+  - yarn lerna run build
+  - yarn lerna run test
