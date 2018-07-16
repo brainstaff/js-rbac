@@ -1,16 +1,14 @@
-import RbacMongodbAssignmentAdapter from './adapters/RbacMongodbAssignmentAdapter';
-import RbacMongodbItemAdapter from './adapters/RbacMongodbItemAdapter';
-import RbacMongodbItemChildAdapter from './adapters/RbacMongodbItemChildAdapter';
-import RbacMongodbRuleAdapter from './adapters/RbacMongodbRuleAdapter';
+import RbacInMemoryAssignmentAdapter from './adapters/RbacInMemoryAssignmentAdapter';
+import RbacInMemoryItemAdapter from './adapters/RbacInMemoryItemAdapter';
+import RbacInMemoryItemChildAdapter from './adapters/RbacInMemoryItemChildAdapter';
+import RbacInMemoryRuleAdapter from './adapters/RbacInMemoryRuleAdapter';
 
-export default class RbacMongodbAdapter {
-  constructor({rbacMongodbConnection}) {
-    this.rbacMongodbConnection = rbacMongodbConnection;
-
-    this.assignmentAdapter = new RbacMongodbAssignmentAdapter();
-    this.itemAdapter = new RbacMongodbItemAdapter();
-    this.itemChildAdapter = new RbacMongodbItemChildAdapter();
-    this.ruleAdapter = new RbacMongodbRuleAdapter();
+export default class RbacInMemoryAdapter {
+  constructor() {
+    this.assignmentAdapter = new RbacInMemoryAssignmentAdapter();
+    this.itemAdapter = new RbacInMemoryItemAdapter();
+    this.itemChildAdapter = new RbacInMemoryItemChildAdapter();
+    this.ruleAdapter = new RbacInMemoryRuleAdapter();
   }
 
   /**
@@ -18,14 +16,14 @@ export default class RbacMongodbAdapter {
    * @returns {string[]}
    */
   get dependencies() {
-    return ['rbacMongodbConnection'];
+    return [];
   }
 
   async store(rbacHierarchy) {
-    await this.assignmentAdapter.store(rbacHierarchy.rbacAssignments);
-    await this.itemAdapter.store(rbacHierarchy.rbacItems);
-    await this.itemChildAdapter.store(rbacHierarchy.rbacItemChildren);
-    await this.ruleAdapter.store(rbacHierarchy.rbacRules);
+    await this.assignmentAdapter.store([...rbacHierarchy.rbacAssignments]);
+    await this.itemAdapter.store([...rbacHierarchy.rbacItems]);
+    await this.itemChildAdapter.store([...rbacHierarchy.rbacItemChildren]);
+    await this.ruleAdapter.store([...rbacHierarchy.rbacRules]);
   }
 
   async load() {
