@@ -6,15 +6,19 @@ export class RbacInMemoryAdapter {
     this.ruleAdapter = new RbacInMemoryRuleAdapter();
   }
 
+  /**
+   * To be used with @brainstaff/injector.
+   * @returns {string[]}
+   */
   get dependencies() {
     return [];
   }
 
-  async store(rbacHierachy) {
-    await this.assignmentAdapter.store(rbacHierachy.rbacAssignments);
-    await this.itemAdapter.store(rbacHierachy.rbacItems);
-    await this.itemChildAdapter.store(rbacHierachy.rbacItemChildren);
-    await this.ruleAdapter.store(rbacHierachy.rbacRules);
+  async store(rbacHierarchy) {
+    await this.assignmentAdapter.store([...rbacHierarchy.rbacAssignments]);
+    await this.itemAdapter.store([...rbacHierarchy.rbacItems]);
+    await this.itemChildAdapter.store([...rbacHierarchy.rbacItemChildren]);
+    await this.ruleAdapter.store([...rbacHierarchy.rbacRules]);
   }
 
   async load() {
@@ -23,7 +27,7 @@ export class RbacInMemoryAdapter {
       rbacItems: await this.itemAdapter.load(),
       rbacItemChildren: await this.itemChildAdapter.load(),
       rbacRules: await this.ruleAdapter.load()
-    }
+    };
   }
 
   // Core for checkAccess
@@ -68,7 +72,6 @@ export class RbacInMemoryAdapter {
     return await this.ruleAdapter.create(name);
   }
 }
-
 
 export class RbacInMemoryAssignmentAdapter {
   constructor() {
