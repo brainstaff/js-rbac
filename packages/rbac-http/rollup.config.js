@@ -5,10 +5,12 @@ export default {
     format: 'umd',
     name: 'rbac-http',
     globals: {
+      '@brainstaff/rbac': 'rbac',
       'axios': 'axios'
     }
   },
   external: [
+    '@brainstaff/rbac',
     'axios'
   ]
 };
