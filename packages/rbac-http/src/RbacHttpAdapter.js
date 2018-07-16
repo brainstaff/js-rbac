@@ -1,7 +1,7 @@
-import RbacHttpAssignmentAdapter from "./RbacHttpAssignmentAdapter";
-import RbacHttpRuleAdapter from "./RbacHttpRuleAdapter";
-import RbacHttpItemAdapter from "./RbacHttpItemAdapter";
-import RbacHttpItemChildAdapter from "./RbacHttpItemChildAdapter";
+import RbacHttpAssignmentAdapter from "./adapters/RbacHttpAssignmentAdapter";
+import RbacHttpRuleAdapter from "./adapters/RbacHttpRuleAdapter";
+import RbacHttpItemAdapter from "./adapters/RbacHttpItemAdapter";
+import RbacHttpItemChildAdapter from "./adapters/RbacHttpItemChildAdapter";
 
 export default class RbacHttpAdapter {
   constructor({ rbacHttpConfiguration }) {
