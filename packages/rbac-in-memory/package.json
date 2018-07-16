@@ -9,6 +9,9 @@
         "build": "rollup -c rollup.config.js",
         "test": "mocha"
     },
+    "dependencies": {
+        "@brainstaff/rbac": "^0.1.0"
+    },
     "devDependencies": {
         "mocha": "^5.2.0",
         "rollup": "^0.62.0"

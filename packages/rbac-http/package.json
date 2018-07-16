@@ -10,6 +10,7 @@
         "test": "mocha"
     },
     "dependencies": {
+        "@brainstaff/rbac": "^0.1.0",
         "axios": "^0.18.0"
     },
     "devDependencies": {

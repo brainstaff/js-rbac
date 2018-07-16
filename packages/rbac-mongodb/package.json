@@ -1,20 +1,18 @@
 {
-  "name": "@brainstaff/rbac-mongodb",
-  "version": "0.1.0",
-  "description": "RBAC mongodb adapter.",
-  "main": "dist/index.js",
-  "author": "Ilya Lebedev <ilyaleb@gmail.com>",
-  "license": "MIT",
-  "devDependencies": {
-    "rollup": "^0.62.0"
-  },
-  "peerDependencies": {
-    "@brainstaff/rbac": "^0.1.0"
-  },
-  "scripts": {
-    "build": "rollup -c rollup.config.js"
-  },
-  "dependencies": {
-    "mongoose": "^5.2.3"
-  }
+    "name": "@brainstaff/rbac-mongodb",
+    "version": "0.1.0",
+    "description": "RBAC mongodb adapter.",
+    "main": "dist/index.js",
+    "author": "Ilya Lebedev <ilyaleb@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "build": "rollup -c rollup.config.js"
+    },
+    "dependencies": {
+        "@brainstaff/rbac": "^0.1.0",
+        "mongoose": "^5.2.3"
+    },
+    "devDependencies": {
+        "rollup": "^0.62.0"
+    }
 }
