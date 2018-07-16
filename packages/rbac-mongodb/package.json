@@ -10,6 +10,7 @@
         "url": "https://github.com/brainstaff/js-rbac.git"
     },
     "scripts": {
+        "clean": "rm -rf dist",
         "build": "rollup -c rollup.config.js"
     },
     "dependencies": {
