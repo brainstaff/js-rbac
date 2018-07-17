@@ -1,8 +1,8 @@
 import RbacMongodbAdapter from './RbacMongodbAdapter';
-import RbacMongodbAssignmentAdapter from './RbacMongodbAssignmentAdapter';
-import RbacMongodbItemAdapter from './RbacMongodbItemAdapter';
-import RbacMongodbItemChildAdapter from './RbacMongodbItemChildAdapter';
-import RbacMongodbRuleAdapter from './RbacMongodbRuleAdapter';
+import RbacMongodbAssignmentAdapter from './adapters/RbacMongodbAssignmentAdapter';
+import RbacMongodbItemAdapter from './adapters/RbacMongodbItemAdapter';
+import RbacMongodbItemChildAdapter from './adapters/RbacMongodbItemChildAdapter';
+import RbacMongodbRuleAdapter from './adapters/RbacMongodbRuleAdapter';
 import RbacMongodbConnection from './RbacMongodbConnection';
 
 export {

@@ -1,4 +1,4 @@
-import RbacItemChild from './models/RbacItemChild';
+import RbacItemChild from '../models/RbacItemChild';
 
 export default class RbacMongodbItemChildAdapter {
   constructor() {

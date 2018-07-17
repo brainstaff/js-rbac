@@ -6,6 +6,7 @@
     "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
     "license": "MIT",
     "scripts": {
+        "clean": "rm -rf dist",
         "build": "rollup -c rollup.config.js",
         "test": "mocha"
     },

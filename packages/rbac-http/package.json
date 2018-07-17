@@ -5,11 +5,17 @@
     "main": "dist/index.js",
     "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/brainstaff/js-rbac.git"
+    },
     "scripts": {
+        "clean": "rm -rf dist",
         "build": "rollup -c rollup.config.js",
         "test": "mocha"
     },
     "dependencies": {
+        "@brainstaff/rbac": "^0.1.0",
         "axios": "^0.18.0"
     },
     "devDependencies": {

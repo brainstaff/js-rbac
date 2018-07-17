@@ -1,4 +1,4 @@
-import RbacRule from './models/RbacRule';
+import RbacRule from '../models/RbacRule';
 
 export default class RbacMongodbRuleAdapter {
   constructor() {

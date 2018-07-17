@@ -1,8 +1,8 @@
 import RbacHttpAdapter from "./RbacHttpAdapter";
-import RbacHttpAssignmentAdapter from "./RbacHttpAssignmentAdapter";
-import RbacHttpItemAdapter from "./RbacHttpItemAdapter";
-import RbacHttpItemChildAdapter from "./RbacHttpItemChildAdapter";
-import RbacHttpRuleAdapter from "./RbacHttpRuleAdapter";
+import RbacHttpAssignmentAdapter from "./adapters/RbacHttpAssignmentAdapter";
+import RbacHttpItemAdapter from "./adapters/RbacHttpItemAdapter";
+import RbacHttpItemChildAdapter from "./adapters/RbacHttpItemChildAdapter";
+import RbacHttpRuleAdapter from "./adapters/RbacHttpRuleAdapter";
 
 export {
   RbacHttpAdapter,

@@ -1,31 +1,29 @@
-import RbacHttpAssignmentAdapter from "./adapters/RbacHttpAssignmentAdapter";
-import RbacHttpRuleAdapter from "./adapters/RbacHttpRuleAdapter";
-import RbacHttpItemAdapter from "./adapters/RbacHttpItemAdapter";
-import RbacHttpItemChildAdapter from "./adapters/RbacHttpItemChildAdapter";
+import RbacInMemoryAssignmentAdapter from './adapters/RbacInMemoryAssignmentAdapter';
+import RbacInMemoryItemAdapter from './adapters/RbacInMemoryItemAdapter';
+import RbacInMemoryItemChildAdapter from './adapters/RbacInMemoryItemChildAdapter';
+import RbacInMemoryRuleAdapter from './adapters/RbacInMemoryRuleAdapter';
 
-export default class RbacHttpAdapter {
-  constructor({ rbacHttpConfiguration }) {
-    this.config = rbacHttpConfiguration || {
-      baseUrl: 'http://localhost:4000',
-      headers: {}
-    };
-    this.assignmentAdapter = new RbacHttpAssignmentAdapter(this.config);
-    this.itemAdapter = new RbacHttpItemAdapter(this.config);
-    this.itemChildAdapter = new RbacHttpItemChildAdapter(this.config);
-    this.ruleAdapter = new RbacHttpRuleAdapter(this.config);
+export default class RbacInMemoryAdapter {
+  constructor() {
+    this.assignmentAdapter = new RbacInMemoryAssignmentAdapter();
+    this.itemAdapter = new RbacInMemoryItemAdapter();
+    this.itemChildAdapter = new RbacInMemoryItemChildAdapter();
+    this.ruleAdapter = new RbacInMemoryRuleAdapter();
   }
 
+  /**
+   * To be used with @brainstaff/injector.
+   * @returns {string[]}
+   */
   get dependencies() {
-    return [
-      'rbacHttpConfiguration'
-    ];
+    return [];
   }
 
-  async store(rbacHierachy) {
-    await this.assignmentAdapter.store(rbacHierachy.rbacAssignments);
-    await this.itemAdapter.store(rbacHierachy.rbacItems);
-    await this.itemChildAdapter.store(rbacHierachy.rbacItemChildren);
-    await this.ruleAdapter.store(rbacHierachy.rbacRules);
+  async store(rbacHierarchy) {
+    await this.assignmentAdapter.store([...rbacHierarchy.rbacAssignments]);
+    await this.itemAdapter.store([...rbacHierarchy.rbacItems]);
+    await this.itemChildAdapter.store([...rbacHierarchy.rbacItemChildren]);
+    await this.ruleAdapter.store([...rbacHierarchy.rbacRules]);
   }
 
   async load() {
@@ -34,7 +32,7 @@ export default class RbacHttpAdapter {
       rbacItems: await this.itemAdapter.load(),
       rbacItemChildren: await this.itemChildAdapter.load(),
       rbacRules: await this.ruleAdapter.load()
-    }
+    };
   }
 
   // Core for checkAccess

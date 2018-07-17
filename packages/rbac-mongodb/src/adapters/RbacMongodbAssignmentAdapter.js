@@ -1,4 +1,4 @@
-import RbacAssignment from './models/RbacAssignment';
+import RbacAssignment from '../models/RbacAssignment';
 
 export default class RbacMongodbAssignmentAdapter {
   constructor() {
