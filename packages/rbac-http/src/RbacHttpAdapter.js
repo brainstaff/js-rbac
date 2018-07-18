@@ -30,10 +30,10 @@ export default class RbacHttpAdapter {
 
   async load() {
     return {
-      rbacAssignments: await this.assignmentAdapter.load(),
-      rbacItems: await this.itemAdapter.load(),
-      rbacItemChildren: await this.itemChildAdapter.load(),
-      rbacRules: await this.ruleAdapter.load()
+      rbacAssignments: (await this.assignmentAdapter.load()).data,
+      rbacItems: (await this.itemAdapter.load()).data,
+      rbacItemChildren: (await this.itemChildAdapter.load()).data,
+      rbacRules: (await this.ruleAdapter.load()).data
     }
   }
 
