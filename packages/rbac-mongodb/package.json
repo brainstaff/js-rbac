@@ -1,6 +1,6 @@
 {
     "name": "@brainstaff/rbac-mongodb",
-    "version": "1.0.0-beta.1",
+    "version": "1.0.0-beta.2",
     "description": "RBAC mongodb adapter.",
     "main": "dist/index.js",
     "author": "Ilya Lebedev <ilyaleb@gmail.com>",
@@ -17,7 +17,7 @@
         "build": "rollup -c rollup.config.js"
     },
     "dependencies": {
-        "@brainstaff/rbac": "^1.0.0-beta.1",
+        "@brainstaff/rbac": "^1.0.0-beta.2",
         "mongoose": "^5.2.3"
     },
     "devDependencies": {
