@@ -80,10 +80,6 @@ describe('RbacMongodbItemAdapter', () => {
   ];
   const rbacItem = { name: 'region manager', type: 'role' };
 
-  after(() => {
-    mongooseConnection.disconnect();
-  });
-
   it('should store many items', async () => {
     const adapter = new RbacMongodbItemAdapter(mongooseConnection);
     const result = await adapter.store(rbacItems);
@@ -110,6 +106,49 @@ describe('RbacMongodbItemAdapter', () => {
     const adapter = new RbacMongodbItemAdapter(mongooseConnection);
     const result = await adapter.find(rbacItem.name);
     expect(result).to.be.an('object').that.include(rbacItem);
+  }).timeout(timeout);
+});
+
+describe('RbacMongodbItemChildAdapter', () => {
+  const rbacItemChildren = [
+    { parent: 'admin', child: 'manager' },
+    { parent: 'manager', child: 'user' },
+    { parent: 'user', child: 'updateOwnProfile' },
+    { parent: 'updateOwnProfile', child: 'updateProfile' },
+    { parent: 'admin', child: 'updateProfile' }
+  ];
+  const rbacItemChild = { parent: 'manager', child: 'region manager' };
+
+  after(() => {
+    mongooseConnection.disconnect();
+  });
+
+  it('should store many children items', async () => {
+    const adapter = new RbacMongodbItemChildAdapter(mongooseConnection);
+    const result = await adapter.store(rbacItemChildren);
+    expect(result).to.be.an('array').that.have.length(5);
+    result.forEach((item, index) => expect(item).to.include(rbacItemChildren[index]));
+  }).timeout(timeout);
+
+  it('should load all child items', async () => {
+    const adapter = new RbacMongodbItemChildAdapter(mongooseConnection);
+    const result = await adapter.load();
+    expect(result).to.be.an('array').that.have.length(5);
+    const members = [];
+    result.forEach(item => members.push(item.parent));
+    expect(members).to.have.members(rbacItemChildren.map(item => item.parent));
+  }).timeout(timeout);
+
+  it('should create single child item', async () => {
+    const adapter = new RbacMongodbItemChildAdapter(mongooseConnection);
+    const result = await adapter.create(rbacItemChild.parent, rbacItemChild.child);
+    expect(result).to.be.an('object').that.include(rbacItemChild);
+  }).timeout(timeout);
+
+  it('should find all children item by parent', async () => {
+    const adapter = new RbacMongodbItemChildAdapter(mongooseConnection);
+    const result = await adapter.findByParent(rbacItemChildren[0].parent);
+    expect(result).to.be.an('array').that.have.length(2);
   }).timeout(timeout);
 });
 

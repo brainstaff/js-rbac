@@ -7,7 +7,7 @@ export default class RbacMongodbItemChildAdapter {
 
   async store(rbacItemChildren) {
     await RbacItemChild.remove({});
-    await RbacItemChild.create(rbacItemChildren);
+    return await RbacItemChild.create(rbacItemChildren);
   }
 
   async load() {
@@ -20,7 +20,7 @@ export default class RbacMongodbItemChildAdapter {
       throw new Error(`Association of ${parent} and ${child} already exists.`);
     }
 
-    await RbacItemChild.create({ parent, child });
+    return await RbacItemChild.create({ parent, child });
   }
 
   async findByParent(parent) {
