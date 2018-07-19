@@ -7,10 +7,10 @@ export default class RbacMongodbAdapter {
   constructor({rbacMongodbConnection}) {
     this.rbacMongodbConnection = rbacMongodbConnection;
 
-    this.assignmentAdapter = new RbacMongodbAssignmentAdapter();
-    this.itemAdapter = new RbacMongodbItemAdapter();
-    this.itemChildAdapter = new RbacMongodbItemChildAdapter();
-    this.ruleAdapter = new RbacMongodbRuleAdapter();
+    this.assignmentAdapter = new RbacMongodbAssignmentAdapter(rbacMongodbConnection);
+    this.itemAdapter = new RbacMongodbItemAdapter(rbacMongodbConnection);
+    this.itemChildAdapter = new RbacMongodbItemChildAdapter(rbacMongodbConnection);
+    this.ruleAdapter = new RbacMongodbRuleAdapter(rbacMongodbConnection);
   }
 
   /**

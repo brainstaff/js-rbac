@@ -1,7 +1,8 @@
 import RbacItemChild from '../models/RbacItemChild';
 
 export default class RbacMongodbItemChildAdapter {
-  constructor() {
+  constructor(rbacMongodbConnection) {
+    this.rbacMongodbConnection = rbacMongodbConnection;
   }
 
   async store(rbacItemChildren) {

@@ -1,7 +1,8 @@
 import RbacRule from '../models/RbacRule';
 
 export default class RbacMongodbRuleAdapter {
-  constructor() {
+  constructor(rbacMongodbConnection) {
+    this.rbacMongodbConnection = rbacMongodbConnection;
   }
 
   async store(rbacRules) {

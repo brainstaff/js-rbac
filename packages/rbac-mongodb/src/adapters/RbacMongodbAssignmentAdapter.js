@@ -1,12 +1,13 @@
 import RbacAssignment from '../models/RbacAssignment';
 
 export default class RbacMongodbAssignmentAdapter {
-  constructor() {
+  constructor(rbacMongodbConnection) {
+    this.rbacMongodbConnection = rbacMongodbConnection;
   }
 
   async store(rbacAssignments) {
     await RbacAssignment.remove({});
-    await RbacAssignment.create(rbacAssignments);
+    return await RbacAssignment.create(rbacAssignments);
   }
 
   async load() {
@@ -19,7 +20,7 @@ export default class RbacMongodbAssignmentAdapter {
       throw new Error(`Role ${role} is already assigned to user ${userId}.`);
     }
 
-    await RbacAssignment.create({ userId: userId, role: role });
+    return await RbacAssignment.create({ userId: userId, role: role });
   }
 
   async find(userId, role) {
@@ -37,6 +38,6 @@ export default class RbacMongodbAssignmentAdapter {
       throw new Error(`No assignment between ${userId} and ${role} was found.`);
     }
 
-    await RbacAssignment.deleteOne({ userId: userId, role: role });
+    return await RbacAssignment.findByIdAndRemove(currentRole._id);
   }
 }
