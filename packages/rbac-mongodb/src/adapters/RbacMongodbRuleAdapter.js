@@ -7,7 +7,7 @@ export default class RbacMongodbRuleAdapter {
 
   async store(rbacRules) {
     await RbacRule.remove({});
-    await RbacRule.create(rbacRules);
+    return await RbacRule.create(rbacRules);
   }
 
   async load() {
@@ -15,6 +15,6 @@ export default class RbacMongodbRuleAdapter {
   }
 
   async create(name) {
-    await RbacRule.create({ name });
+    return await RbacRule.create({ name });
   }
 }

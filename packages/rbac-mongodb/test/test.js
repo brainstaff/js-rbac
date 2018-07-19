@@ -119,10 +119,6 @@ describe('RbacMongodbItemChildAdapter', () => {
   ];
   const rbacItemChild = { parent: 'manager', child: 'region manager' };
 
-  after(() => {
-    mongooseConnection.disconnect();
-  });
-
   it('should store many children items', async () => {
     const adapter = new RbacMongodbItemChildAdapter(mongooseConnection);
     const result = await adapter.store(rbacItemChildren);
@@ -149,6 +145,40 @@ describe('RbacMongodbItemChildAdapter', () => {
     const adapter = new RbacMongodbItemChildAdapter(mongooseConnection);
     const result = await adapter.findByParent(rbacItemChildren[0].parent);
     expect(result).to.be.an('array').that.have.length(2);
+  }).timeout(timeout);
+});
+
+describe('RbacMongodbRuleAdapter', () => {
+  const rbacRules = [
+    { name: 'IsOwnProfile' },
+    { name: 'IsOwnDocument' }
+  ];
+  const rbacRule = { name: 'IsGroupLeader' };
+
+  after(() => {
+    mongooseConnection.disconnect();
+  });
+
+  it('should store many rules', async () => {
+    const adapter = new RbacMongodbRuleAdapter(mongooseConnection);
+    const result = await adapter.store(rbacRules);
+    expect(result).to.be.an('array').that.have.length(2);
+    result.forEach((item, index) => expect(item).to.include(rbacRules[index]));
+  }).timeout(timeout);
+
+  it('should load all rules', async () => {
+    const adapter = new RbacMongodbRuleAdapter(mongooseConnection);
+    const result = await adapter.load();
+    expect(result).to.be.an('array').that.have.length(2);
+    const members = [];
+    result.forEach(item => members.push(item.name));
+    expect(members).to.have.members(rbacRules.map(item => item.name));
+  }).timeout(timeout);
+
+  it('should create single rule', async () => {
+    const adapter = new RbacMongodbRuleAdapter(mongooseConnection);
+    const result = await adapter.create(rbacRule.name);
+    expect(result).to.be.an('object').that.include(rbacRule);
   }).timeout(timeout);
 });
 
