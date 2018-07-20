@@ -1,12 +1,13 @@
 import RbacItem from '../models/RbacItem';
 
 export default class RbacMongodbItemAdapter {
-  constructor() {
+  constructor(rbacMongodbConnection) {
+    this.rbacMongodbConnection = rbacMongodbConnection;
   }
 
   async store(rbacItems) {
     await RbacItem.remove({});
-    await RbacItem.create(rbacItems);
+    return await RbacItem.create(rbacItems);
   }
 
   async load() {
@@ -19,7 +20,7 @@ export default class RbacMongodbItemAdapter {
       throw new Error(`Item ${name} already exists.`);
     }
 
-    await RbacItem.create({ name, type, rule });
+    return await RbacItem.create({ name, type, rule });
   }
 
   async find(name) {
