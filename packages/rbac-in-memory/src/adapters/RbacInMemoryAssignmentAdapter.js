@@ -34,4 +34,13 @@ export default class RbacInMemoryAssignmentAdapter {
       throw new Error(`No assignment between ${userId} and ${role} was found.`);
     }
   }
+
+  async deleteByUser(userId) {
+    let i = this.rbacAssignments.length;
+    while (i--) {
+      if (this.rbacAssignments[i].userId === userId) {
+        this.rbacAssignments.splice(i, 1);
+      }
+    }
+  }
 }

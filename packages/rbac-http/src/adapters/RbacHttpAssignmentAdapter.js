@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 export default class RbacHttpAssignmentAdapter {
   constructor(config) {
@@ -14,7 +14,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error("Unknown error.");
+        throw new Error('Unknown error.');
       }
     }
   }
@@ -28,7 +28,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error("Unknown error.");
+        throw new Error('Unknown error.');
       }
     }
   }
@@ -42,7 +42,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error("Unknown error.");
+        throw new Error('Unknown error.');
       }
     }
   }
@@ -56,7 +56,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error("Unknown error.");
+        throw new Error('Unknown error.');
       }
     }
   }
@@ -70,7 +70,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error("Unknown error.");
+        throw new Error('Unknown error.');
       }
     }
   }
@@ -84,7 +84,21 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error("Unknown error.");
+        throw new Error('Unknown error.');
+      }
+    }
+  }
+
+  async deleteByUser(userId) {
+    try {
+      return axios.delete(`${this.config.baseUrl}/rbac/assignments/${userId}`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error('Unknown error.');
       }
     }
   }

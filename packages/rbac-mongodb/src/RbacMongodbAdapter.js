@@ -4,7 +4,7 @@ import RbacMongodbItemChildAdapter from './adapters/RbacMongodbItemChildAdapter'
 import RbacMongodbRuleAdapter from './adapters/RbacMongodbRuleAdapter';
 
 export default class RbacMongodbAdapter {
-  constructor({rbacMongodbConnection}) {
+  constructor({ rbacMongodbConnection }) {
     this.rbacMongodbConnection = rbacMongodbConnection;
 
     this.assignmentAdapter = new RbacMongodbAssignmentAdapter(rbacMongodbConnection);
@@ -62,7 +62,11 @@ export default class RbacMongodbAdapter {
   }
 
   async deleteAssignment(userId, role) {
-    return await this.assignmentAdapter.delete(userId, role);
+    if (role) {
+      return await this.assignmentAdapter.delete(userId, role);
+    }
+
+    return await this.assignmentAdapter.deleteByUser(userId);
   }
 
   // Management

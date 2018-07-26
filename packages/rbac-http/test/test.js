@@ -50,6 +50,16 @@ describe('RbacHttpAssignmentAdapter', () => {
       }
       response.status(200).send();
     });
+    app.delete('/rbac/assignments/:userId', (request, response) => {
+      const { userId } = request.params;
+      let i = rbacAssignments.length;
+      while (i--) {
+        if (rbacAssignments[i].userId === userId) {
+          rbacAssignments.splice(i, 1);
+        }
+      }
+      response.status(200).send();
+    });
   });
 
   after((done) => {
@@ -91,6 +101,12 @@ describe('RbacHttpAssignmentAdapter', () => {
     const assignment = { userId: 'alexey', role: 'admin' };
     await assignmentAdapter.delete(assignment.userId, assignment.role);
     assert.deepEqual(rbacAssignments.length, 1);
+  });
+
+  it('should delete all user assignment', async () => {
+    const assignment = { userId: 'ilya', role: 'manager' };
+    await assignmentAdapter.deleteByUser(assignment.userId);
+    assert.deepEqual(rbacAssignments.length, 0);
   });
 });
 

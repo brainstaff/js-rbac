@@ -40,4 +40,8 @@ export default class RbacMongodbAssignmentAdapter {
 
     return await RbacAssignment.findByIdAndRemove(currentRole._id);
   }
+
+  async deleteByUser(userId) {
+    return await RbacAssignment.remove({ userId });
+  }
 }

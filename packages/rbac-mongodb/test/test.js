@@ -68,6 +68,14 @@ describe('RbacMongodbAssignmentAdapter', () => {
     const remainData = await adapter.load();
     expect(remainData).to.be.an('array').that.have.length(2);
   }).timeout(timeout);
+
+  it('should delete all assignments by user', async () => {
+    const adapter = new RbacMongodbAssignmentAdapter(mongooseConnection);
+    const result = await adapter.deleteByUser(rbacAssignments[0].userId);
+    expect(result).to.be.an('object').that.include({n: 1, ok: 1});
+    const remainData = await adapter.load();
+    expect(remainData).to.be.an('array').that.have.length(1);
+  }).timeout(timeout);
 });
 
 describe('RbacMongodbItemAdapter', () => {
