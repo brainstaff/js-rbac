@@ -60,7 +60,11 @@ export default class RbacInMemoryAdapter {
   }
 
   async deleteAssignment(userId, role) {
-    return await this.assignmentAdapter.delete(userId, role);
+    if (role) {
+      return await this.assignmentAdapter.delete(userId, role);
+    }
+
+    return await this.assignmentAdapter.deleteByUser(userId);
   }
 
   // Management

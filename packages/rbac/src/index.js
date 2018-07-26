@@ -95,4 +95,15 @@ export class RbacManager {
     }
     return await this.rbacPersistentAdapter.deleteAssignment(userId, role);
   }
+
+  async revokeAll(userId) {
+    if (this.isCacheLoaded) {
+      await this.rbacCacheAdapter.deleteAssignment(userId);
+    }
+    return await this.rbacPersistentAdapter.deleteAssignment(userId);
+  }
+
+  async getUserAssignments(userId) {
+    return await this.rbacCacheAdapter.findAssignmentsByUserId(userId);
+  }
 }

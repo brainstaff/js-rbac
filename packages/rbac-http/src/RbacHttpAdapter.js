@@ -1,7 +1,7 @@
-import RbacHttpAssignmentAdapter from "./adapters/RbacHttpAssignmentAdapter";
-import RbacHttpRuleAdapter from "./adapters/RbacHttpRuleAdapter";
-import RbacHttpItemAdapter from "./adapters/RbacHttpItemAdapter";
-import RbacHttpItemChildAdapter from "./adapters/RbacHttpItemChildAdapter";
+import RbacHttpAssignmentAdapter from './adapters/RbacHttpAssignmentAdapter';
+import RbacHttpRuleAdapter from './adapters/RbacHttpRuleAdapter';
+import RbacHttpItemAdapter from './adapters/RbacHttpItemAdapter';
+import RbacHttpItemChildAdapter from './adapters/RbacHttpItemChildAdapter';
 
 export default class RbacHttpAdapter {
   constructor({ rbacHttpConfiguration }) {
@@ -34,7 +34,7 @@ export default class RbacHttpAdapter {
       rbacItems: (await this.itemAdapter.load()).data,
       rbacItemChildren: (await this.itemChildAdapter.load()).data,
       rbacRules: (await this.ruleAdapter.load()).data
-    }
+    };
   }
 
   // Core for checkAccess
@@ -62,7 +62,11 @@ export default class RbacHttpAdapter {
   }
 
   async deleteAssignment(userId, role) {
-    return await this.assignmentAdapter.delete(userId, role);
+    if (role) {
+      return await this.assignmentAdapter.delete(userId, role);
+    }
+
+    return await this.assignmentAdapter.deleteByUser(userId);
   }
 
   // Management
