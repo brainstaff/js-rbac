@@ -60,4 +60,18 @@ export default class RbacHttpItemAdapter {
       }
     }
   }
+
+  async getRoles() {
+    try {
+      return axios.get(`${this.config.baseUrl}/rbac/items/roles`, {
+        headers: this.config.headers
+      });
+    } catch (error) {
+      if (error.response.data.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Unknown error.");
+      }
+    }
+  }
 }

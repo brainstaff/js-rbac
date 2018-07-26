@@ -21,4 +21,8 @@ export default class RbacInMemoryItemAdapter {
   async find(name) {
     return this.rbacItems.find(rbacItem => rbacItem.name === name);
   }
+
+  async getRoles() {
+    return this.rbacItems.filter(rbacItem => rbacItem.type === 'role');
+  }
 }

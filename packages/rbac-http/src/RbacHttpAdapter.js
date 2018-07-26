@@ -69,6 +69,10 @@ export default class RbacHttpAdapter {
     return await this.assignmentAdapter.deleteByUser(userId);
   }
 
+  async getRoles() {
+    return await this.itemAdapter.getRoles();
+  }
+
   // Management
 
   async createItem(name, type) {

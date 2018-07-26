@@ -72,7 +72,7 @@ describe('RbacMongodbAssignmentAdapter', () => {
   it('should delete all assignments by user', async () => {
     const adapter = new RbacMongodbAssignmentAdapter(mongooseConnection);
     const result = await adapter.deleteByUser(rbacAssignments[0].userId);
-    expect(result).to.be.an('object').that.include({n: 1, ok: 1});
+    expect(result).to.be.an('object').that.include({ n: 1, ok: 1 });
     const remainData = await adapter.load();
     expect(remainData).to.be.an('array').that.have.length(1);
   }).timeout(timeout);
@@ -102,6 +102,20 @@ describe('RbacMongodbItemAdapter', () => {
     const members = [];
     result.forEach(item => members.push(item.name));
     expect(members).to.have.members(rbacItems.map(item => item.name));
+  }).timeout(timeout);
+
+  it('should load all roles', async () => {
+    const adapter = new RbacMongodbItemAdapter(mongooseConnection);
+    const result = await adapter.getRoles();
+    expect(result).to.be.an('array').that.have.length(3);
+    const members = [];
+    result.forEach(item => members.push(item.name));
+    expect(members).to.have.members(rbacItems.reduce((result, item) => {
+      if (item.type === 'role') {
+        result.push(item.name);
+      }
+      return result;
+    }, []));
   }).timeout(timeout);
 
   it('should create single item', async () => {
