@@ -26,7 +26,7 @@ export default class RbacMongodbItemAdapter {
     return await RbacItem.findOne({ name });
   }
 
-  async getRoles() {
-    return await RbacItem.find({ type: 'role' });
+  async findByType(type) {
+    return await RbacItem.find({ type });
   }
 }

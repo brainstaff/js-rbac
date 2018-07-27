@@ -59,16 +59,16 @@ export default class RbacInMemoryAdapter {
     return await this.assignmentAdapter.find(userId, role);
   }
 
+  async findRoles() {
+    return await this.itemAdapter.findByType('role');
+  }
+
   async deleteAssignment(userId, role) {
     if (role) {
       return await this.assignmentAdapter.delete(userId, role);
     }
 
     return await this.assignmentAdapter.deleteByUser(userId);
-  }
-
-  async getRoles() {
-    return await this.itemAdapter.getRoles();
   }
 
   // Management

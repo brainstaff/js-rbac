@@ -61,9 +61,9 @@ export default class RbacHttpItemAdapter {
     }
   }
 
-  async getRoles() {
+  async findByType(type) {
     try {
-      return axios.get(`${this.config.baseUrl}/rbac/items/roles`, {
+      return axios.get(`${this.config.baseUrl}/rbac/items/${type}s`, {
         headers: this.config.headers
       });
     } catch (error) {

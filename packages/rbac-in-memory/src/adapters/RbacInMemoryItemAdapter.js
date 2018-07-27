@@ -22,7 +22,7 @@ export default class RbacInMemoryItemAdapter {
     return this.rbacItems.find(rbacItem => rbacItem.name === name);
   }
 
-  async getRoles() {
-    return this.rbacItems.filter(rbacItem => rbacItem.type === 'role');
+  async findByType(type) {
+    return this.rbacItems.filter(rbacItem => rbacItem.type === type);
   }
 }

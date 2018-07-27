@@ -132,7 +132,7 @@ describe('RbacMongodbItemAdapter', () => {
 
   it('should load all roles', async () => {
     const adapter = new RbacMongodbItemAdapter();
-    const result = await adapter.getRoles();
+    const result = await adapter.findByType('role');
     expect(result).to.be.an('array').that.have.length(3);
     const members = [];
     result.forEach(item => members.push(item.name));

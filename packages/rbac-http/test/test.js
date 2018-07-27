@@ -192,7 +192,7 @@ describe('RbacHttpItemAdapter', () => {
       { name: 'manager', type: 'role' },
       { name: 'user', type: 'role' }
     ];
-    const response = await itemAdapter.getRoles();
+    const response = await itemAdapter.findByType('role');
     assert.deepEqual(response.data, items);
   });
 });
