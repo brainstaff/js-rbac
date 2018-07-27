@@ -1,8 +1,7 @@
 import RbacAssignment from '../models/RbacAssignment';
 
 export default class RbacMongodbAssignmentAdapter {
-  constructor(rbacMongodbConnection) {
-    this.rbacMongodbConnection = rbacMongodbConnection;
+  constructor() {
   }
 
   async store(rbacAssignments) {

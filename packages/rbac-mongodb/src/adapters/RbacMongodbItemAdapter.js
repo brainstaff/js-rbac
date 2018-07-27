@@ -1,8 +1,7 @@
 import RbacItem from '../models/RbacItem';
 
 export default class RbacMongodbItemAdapter {
-  constructor(rbacMongodbConnection) {
-    this.rbacMongodbConnection = rbacMongodbConnection;
+  constructor() {
   }
 
   async store(rbacItems) {
@@ -25,5 +24,9 @@ export default class RbacMongodbItemAdapter {
 
   async find(name) {
     return await RbacItem.findOne({ name });
+  }
+
+  async findByType(type) {
+    return await RbacItem.find({ type });
   }
 }

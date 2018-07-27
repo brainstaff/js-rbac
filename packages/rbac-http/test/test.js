@@ -140,6 +140,9 @@ describe('RbacHttpItemAdapter', () => {
     app.get('/rbac/items', (request, response) => {
       response.json({ rbacItems });
     });
+    app.get('/rbac/items/roles', (request, response) => {
+      response.json(rbacItems.filter(item => item.type === 'role'));
+    });
     app.get('/rbac/items/:name', (request, response) => {
       const { name } = request.params;
       response.json(rbacItems.find(item => item.name === name));
@@ -180,6 +183,17 @@ describe('RbacHttpItemAdapter', () => {
     const item = { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' };
     const response = await itemAdapter.find('updateOwnProfile');
     assert.deepEqual(response.data, item);
+  });
+
+
+  it('should find all roles', async () => {
+    const items = [
+      { name: 'admin', type: 'role' },
+      { name: 'manager', type: 'role' },
+      { name: 'user', type: 'role' }
+    ];
+    const response = await itemAdapter.findByType('role');
+    assert.deepEqual(response.data, items);
   });
 });
 

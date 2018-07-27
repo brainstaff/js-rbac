@@ -61,6 +61,10 @@ export default class RbacHttpAdapter {
     return await this.assignmentAdapter.find(userId, role);
   }
 
+  async findRoles() {
+    return await this.itemAdapter.findByType('role');
+  }
+
   async deleteAssignment(userId, role) {
     if (role) {
       return await this.assignmentAdapter.delete(userId, role);

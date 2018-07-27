@@ -4,13 +4,11 @@ import RbacMongodbItemChildAdapter from './adapters/RbacMongodbItemChildAdapter'
 import RbacMongodbRuleAdapter from './adapters/RbacMongodbRuleAdapter';
 
 export default class RbacMongodbAdapter {
-  constructor({ rbacMongodbConnection }) {
-    this.rbacMongodbConnection = rbacMongodbConnection;
-
-    this.assignmentAdapter = new RbacMongodbAssignmentAdapter(rbacMongodbConnection);
-    this.itemAdapter = new RbacMongodbItemAdapter(rbacMongodbConnection);
-    this.itemChildAdapter = new RbacMongodbItemChildAdapter(rbacMongodbConnection);
-    this.ruleAdapter = new RbacMongodbRuleAdapter(rbacMongodbConnection);
+  constructor({}) {
+    this.assignmentAdapter = new RbacMongodbAssignmentAdapter();
+    this.itemAdapter = new RbacMongodbItemAdapter();
+    this.itemChildAdapter = new RbacMongodbItemChildAdapter();
+    this.ruleAdapter = new RbacMongodbRuleAdapter();
   }
 
   /**
@@ -18,7 +16,7 @@ export default class RbacMongodbAdapter {
    * @returns {string[]}
    */
   get dependencies() {
-    return ['rbacMongodbConnection'];
+    return [];
   }
 
   async store(rbacHierarchy) {
@@ -59,6 +57,10 @@ export default class RbacMongodbAdapter {
 
   async findAssignment(userId, role) {
     return await this.assignmentAdapter.find(userId, role);
+  }
+
+  async findRoles() {
+    return await this.itemAdapter.findByType('role');
   }
 
   async deleteAssignment(userId, role) {

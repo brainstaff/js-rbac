@@ -3,7 +3,6 @@ import RbacMongodbAssignmentAdapter from './adapters/RbacMongodbAssignmentAdapte
 import RbacMongodbItemAdapter from './adapters/RbacMongodbItemAdapter';
 import RbacMongodbItemChildAdapter from './adapters/RbacMongodbItemChildAdapter';
 import RbacMongodbRuleAdapter from './adapters/RbacMongodbRuleAdapter';
-import RbacMongodbConnection from './RbacMongodbConnection';
 
 import RbacAssignment from './models/RbacAssignment';
 import RbacItem from './models/RbacItem';
@@ -16,7 +15,6 @@ export {
   RbacMongodbItemAdapter,
   RbacMongodbItemChildAdapter,
   RbacMongodbRuleAdapter,
-  RbacMongodbConnection,
   RbacAssignment,
   RbacItem,
   RbacItemChild,
