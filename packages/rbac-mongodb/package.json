@@ -1,6 +1,6 @@
 {
     "name": "@brainstaff/rbac-mongodb",
-    "version": "1.0.0-beta.3",
+    "version": "1.0.0-beta.4",
     "description": "RBAC mongodb adapter.",
     "main": "dist/index.js",
     "author": "Ilya Lebedev <ilyaleb@gmail.com>",
@@ -18,13 +18,13 @@
         "test": "mocha"
     },
     "dependencies": {
-        "@brainstaff/rbac": "^1.0.0-beta.3"
+        "@brainstaff/rbac": "^1.0.0-beta.4"
     },
     "devDependencies": {
         "chai": "^4.1.2",
         "mocha": "^5.2.0",
-        "rollup": "^0.62.0",
-        "mongoose": "^5.2.3"
+        "mongoose": "^5.2.3",
+        "rollup": "^0.62.0"
     },
     "peerDependencies": {
         "mongoose": "^5.2.3"
