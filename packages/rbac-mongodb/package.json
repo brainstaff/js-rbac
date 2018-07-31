@@ -1,6 +1,6 @@
 {
     "name": "@brainstaff/rbac-mongodb",
-    "version": "1.0.0-beta.4",
+    "version": "1.0.0-beta.5",
     "description": "RBAC mongodb adapter.",
     "main": "dist/index.js",
     "author": "Ilya Lebedev <ilyaleb@gmail.com>",
@@ -18,7 +18,7 @@
         "test": "mocha"
     },
     "dependencies": {
-        "@brainstaff/rbac": "^1.0.0-beta.4"
+        "@brainstaff/rbac": "^1.0.0-beta.5"
     },
     "devDependencies": {
         "chai": "^4.1.2",

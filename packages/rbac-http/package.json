@@ -1,6 +1,6 @@
 {
     "name": "@brainstaff/rbac-http",
-    "version": "1.0.0-beta.4",
+    "version": "1.0.0-beta.5",
     "description": "RBAC http adapter.",
     "main": "dist/index.js",
     "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
@@ -18,7 +18,7 @@
         "test": "mocha"
     },
     "dependencies": {
-        "@brainstaff/rbac": "^1.0.0-beta.4",
+        "@brainstaff/rbac": "^1.0.0-beta.5",
         "axios": "^0.18.0"
     },
     "devDependencies": {
