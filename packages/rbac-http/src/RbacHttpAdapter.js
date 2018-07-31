@@ -37,6 +37,22 @@ export default class RbacHttpAdapter {
     };
   }
 
+  async findAllAssignments() {
+    return await this.assignmentAdapter.load();
+  }
+
+  async findAllItems() {
+    return await this.itemAdapter.load();
+  }
+
+  async findAllItemsChild() {
+    return await this.itemChildAdapter.load();
+  }
+
+  async findAllRules() {
+    return await this.ruleAdapter.load();
+  }
+
   // Core for checkAccess
 
   async findAssignmentsByUserId(userId) {
