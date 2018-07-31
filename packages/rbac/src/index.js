@@ -104,16 +104,26 @@ export class RbacManager {
   }
 
   async fetchUserAssignments(userId) {
-    if(this.isCacheLoaded) {
-      return await this.rbacCacheAdapter.findAssignmentsByUserId(userId);
-    }
-    return await this.rbacPersistentAdapter.findAssignmentsByUserId(userId);
+    return await this.currentAdapter.findAssignmentsByUserId(userId);
   }
 
   async fetchRoles() {
-    if (this.isCacheLoaded) {
-      return await this.rbacCacheAdapter.findRoles();
-    }
-    return await this.rbacPersistentAdapter.findRoles();
+    return await this.currentAdapter.findRoles();
+  }
+
+  async fetchAllAssignments() {
+    return await this.currentAdapter.findAllAssignments();
+  }
+
+  async fetchAllItems() {
+    return await this.currentAdapter.findAllItems();
+  }
+
+  async fetchAllItemsChild() {
+    return await this.currentAdapter.findAllItemsChild();
+  }
+
+  async fetchAllRules() {
+    return await this.currentAdapter.findAllRules();
   }
 }
