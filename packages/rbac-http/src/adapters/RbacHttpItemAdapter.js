@@ -7,9 +7,10 @@ export default class RbacHttpItemAdapter {
 
   async store(rbacItems) {
     try {
-      return axios.post(`${this.config.baseUrl}/rbac/items`, { rbacItems }, {
+      const response = await axios.post(`${this.config.baseUrl}/rbac/items`, { rbacItems }, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -21,9 +22,10 @@ export default class RbacHttpItemAdapter {
 
   async load() {
     try {
-      return axios.get(`${this.config.baseUrl}/rbac/items`, {
+      const response = await axios.get(`${this.config.baseUrl}/rbac/items`, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -35,9 +37,10 @@ export default class RbacHttpItemAdapter {
 
   async create(name, type, rule) {
     try {
-      return await axios.post(`${this.config.baseUrl}/rbac/items`, { name, type, rule }, {
+      const response = await axios.post(`${this.config.baseUrl}/rbac/items`, { name, type, rule }, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -49,9 +52,10 @@ export default class RbacHttpItemAdapter {
 
   async find(name) {
     try {
-      return axios.get(`${this.config.baseUrl}/rbac/items/${name}`, {
+      const response = await axios.get(`${this.config.baseUrl}/rbac/items/${name}`, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -63,9 +67,10 @@ export default class RbacHttpItemAdapter {
 
   async findByType(type) {
     try {
-      return axios.get(`${this.config.baseUrl}/rbac/items/${type}s`, {
+      const response = await axios.get(`${this.config.baseUrl}/rbac/items/${type}s`, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);

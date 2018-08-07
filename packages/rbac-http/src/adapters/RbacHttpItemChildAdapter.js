@@ -7,9 +7,10 @@ export default class RbacHttpItemChildAdapter {
 
   async store(rbacItemChildren) {
     try {
-      return axios.post(`${this.config.baseUrl}/rbac/item-children`, { rbacItemChildren }, {
+      const response = await axios.post(`${this.config.baseUrl}/rbac/item-children`, { rbacItemChildren }, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -21,9 +22,10 @@ export default class RbacHttpItemChildAdapter {
 
   async load() {
     try {
-      return axios.get(`${this.config.baseUrl}/rbac/item-children`, {
+      const response = await axios.get(`${this.config.baseUrl}/rbac/item-children`, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -35,9 +37,10 @@ export default class RbacHttpItemChildAdapter {
 
   async create(parent, child) {
     try {
-      return await axios.post(`${this.config.baseUrl}/rbac/item-children`, { parent, child }, {
+      const response = await axios.post(`${this.config.baseUrl}/rbac/item-children`, { parent, child }, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -49,9 +52,10 @@ export default class RbacHttpItemChildAdapter {
 
   async findByParent(parent) {
     try {
-      return axios.get(`${this.config.baseUrl}/rbac/item-children/${parent}`, {
+      const response = await axios.get(`${this.config.baseUrl}/rbac/item-children/${parent}`, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
