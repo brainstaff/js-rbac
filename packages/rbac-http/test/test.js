@@ -46,7 +46,7 @@ describe('RbacHttpAssignmentAdapter', () => {
       if (assignmentIndex !== -1) {
         rbacAssignments.splice(assignmentIndex, 1);
       } else {
-        return response.status(400).json({ message: `Role ${role} is already assigned to user ${userId}.` });
+        return response.status(400).json({ message: `Role ${role} is not assigned to user ${userId}.` });
       }
       response.status(200).send();
     });
@@ -68,24 +68,24 @@ describe('RbacHttpAssignmentAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await assignmentAdapter.load();
-    assert.deepEqual(response.data.rbacAssignments, rbacAssignments);
+    assert.deepEqual(response.rbacAssignments, rbacAssignments);
   });
 
   it('should store data over http', async () => {
     const response = await assignmentAdapter.store(rbacAssignments);
-    assert.deepEqual(response.data.rbacAssignments, rbacAssignments);
+    assert.deepEqual(response.rbacAssignments, rbacAssignments);
   });
 
   it('should create user assignment', async () => {
     const assignment = { userId: 'alexey', role: 'admin' };
     const response = await assignmentAdapter.create(assignment.userId, assignment.role);
-    assert.deepEqual(response.data, assignment);
+    assert.deepEqual(response, assignment);
   });
 
   it('should find assignments by user', async () => {
     const assignments = [{ userId: 'alexey', role: 'admin' }];
     const response = await assignmentAdapter.findByUserId('alexey');
-    assert.deepEqual(response.data, assignments);
+    assert.deepEqual(response, assignments);
   });
 
   it('should not delete missing assignment', async () => {
@@ -93,7 +93,7 @@ describe('RbacHttpAssignmentAdapter', () => {
     try {
       await assignmentAdapter.delete(assignment.userId, assignment.role);
     } catch (error) {
-      assert.deepEqual(error.response.data, { message: `Role ${assignment.role} is already assigned to user ${assignment.userId}.` });
+      assert.deepEqual(error.message, `Role ${assignment.role} is not assigned to user ${assignment.userId}.`);
     }
   });
 
@@ -155,12 +155,12 @@ describe('RbacHttpItemAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await itemAdapter.load();
-    assert.deepEqual(response.data.rbacItems, rbacItems);
+    assert.deepEqual(response.rbacItems, rbacItems);
   });
 
   it('should store data over http', async () => {
     const response = await itemAdapter.store(rbacItems);
-    assert.deepEqual(response.data.rbacItems, rbacItems);
+    assert.deepEqual(response.rbacItems, rbacItems);
   });
 
   it('should not create existing item', async () => {
@@ -176,13 +176,13 @@ describe('RbacHttpItemAdapter', () => {
   it('should create item', async () => {
     const assignment = { name: 'updateOwnPost', type: 'permission', rule: 'IsAuthor' };
     const response = await itemAdapter.create(assignment.name, assignment.type, assignment.rule);
-    assert.deepEqual(response.data, assignment);
+    assert.deepEqual(response, assignment);
   });
 
   it('should find item by name', async () => {
     const item = { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' };
     const response = await itemAdapter.find('updateOwnProfile');
-    assert.deepEqual(response.data, item);
+    assert.deepEqual(response, item);
   });
 
 
@@ -193,7 +193,7 @@ describe('RbacHttpItemAdapter', () => {
       { name: 'user', type: 'role' }
     ];
     const response = await itemAdapter.findByType('role');
-    assert.deepEqual(response.data, items);
+    assert.deepEqual(response, items);
   });
 });
 
@@ -229,11 +229,11 @@ describe('RbacHttpItemChildAdapter', () => {
     });
     app.get('/rbac/item-children', (request, response) => {
       response.json({ rbacItemChildren });
-    })
+    });
     app.get('/rbac/item-children/:parent', (request, response) => {
-      const {parent} = request.params;
+      const { parent } = request.params;
       response.json(rbacItemChildren.filter(itemChild => itemChild.parent === parent));
-    })
+    });
   });
 
   after((done) => {
@@ -242,12 +242,12 @@ describe('RbacHttpItemChildAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await itemChildAdapter.load();
-    assert.deepEqual(response.data.rbacItemChildren, rbacItemChildren);
+    assert.deepEqual(response.rbacItemChildren, rbacItemChildren);
   });
 
   it('should store data over http', async () => {
     const response = await itemChildAdapter.store(rbacItemChildren);
-    assert.deepEqual(response.data.rbacItemChildren, rbacItemChildren);
+    assert.deepEqual(response.rbacItemChildren, rbacItemChildren);
   });
 
   it('should not create existing item child', async () => {
@@ -263,13 +263,13 @@ describe('RbacHttpItemChildAdapter', () => {
   it('should create item child', async () => {
     const itemChild = { parent: 'admin', child: 'user' };
     const response = await itemChildAdapter.create(itemChild.parent, itemChild.child);
-    assert.deepEqual(response.data, itemChild);
+    assert.deepEqual(response, itemChild);
   });
 
   it('should find item children by parent', async () => {
     const itemChildren = [{ parent: 'user', child: 'updateOwnProfile' }]
     const response = await itemChildAdapter.findByParent('user');
-    assert.deepEqual(response.data, itemChildren);
+    assert.deepEqual(response, itemChildren);
   });
 });
 
@@ -310,12 +310,12 @@ describe('RbacHttpRuleAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await ruleAdapter.load();
-    assert.deepEqual(response.data.rbacRules, rbacRules);
+    assert.deepEqual(response.rbacRules, rbacRules);
   });
 
   it('should store data over http', async () => {
     const response = await ruleAdapter.store(rbacRules);
-    assert.deepEqual(response.data.rbacRules, rbacRules);
+    assert.deepEqual(response.rbacRules, rbacRules);
   });
 
   it('should not create existing item child', async () => {
@@ -331,6 +331,6 @@ describe('RbacHttpRuleAdapter', () => {
   it('should create item child', async () => {
     const rule = { name: 'IsOwnPost' };
     const response = await ruleAdapter.create(rule.name);
-    assert.deepEqual(response.data, rule);
+    assert.deepEqual(response, rule);
   });
 });

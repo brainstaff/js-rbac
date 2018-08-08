@@ -7,9 +7,10 @@ export default class RbacHttpRuleAdapter {
 
   async store(rbacRules) {
     try {
-      return axios.post(`${this.config.baseUrl}/rbac/rules`, { rbacRules }, {
+      const response = await axios.post(`${this.config.baseUrl}/rbac/rules`, { rbacRules }, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -21,9 +22,10 @@ export default class RbacHttpRuleAdapter {
 
   async load() {
     try {
-      return axios.get(`${this.config.baseUrl}/rbac/rules`, {
+      const response = await axios.get(`${this.config.baseUrl}/rbac/rules`, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
@@ -35,9 +37,10 @@ export default class RbacHttpRuleAdapter {
 
   async create(name) {
     try {
-      return await axios.post(`${this.config.baseUrl}/rbac/rules`, { name }, {
+      const response = await axios.post(`${this.config.baseUrl}/rbac/rules`, { name }, {
         headers: this.config.headers
       });
+      return response.data;
     } catch (error) {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
