@@ -5,6 +5,7 @@ const { RbacHttpAssignmentAdapter } = require("../dist");
 const { RbacHttpItemAdapter } = require("../dist");
 const { RbacHttpItemChildAdapter } = require("../dist");
 const { RbacHttpRuleAdapter } = require("../dist");
+import {RbacHttpAdapter} from "../dist";
 
 describe('RbacHttpAssignmentAdapter', () => {
   const rbacAssignments = [
@@ -12,14 +13,14 @@ describe('RbacHttpAssignmentAdapter', () => {
     { userId: 'ilya', role: 'manager' }
   ];
   const assignmentAdapter = new RbacHttpAssignmentAdapter({
-    baseUrl: 'http://localhost:4000',
+    baseUrl: 'http://localhost:4001',
     headers: {}
   });
   let server;
 
   before(async () => {
     const app = express();
-    server = app.listen(4000);
+    server = app.listen(4001);
     app.use(express.json());
     app.post('/rbac/assignments', (request, response) => {
       response.json(request.body);
@@ -36,7 +37,7 @@ describe('RbacHttpAssignmentAdapter', () => {
       }));
     });
     app.get('/rbac/assignments', (request, response) => {
-      response.json({ rbacAssignments });
+      response.json(rbacAssignments);
     });
     app.delete('/rbac/assignments/:userId/:role', (request, response) => {
       const { userId, role } = request.params;
@@ -68,7 +69,7 @@ describe('RbacHttpAssignmentAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await assignmentAdapter.load();
-    assert.deepEqual(response.rbacAssignments, rbacAssignments);
+    assert.deepEqual(response, rbacAssignments);
   });
 
   it('should store data over http', async () => {
@@ -119,14 +120,14 @@ describe('RbacHttpItemAdapter', () => {
     { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' },
   ];
   const itemAdapter = new RbacHttpItemAdapter({
-    baseUrl: 'http://localhost:4000',
+    baseUrl: 'http://localhost:4001',
     headers: {}
   });
   let server;
 
   before(async () => {
     const app = express();
-    server = app.listen(4000);
+    server = app.listen(4001);
     app.use(express.json());
     app.post('/rbac/items', (request, response) => {
       if (request.body.name) {
@@ -138,7 +139,7 @@ describe('RbacHttpItemAdapter', () => {
       response.json(request.body);
     });
     app.get('/rbac/items', (request, response) => {
-      response.json({ rbacItems });
+      response.json(rbacItems);
     });
     app.get('/rbac/items/roles', (request, response) => {
       response.json(rbacItems.filter(item => item.type === 'role'));
@@ -155,7 +156,7 @@ describe('RbacHttpItemAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await itemAdapter.load();
-    assert.deepEqual(response.rbacItems, rbacItems);
+    assert.deepEqual(response, rbacItems);
   });
 
   it('should store data over http', async () => {
@@ -206,14 +207,14 @@ describe('RbacHttpItemChildAdapter', () => {
     { parent: 'admin', child: 'updateProfile' }
   ];
   const itemChildAdapter = new RbacHttpItemChildAdapter({
-    baseUrl: 'http://localhost:4000',
+    baseUrl: 'http://localhost:4001',
     headers: {}
   });
   let server;
 
   before(async () => {
     const app = express();
-    server = app.listen(4000);
+    server = app.listen(4001);
     app.use(express.json());
     app.post('/rbac/item-children', (request, response) => {
       if (request.body.parent) {
@@ -228,7 +229,7 @@ describe('RbacHttpItemChildAdapter', () => {
       }
     });
     app.get('/rbac/item-children', (request, response) => {
-      response.json({ rbacItemChildren });
+      response.json(rbacItemChildren);
     });
     app.get('/rbac/item-children/:parent', (request, response) => {
       const { parent } = request.params;
@@ -242,7 +243,7 @@ describe('RbacHttpItemChildAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await itemChildAdapter.load();
-    assert.deepEqual(response.rbacItemChildren, rbacItemChildren);
+    assert.deepEqual(response, rbacItemChildren);
   });
 
   it('should store data over http', async () => {
@@ -278,17 +279,17 @@ describe('RbacHttpRuleAdapter', () => {
     { name: 'IsOwnProfile' }
   ];
   const ruleAdapter = new RbacHttpRuleAdapter({
-    baseUrl: 'http://localhost:4000',
+    baseUrl: 'http://localhost:4001',
     headers: {}
   });
   let server;
 
   before(async () => {
     const app = express();
-    server = app.listen(4000);
+    server = app.listen(4001);
     app.use(express.json());
     app.get('/rbac/rules', (request, response) => {
-      response.json({ rbacRules });
+      response.json(rbacRules);
     });
     app.post('/rbac/rules', (request, response) => {
       if (request.body.name) {
@@ -310,7 +311,7 @@ describe('RbacHttpRuleAdapter', () => {
 
   it('should load data via http', async () => {
     const response = await ruleAdapter.load();
-    assert.deepEqual(response.rbacRules, rbacRules);
+    assert.deepEqual(response, rbacRules);
   });
 
   it('should store data over http', async () => {
@@ -332,5 +333,63 @@ describe('RbacHttpRuleAdapter', () => {
     const rule = { name: 'IsOwnPost' };
     const response = await ruleAdapter.create(rule.name);
     assert.deepEqual(response, rule);
+  });
+});
+
+describe('RbacHttpAdapter', () => {
+  const rbacAssignments = [
+    { userId: 'alexey', role: 'admin' },
+    { userId: 'ilya', role: 'manager' }
+  ];
+  const rbacItems = [
+    { name: 'admin', type: 'role' },
+    { name: 'manager', type: 'role' },
+    { name: 'user', type: 'role' },
+    { name: 'updateProfile', type: 'permission' },
+    { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' },
+  ];
+  const rbacItemChildren = [
+    { parent: 'admin', child: 'manager' },
+    { parent: 'manager', child: 'user' },
+    { parent: 'user', child: 'updateOwnProfile' },
+    { parent: 'updateOwnProfile', child: 'updateProfile' },
+    { parent: 'admin', child: 'updateProfile' }
+  ];
+  const rbacRules = [
+    { name: 'IsOwnProfile' }
+  ];
+  const rbacAdapter = new RbacHttpAdapter({
+    rbacHttpConfiguration: {
+      baseUrl: 'http://localhost:4001',
+      headers: {}
+    }
+  });
+  let server;
+
+  before(async () => {
+    const app = express();
+    server = app.listen(4001);
+    app.use(express.json());
+    app.get('/rbac/assignments', (request, response) => {
+      response.json(rbacAssignments);
+    });
+    app.get('/rbac/items', (request, response) => {
+      response.json(rbacItems);
+    });
+    app.get('/rbac/item-children', (request, response) => {
+      response.json(rbacItemChildren);
+    });
+    app.get('/rbac/rules', (request, response) => {
+      response.json(rbacRules);
+    });
+  });
+
+  after((done) => {
+    server.close(done);
+  });
+
+  it("should load data via load() function", async () => {
+    const result = await rbacAdapter.load();
+    assert.deepEqual(result, { rbacAssignments, rbacItems, rbacItemChildren, rbacRules });
   });
 });

@@ -15,7 +15,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error('Unknown error.');
+        throw new Error(error.toString());
       }
     }
   }
@@ -30,7 +30,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error('Unknown error.');
+        throw new Error(error.toString());
       }
     }
   }
@@ -45,7 +45,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error('Unknown error.');
+        throw new Error(error.toString());
       }
     }
   }
@@ -60,7 +60,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error('Unknown error.');
+        throw new Error(error.toString());
       }
     }
   }
@@ -75,7 +75,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error('Unknown error.');
+        throw new Error(error.toString());
       }
     }
   }
@@ -90,7 +90,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error('Unknown error.');
+        throw new Error(error.toString());
       }
     }
   }
@@ -105,7 +105,7 @@ export default class RbacHttpAssignmentAdapter {
       if (error.response.data.message) {
         throw new Error(error.response.data.message);
       } else {
-        throw new Error('Unknown error.');
+        throw new Error(error.toString());
       }
     }
   }
