@@ -15,7 +15,7 @@
     "scripts": {
         "clean": "rm -rf dist",
         "build": "rollup -c rollup.config.js",
-        "test": "mocha"
+        "test": "mocha --exit"
     },
     "dependencies": {
         "@brainstaff/rbac": "^1.0.0-beta.7"

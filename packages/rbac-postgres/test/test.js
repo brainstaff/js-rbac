@@ -1,11 +1,40 @@
+const fs = require('fs');
 const { expect } = require('chai');
 
-const { signupAndLoginUser } = require('../helpers/test');
+const RbacPostgresAssignmentAdapter = require('../src/adapters/RbacPostgresAssignmentAdapter');
+const RbacPostgresItemAdapter = require('../src/adapters/RbacPostgresItemAdapter');
+const RbacPostgresItemChildAdapter = require('../src/adapters/RbacPostgresItemChildAdapter');
+const RbacPostgresRuleAdapter = require('../src/adapters/RbacPostgresRuleAdapter');
 
-const RbacPostgresAssignmentAdapter = require('./adapters/RbacPostgresAssignmentAdapter');
-const RbacPostgresItemAdapter = require('./adapters/RbacPostgresItemAdapter');
-const RbacPostgresItemChildAdapter = require('./adapters/RbacPostgresItemChildAdapter');
-const RbacPostgresRuleAdapter = require('./adapters/RbacPostgresRuleAdapter');
+const RbacPostgresAdapter = require('../src/RbacPostgresAdapter');
+
+// Initializing connection to test DB
+
+let knex = require('knex')({
+  client: 'pg',
+  connection: {
+    host: '127.0.0.1',
+    user: 'postgres',
+    password: '',
+    database: 'postgres'
+  }
+});
+
+before(async () => {
+  await knex.raw(`DROP DATABASE IF EXISTS rbac_postgres_test`);
+  await knex.raw(`CREATE DATABASE rbac_postgres_test`);
+  knex = require('knex')({
+    client: 'pg',
+    connection: {
+      host: '127.0.0.1',
+      user: 'postgres',
+      password: '',
+      database: 'rbac_postgres_test'
+    }
+  });
+  await knex.raw(fs.readFileSync('./data/tables.sql', 'UTF-8'));
+  new RbacPostgresAdapter({ knex });
+});
 
 describe('RbacPostgresItemAdapter', () => {
   const rbacItems = [
@@ -69,14 +98,10 @@ describe('RbacPostgresAssignmentAdapter', () => {
   const timeout = 2000;
 
   it('should store many assignments', async () => {
-    const { user: user1 } = await signupAndLoginUser();
-    const { user: user2 } = await signupAndLoginUser();
-    const { user: user3 } = await signupAndLoginUser();
-
-    rbacAssignments.push({ userId: user1.id, role: 'admin' });
-    rbacAssignments.push({ userId: user2.id, role: 'manager' });
+    rbacAssignments.push({ userId: 'user1', role: 'admin' });
+    rbacAssignments.push({ userId: 'user2', role: 'manager' });
     Object.assign(rbacAssignmet, {
-      userId: user3.attributes.id,
+      userId: 'user3',
       role: 'manager'
     });
 

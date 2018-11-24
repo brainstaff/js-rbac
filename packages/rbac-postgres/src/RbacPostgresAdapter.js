@@ -1,13 +1,19 @@
-const { Model } = require('objection');
-
 const RbacPostgresAssignmentAdapter = require('./adapters/RbacPostgresAssignmentAdapter');
 const RbacPostgresItemAdapter = require('./adapters/RbacPostgresItemAdapter');
 const RbacPostgresItemChildAdapter = require('./adapters/RbacPostgresItemChildAdapter');
 const RbacPostgresRuleAdapter = require('./adapters/RbacPostgresRuleAdapter');
 
+const RbacAssignment = require('./models/RbacAssignment');
+const RbacItem = require('./models/RbacItem');
+const RbacItemChild = require('./models/RbacItemChild');
+const RbacRule = require('./models/RbacRule');
+
 class RbacPostgresAdapter {
   constructor({ knex }) {
-    Model.knex(knex);
+    RbacAssignment.knex(knex);
+    RbacItem.knex(knex);
+    RbacItemChild.knex(knex);
+    RbacRule.knex(knex);
     this.assignmentAdapter = new RbacPostgresAssignmentAdapter();
     this.itemAdapter = new RbacPostgresItemAdapter();
     this.itemChildAdapter = new RbacPostgresItemChildAdapter();
