@@ -1,12 +1,12 @@
 const fs = require('fs');
 const { expect } = require('chai');
 
-const RbacPostgresAssignmentAdapter = require('../src/adapters/RbacPostgresAssignmentAdapter');
-const RbacPostgresItemAdapter = require('../src/adapters/RbacPostgresItemAdapter');
-const RbacPostgresItemChildAdapter = require('../src/adapters/RbacPostgresItemChildAdapter');
-const RbacPostgresRuleAdapter = require('../src/adapters/RbacPostgresRuleAdapter');
+const { RbacPostgresAssignmentAdapter } = require('../dist');
+const { RbacPostgresItemAdapter } = require('../dist');
+const { RbacPostgresItemChildAdapter } = require('../dist');
+const { RbacPostgresRuleAdapter } = require('../dist');
 
-const RbacPostgresAdapter = require('../src/RbacPostgresAdapter');
+const { RbacPostgresAdapter } = require('../dist');
 
 // Initializing connection to test DB
 

@@ -1,4 +1,4 @@
-const { Model } = require('objection');
+import { Model } from 'objection';
 
 class RbacItemChild extends Model {
   static get tableName() {
@@ -10,4 +10,4 @@ class RbacItemChild extends Model {
   }
 }
 
-module.exports = RbacItemChild;
+export default RbacItemChild;

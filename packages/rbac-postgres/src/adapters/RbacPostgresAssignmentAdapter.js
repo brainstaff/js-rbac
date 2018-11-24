@@ -1,4 +1,4 @@
-const RbacAssignment = require('../models/RbacAssignment');
+import RbacAssignment from '../models/RbacAssignment';
 
 class RbacPostgresAssignmentAdapter {
   async store(rbacAssignments) {
@@ -48,4 +48,4 @@ class RbacPostgresAssignmentAdapter {
   }
 }
 
-module.exports = RbacPostgresAssignmentAdapter;
+export default RbacPostgresAssignmentAdapter;

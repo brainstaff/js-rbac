@@ -1,4 +1,4 @@
-const RbacItem = require('../models/RbacItem');
+import RbacItem from '../models/RbacItem';
 
 class RbacMongodbItemAdapter {
   async store(rbacItems) {
@@ -33,4 +33,4 @@ class RbacMongodbItemAdapter {
   }
 }
 
-module.exports = RbacMongodbItemAdapter;
+export default RbacMongodbItemAdapter;

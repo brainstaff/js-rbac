@@ -1,4 +1,4 @@
-const RbacItemChild = require('../models/RbacItemChild');
+import RbacItemChild from '../models/RbacItemChild';
 
 class RbacPostgresItemChildAdapter {
   async store(rbacItemChildren) {
@@ -28,4 +28,4 @@ class RbacPostgresItemChildAdapter {
   }
 }
 
-module.exports = RbacPostgresItemChildAdapter;
+export default RbacPostgresItemChildAdapter;

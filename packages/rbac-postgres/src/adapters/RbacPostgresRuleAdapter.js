@@ -1,4 +1,4 @@
-const RbacRule = require('../models/RbacRule');
+import RbacRule from '../models/RbacRule';
 
 class RbacPostgresRuleAdapter {
   async store(rbacRules) {
@@ -22,4 +22,4 @@ class RbacPostgresRuleAdapter {
   }
 }
 
-module.exports = RbacPostgresRuleAdapter;
+export default RbacPostgresRuleAdapter;

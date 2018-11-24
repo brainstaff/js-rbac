@@ -1,12 +1,12 @@
-const RbacPostgresAssignmentAdapter = require('./adapters/RbacPostgresAssignmentAdapter');
-const RbacPostgresItemAdapter = require('./adapters/RbacPostgresItemAdapter');
-const RbacPostgresItemChildAdapter = require('./adapters/RbacPostgresItemChildAdapter');
-const RbacPostgresRuleAdapter = require('./adapters/RbacPostgresRuleAdapter');
+import RbacPostgresAssignmentAdapter from './adapters/RbacPostgresAssignmentAdapter'
+import RbacPostgresItemAdapter from './adapters/RbacPostgresItemAdapter'
+import RbacPostgresItemChildAdapter from './adapters/RbacPostgresItemChildAdapter'
+import RbacPostgresRuleAdapter from './adapters/RbacPostgresRuleAdapter'
 
-const RbacAssignment = require('./models/RbacAssignment');
-const RbacItem = require('./models/RbacItem');
-const RbacItemChild = require('./models/RbacItemChild');
-const RbacRule = require('./models/RbacRule');
+import RbacAssignment from './models/RbacAssignment';
+import RbacItem from './models/RbacItem';
+import RbacItemChild from './models/RbacItemChild';
+import RbacRule from './models/RbacRule';
 
 class RbacPostgresAdapter {
   constructor({ knex }) {
@@ -103,5 +103,5 @@ class RbacPostgresAdapter {
   }
 }
 
-module.exports = RbacPostgresAdapter;
+export default RbacPostgresAdapter;
 
