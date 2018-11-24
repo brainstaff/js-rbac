@@ -11,4 +11,6 @@ script:
   - yarn lerna run clean
   - yarn lerna run build
   - yarn lerna run test
-services: mongodb
+services:
+  - mongodb
+  - postgresql
