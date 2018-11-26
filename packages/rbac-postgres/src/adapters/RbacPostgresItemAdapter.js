@@ -1,6 +1,6 @@
 import RbacItem from '../models/RbacItem';
 
-class RbacMongodbItemAdapter {
+class RbacPostgresItemAdapter {
   async store(rbacItems) {
     await RbacItem.query().delete();
     const items = await RbacItem.query().insert(rbacItems);
@@ -33,4 +33,4 @@ class RbacMongodbItemAdapter {
   }
 }
 
-export default RbacMongodbItemAdapter;
+export default RbacPostgresItemAdapter;

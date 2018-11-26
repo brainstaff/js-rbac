@@ -3,10 +3,10 @@ export default {
   output: {
     file: 'dist/index.js',
     format: 'cjs',
-    name: 'rbac-mongodb'
+    name: 'rbac-postgres'
   },
   external: [
     '@brainstaff/rbac',
-    'mongoose'
+    'objection'
   ]
 };
