@@ -18,12 +18,12 @@ class RbacPostgresAssignmentAdapter {
       throw new Error(`Role ${role} is already assigned to user ${userId}.`);
     }
     assignment = await RbacAssignment.query().insert({ userId: userId, role: role });
-    return assignment.toJSON();
+    return assignment && assignment.toJSON();
   }
 
   async find(userId, role) {
     const assignment = await RbacAssignment.query().findById([userId, role]);
-    return assignment.toJSON();
+    return assignment && assignment.toJSON();
   }
 
   async findByUserId(userId) {

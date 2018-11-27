@@ -18,7 +18,7 @@ class RbacPostgresRuleAdapter {
       throw new Error(`Rule ${name} already exists.`);
     }
     rule = await RbacRule.query().insert({ name });
-    return rule.toJSON();
+    return rule && rule.toJSON();
   }
 }
 
