@@ -1,6 +1,6 @@
 {
     "name": "@brainstaff/rbac-postgres",
-    "version": "1.0.0-beta.8",
+    "version": "1.0.0-beta.9",
     "description": "RBAC postgres adapter.",
     "main": "dist/index.js",
     "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
@@ -18,18 +18,18 @@
         "test": "mocha --exit"
     },
     "dependencies": {
-        "@brainstaff/rbac": "^1.0.0-beta.8"
+        "@brainstaff/rbac": "^1.0.0-beta.9"
     },
     "devDependencies": {
         "chai": "^4.1.2",
-        "knex": "^0.15.2",
+        "knex": "^0.16.3",
         "mocha": "^5.2.0",
         "objection": "^1.4.0",
         "pg": "^7.6.1",
         "rollup": "^0.62.0"
     },
     "peerDependencies": {
-        "knex": "^0.15.2",
+        "knex": "^0.16.3",
         "objection": "^1.4.0",
         "pg": "^7.6.1"
     }
