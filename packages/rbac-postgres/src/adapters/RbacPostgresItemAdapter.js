@@ -19,12 +19,12 @@ class RbacPostgresItemAdapter {
     }
 
     item = await RbacItem.query().insert({ name, type, rule });
-    return item.toJSON();
+    return item && item.toJSON();
   }
 
   async find(name) {
     const item = await RbacItem.query().findById(name);
-    return item.toJSON();
+    return item && item.toJSON();
   }
 
   async findByType(type) {

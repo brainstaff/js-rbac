@@ -19,7 +19,7 @@ class RbacPostgresItemChildAdapter {
     }
 
     itemChild = await RbacItemChild.query().insert({ parent, child });
-    return itemChild.toJSON();
+    return itemChild && itemChild.toJSON();
   }
 
   async findByParent(parent) {
