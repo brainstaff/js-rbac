@@ -1,16 +1,16 @@
-import { RbacAssignment, RbacItem, RbacRuleFactory, RbacRulePayload, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacItem, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
 import { RbacAdapter } from "./rbac-adapter";
 
-export class RbacManager {
+export class RbacManager<RbacRulePayload> {
   private rbacCacheAdapter: RbacAdapter;
   private rbacPersistentAdapter: RbacAdapter;
-  private rbacRuleFactory: RbacRuleFactory;
+  private rbacRuleFactory: RbacRuleFactory<RbacRulePayload>;
   private isCacheLoaded: boolean;
 
   constructor({ rbacCacheAdapter, rbacPersistentAdapter, rbacRuleFactory }: {
     rbacCacheAdapter: RbacAdapter,
     rbacPersistentAdapter: RbacAdapter,
-    rbacRuleFactory: RbacRuleFactory,
+    rbacRuleFactory: RbacRuleFactory<RbacRulePayload>,
   }) {
     this.rbacCacheAdapter = rbacCacheAdapter;
     this.rbacPersistentAdapter = rbacPersistentAdapter;
