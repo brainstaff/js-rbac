@@ -14,8 +14,9 @@ export default class RbacHttpRuleAdapter implements RbacRuleAdapter {
   }
 
   @rethrow
-  async store(values: RbacRule[]) {
-    await this.client.post(`/rbac/rules`, { rbacRules: values });
+  async store(raw: RbacRule[]) {
+    const all = raw.map(x => new RbacRule(x));
+    await this.client.post(`/rbac/rules`, { rbacRules: all });
   }
 
   @rethrow
@@ -25,8 +26,9 @@ export default class RbacHttpRuleAdapter implements RbacRuleAdapter {
   }
 
   @rethrow
-  async create(name: RbacRule['name']) {
-    await this.client.post(`/rbac/rules`, { name });
+  async create(raw: RbacRule) {
+    const one = new RbacRule(raw);
+    await this.client.post(`/rbac/rules`, one);
   }
 
   @rethrow

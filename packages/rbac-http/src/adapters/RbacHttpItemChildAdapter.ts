@@ -14,8 +14,9 @@ export default class RbacHttpItemChildAdapter implements RbacItemChildAdapter {
   }
 
   @rethrow
-  async store(values: RbacItemChild[]) {
-    await this.client.post(`/rbac/item-children`, { rbacItemChildren: values });
+  async store(raw: RbacItemChild[]) {
+    const all = raw.map(x => new RbacItemChild(x));
+    await this.client.post(`/rbac/item-children`, { rbacItemChildren: all });
   }
 
   @rethrow
@@ -25,8 +26,9 @@ export default class RbacHttpItemChildAdapter implements RbacItemChildAdapter {
   }
 
   @rethrow
-  async create(parent: RbacItem['name'], child: RbacItem['name']) {
-    await this.client.post(`/rbac/item-children`, { parent, child });
+  async create(raw: RbacItemChild) {
+    const one = new RbacItemChild(raw);
+    await this.client.post(`/rbac/item-children`, one);
   }
 
   @rethrow

@@ -1,4 +1,4 @@
-import { RbacItem, RbacRuleFactory, RbacRulePayload, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacItem, RbacRuleFactory, RbacRulePayload, RbacUserId } from "./rbac-abstractions";
 import { RbacAdapter } from "./rbac-adapter";
 
 export class RbacManager {
@@ -72,17 +72,17 @@ export class RbacManager {
 
   async assign(userId: RbacUserId, role: RbacItem['name']) {
     const item = await this.currentAdapter.findItem(role);
-    if (!item || item.type !== 'role') {
+    if (item == null || item.type !== 'role') {
       throw new Error(`No such role ${role}.`);
     }
-    const assignment = await this.currentAdapter.findAssignment(userId, role);
-    if (assignment) {
+    if (await this.currentAdapter.findAssignment(userId, role) != null) {
       return true;
     }
+    const assignment = new RbacAssignment({ userId, role });
     if (this.isCacheLoaded) {
-      await this.rbacCacheAdapter.createAssignment(userId, role);
+      await this.rbacCacheAdapter.createAssignment(assignment);
     }
-    return await this.rbacPersistentAdapter.createAssignment(userId, role);
+    return await this.rbacPersistentAdapter.createAssignment(assignment);
   }
 
   async revoke(userId: RbacUserId, role: RbacItem['name']) {

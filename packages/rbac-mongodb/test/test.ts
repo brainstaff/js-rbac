@@ -75,7 +75,7 @@ describe('RbacMongodbAssignmentAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.igor.userId, $.igor.role);
+    await adapter.create($.igor);
     const entry = await adapter.find($.igor.userId, $.igor.role);
     expect(entry).to.be.an('object').that.include($.igor);
   });
@@ -122,14 +122,14 @@ describe('RbacMongodbItemAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.regionManager.name, $.regionManager.type);
+    await adapter.create($.regionManager);
     const entry = await adapter.find($.regionManager.name);
     expect(entry).to.be.an('object').that.include($.regionManager);
   });
 
   it('should not create existing one', async () => {
     try {
-      await adapter.create($.regionManager.name, $.regionManager.type, $.regionManager.rule);
+      await adapter.create($.regionManager);
       expect.fail('Should throw error.');
     } catch (err) {
       if (err instanceof Error) {
@@ -174,7 +174,7 @@ describe('RbacMongodbItemChildAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.manager_regionManager.parent, $.manager_regionManager.child);
+    await adapter.create($.manager_regionManager);
     const entry = await adapter.find($.manager_regionManager.parent, $.manager_regionManager.child);
     expect(entry).to.be.an('object').that.include($.manager_regionManager);
   });
@@ -204,7 +204,7 @@ describe('RbacMongodbRuleAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.IsGroupLeader.name);
+    await adapter.create($.IsGroupLeader);
     const entry = await adapter.find($.IsGroupLeader.name);
     expect(entry).to.be.an('object').that.include($.IsGroupLeader);
   });

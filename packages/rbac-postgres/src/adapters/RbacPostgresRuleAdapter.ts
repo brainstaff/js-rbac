@@ -11,9 +11,10 @@ export default class RbacPostgresRuleAdapter implements RbacRuleAdapter {
     RbacRuleModel.knex(deps.client);
   }
 
-  async store(values: RbacRule[]) {
+  async store(raw: RbacRule[]) {
+    const all = raw.map(x => new RbacRule(x)); 
     await RbacRuleModel.query().delete();
-    await RbacRuleModel.query().insert(values);
+    await RbacRuleModel.query().insert(all);
   }
 
   async load() {
@@ -21,11 +22,12 @@ export default class RbacPostgresRuleAdapter implements RbacRuleAdapter {
     return entries.map(x => new RbacRule(x));
   }
 
-  async create(name: RbacRule['name']) {
-    if (await RbacRuleModel.query().findById(name)) {
-      throw new Error(`Rule ${name} already exists.`);
+  async create(raw: RbacRule) {
+    const one = new RbacRule(raw);
+    if (await RbacRuleModel.query().findById(one.name)) {
+      throw new Error(`Rule ${one.name} already exists.`);
     }
-    await RbacRuleModel.query().insert({ name });
+    await RbacRuleModel.query().insert(one);
   }
 
   async find(name: RbacRule['name']) {

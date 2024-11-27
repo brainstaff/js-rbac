@@ -39,7 +39,7 @@ describe('RbacHttpAssignmentAdapter', function() {
       if (rbacAssignments) {
         db.store(rbacAssignments).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(userId, role).then(() => res.end()).catch(errHandler);
+        db.create({ userId, role }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/assignments', (_req, res) => {
@@ -79,7 +79,7 @@ describe('RbacHttpAssignmentAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.igor.userId, $.igor.role);
+    await adapter.create($.igor);
     const entry = await adapter.find($.igor.userId, $.igor.role);
     assert.deepEqual(entry, $.igor);
   });
@@ -133,7 +133,7 @@ describe('RbacHttpItemAdapter', function() {
       if (rbacItems) {
         db.store(rbacItems).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(name, type, rule).then(() => res.end()).catch(errHandler);
+        db.create({ name, type, rule }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/items', (_req, res) => {
@@ -170,14 +170,14 @@ describe('RbacHttpItemAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.regionManager.name, $.regionManager.type, $.regionManager.rule);
+    await adapter.create($.regionManager);
     const entry = await adapter.find($.regionManager.name);
     assert.deepEqual(entry, $.regionManager);
   });
 
   it('should not create existing one', async () => {
     try {
-      await adapter.create($.regionManager.name, $.regionManager.type, $.regionManager.rule);
+      await adapter.create($.regionManager);
       assert.fail('Should throw error.');
     } catch (err) {
       if (err instanceof Error) {
@@ -210,7 +210,7 @@ describe('RbacHttpItemChildAdapter', function() {
       if (rbacItemChildren) {
         db.store(rbacItemChildren).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(parent, child).then(() => res.end()).catch(errHandler);
+        db.create({ parent, child }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/item-children', (_req, res) => {
@@ -253,7 +253,7 @@ describe('RbacHttpItemChildAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.manager_regionManager.parent, $.manager_regionManager.child);
+    await adapter.create($.manager_regionManager);
     const entry = await adapter.find($.manager_regionManager.parent, $.manager_regionManager.child);
     assert.deepEqual(entry, $.manager_regionManager);
   });
@@ -280,7 +280,7 @@ describe('RbacHttpRuleAdapter', function() {
       if (rbacRules) {
         db.store(rbacRules).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(name).then(() => res.end()).catch(errHandler);
+        db.create({ name }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/rules', (_req, res) => {
@@ -311,7 +311,7 @@ describe('RbacHttpRuleAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.IsGroupLeader.name);
+    await adapter.create($.IsGroupLeader);
     const entry = await adapter.find($.IsGroupLeader.name);
     assert.deepEqual(entry, $.IsGroupLeader);
   });

@@ -1,4 +1,4 @@
-import {AxiosInstance} from 'axios';
+import { AxiosInstance } from 'axios';
 
 import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@brainstaff/rbac';
 
@@ -14,8 +14,9 @@ export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter 
   }
 
   @rethrow
-  async store(values: RbacAssignment[]) {
-    await this.client.post(`/rbac/assignments`, { rbacAssignments: values });
+  async store(raw: RbacAssignment[]) {
+    const all = raw.map(x => new RbacAssignment(x));
+    await this.client.post(`/rbac/assignments`, { rbacAssignments: all });
   }
 
   @rethrow
@@ -25,8 +26,9 @@ export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter 
   }
 
   @rethrow
-  async create(userId: RbacUserId, role: RbacItem['name']) {
-    await this.client.post(`/rbac/assignments`, { userId, role });
+  async create(raw: RbacAssignment) {
+    const one = new RbacAssignment(raw);
+    await this.client.post(`/rbac/assignments`, one);
   }
 
   @rethrow

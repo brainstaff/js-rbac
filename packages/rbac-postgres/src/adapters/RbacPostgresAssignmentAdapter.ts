@@ -11,9 +11,10 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
     RbacAssignmentModel.knex(deps.client);
   }
 
-  async store(values: RbacAssignment[]) {
+  async store(raw: RbacAssignment[]) {
+    const all = raw.map(x => new RbacAssignment(x));
     await RbacAssignmentModel.query().delete();
-    await RbacAssignmentModel.query().insert(values);
+    await RbacAssignmentModel.query().insert(all);
   }
 
   async load() {
@@ -21,11 +22,12 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
     return entries.map(x => new RbacAssignment(x));
   }
 
-  async create(userId: RbacUserId, role: RbacItem['name']) {
-    if (await RbacAssignmentModel.query().findById([userId, role])) {
-      throw new Error(`Role ${role} is already assigned to user ${userId}.`);
+  async create(raw: RbacAssignment) {
+    const one = new RbacAssignment(raw);
+    if (await RbacAssignmentModel.query().findById([one.userId, one.role])) {
+      throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
     }
-    await RbacAssignmentModel.query().insert({ userId, role });
+    await RbacAssignmentModel.query().insert(one);
   }
 
   async find(userId: RbacUserId, role: RbacItem['name']) {

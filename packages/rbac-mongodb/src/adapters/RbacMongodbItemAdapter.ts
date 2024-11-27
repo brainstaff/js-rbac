@@ -1,10 +1,12 @@
-import { RbacItem, RbacItemAdapter, RbacRule } from '@brainstaff/rbac';
+import { RbacItem, RbacItemAdapter } from '@brainstaff/rbac';
+
 import RbacItemModel from '../models/RbacItem';
 
 export default class RbacMongodbItemAdapter implements RbacItemAdapter {
-  async store(values: RbacItem[]) {
+  async store(raw: RbacItem[]) {
+    const all = raw.map(x => new RbacItem(x));
     await RbacItemModel.deleteMany({});
-    await RbacItemModel.create(values);
+    await RbacItemModel.create(all);
   }
 
   async load() {
@@ -12,11 +14,12 @@ export default class RbacMongodbItemAdapter implements RbacItemAdapter {
     return entries.map(x => new RbacItem(x));
   }
 
-  async create(name: RbacItem['name'], type: RbacItem['type'], rule?: RbacRule['name']) {
-    if (await RbacItemModel.exists({ name })) {
-      throw new Error(`Item ${name} already exists.`);
+  async create(raw: RbacItem) {
+    const one = new RbacItem(raw);
+    if (await RbacItemModel.exists({ name: one.name })) {
+      throw new Error(`Item ${one.name} already exists.`);
     }
-    await RbacItemModel.create({ name, type, rule });
+    await RbacItemModel.create(one);
   }
 
   async find(name: RbacItem['name']) {
