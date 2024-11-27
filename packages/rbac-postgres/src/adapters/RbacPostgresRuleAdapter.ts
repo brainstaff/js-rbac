@@ -24,7 +24,7 @@ export default class RbacPostgresRuleAdapter implements RbacRuleAdapter {
 
   async create(raw: RbacRule) {
     const one = new RbacRule(raw);
-    if (await RbacRuleModel.query().findById(one.name)) {
+    if (await this.find(one.name)) {
       throw new Error(`Rule ${one.name} already exists.`);
     }
     await RbacRuleModel.query().insert(one);

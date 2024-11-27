@@ -24,7 +24,7 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
 
   async create(raw: RbacAssignment) {
     const one = new RbacAssignment(raw);
-    if (await RbacAssignmentModel.query().findById([one.userId, one.role])) {
+    if (await this.find(one.userId, one.role)) {
       throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
     }
     await RbacAssignmentModel.query().insert(one);

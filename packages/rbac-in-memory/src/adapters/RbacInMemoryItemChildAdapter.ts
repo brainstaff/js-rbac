@@ -14,7 +14,7 @@ export default class RbacInMemoryItemChildAdapter implements RbacItemChildAdapte
 
   async create(raw: RbacItemChild) {
     const one = new RbacItemChild(raw);
-    if (this.entries.find(x => x.parent === one.parent && x.child === one.child)) {
+    if (await this.find(one.parent, one.child)) {
       throw new Error(`Association of ${one.parent} and ${one.child} already exists.`);
     }
     this.entries.push(one);

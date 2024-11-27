@@ -14,7 +14,7 @@ export default class RbacInMemoryItemAdapter implements RbacItemAdapter {
 
   async create(raw: RbacItem) {
     const one = new RbacItem(raw);
-    if (this.entries.find(x => x.name === one.name)) {
+    if (await this.find(one.name)) {
       throw new Error(`Item ${one.name} already exists.`);
     }
     this.entries.push(one);

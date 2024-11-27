@@ -14,7 +14,7 @@ export default class RbacInMemoryRuleAdapter implements RbacRuleAdapter {
 
   async create(raw: RbacRule) {
     const one = new RbacRule(raw);
-    if (this.entries.find(x => x.name === one.name)) {
+    if (await this.find(one.name)) {
       throw new Error(`Rule ${one.name} already exists.`);
     }
     this.entries.push(one);
