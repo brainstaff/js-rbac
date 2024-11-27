@@ -2,117 +2,112 @@ import assert from 'assert';
 
 import { RbacInMemoryAssignmentAdapter, RbacInMemoryItemAdapter, RbacInMemoryItemChildAdapter, RbacInMemoryRuleAdapter } from '@brainstaff/rbac-in-memory'
 
-import { RbacAdapter, RbacAssignment, RbacItem, RbacItemChild, RbacManager, RbacRule, RbacRuleFactory } from '../src/index.js';
+import { RbacAdapter, RbacManager } from '../src/index.js';
 
-const createRbacManager = async () => {
-  const rbacAssignments: RbacAssignment[] = [
-    { userId: 'alexey', role: 'admin' },
-    { userId: 'ilya', role: 'manager' }
-  ];
+const $ = {
+  a: "a",
+  m: "m",
+  u: "u",
+  rule: {
+    isOwnProfile: "isOwnProfile",
+  },
+  item: {
+    admin: "admin",
+    manager: "manager",
+    user: "user",
+    trololo: "trololo",
+    updateOwnProfile: "updateOwnProfile",
+    updateProfile: "updateProfile",
+  },
+}
 
-  const rbacItems: RbacItem[] = [
-    { name: 'admin', type: 'role' },
-    { name: 'manager', type: 'role' },
-    { name: 'user', type: 'role' },
-    { name: 'updateProfile', type: 'permission' },
-    { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' },
-  ];
-
-  const rbacItemChildren: RbacItemChild[] = [
-    { parent: 'admin', child: 'manager' },
-    { parent: 'manager', child: 'user' },
-    { parent: 'user', child: 'updateOwnProfile' },
-    { parent: 'updateOwnProfile', child: 'updateProfile' },
-    { parent: 'admin', child: 'updateProfile' }
-  ];
-
-  const rbacRules: RbacRule[] = [
-    { name: 'IsOwnProfile' }
-  ];
-
-  const rbacCacheAdapter = new RbacAdapter({
-    assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
-    itemAdapter: new RbacInMemoryItemAdapter(),
-    itemChildAdapter: new RbacInMemoryItemChildAdapter(),
-    ruleAdapter: new RbacInMemoryRuleAdapter(),
-  });
-  const rbacPersistentAdapter = new RbacAdapter({
-    assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
-    itemAdapter: new RbacInMemoryItemAdapter(),
-    itemChildAdapter: new RbacInMemoryItemChildAdapter(),
-    ruleAdapter: new RbacInMemoryRuleAdapter(),
-  });
-  await rbacPersistentAdapter.store({
-    rbacAssignments,
-    rbacItems,
-    rbacItemChildren,
-    rbacRules
-  });
-
-  const rbacRuleFactory: RbacRuleFactory<{ 
-    user?: { 
-      userId?: number;
-    },
-    profile?: {
-      userId?: number;
-    }
-  }> = {
-    createRule(name) {
-      switch(name) {
-        case 'IsOwnProfile':
-          return {
-            execute: async ({ user, profile } = {}) => {
-              return user?.userId != null && profile?.userId != null && user.userId === profile.userId;
-            }
-          };
-        default:
-          throw new Error(`Unexpected rule name: ${name}`);
+const createManager = async () => {
+  type RbacRulePayload = {
+    me?: string,
+    owner?: string,
+  };
+  const manager = new RbacManager<RbacRulePayload>({
+    cacheAdapter: new RbacAdapter({
+      assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
+      itemAdapter: new RbacInMemoryItemAdapter(),
+      itemChildAdapter: new RbacInMemoryItemChildAdapter(),
+      ruleAdapter: new RbacInMemoryRuleAdapter(),
+    }),
+    persistentAdapter: new RbacAdapter({
+      assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
+      itemAdapter: new RbacInMemoryItemAdapter(),
+      itemChildAdapter: new RbacInMemoryItemChildAdapter(),
+      ruleAdapter: new RbacInMemoryRuleAdapter(),
+    }),
+    ruleFactory: {
+      createRule(name) {
+        switch(name) {
+          case $.rule.isOwnProfile:
+            return {
+              execute: async ({ me, owner } = {}) => {
+                return me != null && owner != null && me === owner;
+              }
+            };
+          default:
+            throw new Error(`Unexpected rule: ${name}`);
+        }
       }
     }
-  };
-
-  const rbacManager = new RbacManager({
-    rbacCacheAdapter,
-    rbacPersistentAdapter,
-    rbacRuleFactory
   });
-
-  await rbacManager.loadCache();
-
-  return rbacManager;
+  await manager.currentAdapter.store({
+    assignments: [
+      { userId: $.a, role: $.item.admin },
+      { userId: $.m, role: $.item.manager },
+    ],
+    items: [
+      { name: $.item.admin, type: 'role', },
+      { name: $.item.manager, type: 'role' },
+      { name: $.item.user, type: 'role' },
+      { name: $.item.updateProfile, type: 'permission' },
+      { name: $.item.updateOwnProfile, type: 'permission', rule: $.rule.isOwnProfile },
+    ],
+    itemChildren: [
+      { parent: $.item.admin, child: $.item.manager },
+      { parent: $.item.manager, child: $.item.user },
+      { parent: $.item.user, child: $.item.updateOwnProfile },
+      { parent: $.item.updateOwnProfile, child: $.item.updateProfile },
+      { parent: $.item.admin, child: $.item.updateProfile },
+    ],
+    rules: [
+      { name: $.rule.isOwnProfile },
+    ]
+  });
+  await manager.loadCache();
+  return manager;
 };
 
 describe('RbacManager', function() {
-  it('should assign and revoke permissions to user', async () => {
-    const rbacManager = await createRbacManager();
-    assert.equal(await rbacManager.checkAccess("igor", "manager"), false);
-    await rbacManager.assign("igor", "manager");
-    assert.equal(await rbacManager.checkAccess("igor", "manager"), true);
-    await rbacManager.revoke("igor", "manager");
-    assert.equal(await rbacManager.checkAccess("igor", "manager"), false);
-    assert.rejects(rbacManager.assign("igor", "manager2"), { name: 'Error', message: "No such role manager2."});
+  it('admin', async () => {
+    const m = await createManager();
+    assert.equal(await m.check($.a, $.item.admin), true, `should have role ${$.item.admin}`);
+    assert.equal(await m.check($.a, $.item.manager), true, `should have role ${$.item.manager}`);
+    assert.equal(await m.check($.a, $.item.user), true, `should have role ${$.item.user}`);
+    assert.equal(await m.check($.a, $.item.updateProfile, { me: $.a, owner: $.a }), true, `should be able to ${$.item.updateProfile} of ${$.a}`);
+    assert.equal(await m.check($.a, $.item.updateProfile, { me: $.a, owner: $.m }), true, `should be able to ${$.item.updateProfile} of ${$.m}`);
   });
 
-  it('should allow everything for admin', async () => {
-    const rbacManager = await createRbacManager();
-    // Checking for admin
-    assert.equal(await rbacManager.checkAccess('alexey', 'admin'), true);
-    assert.equal(await rbacManager.checkAccess('alexey', 'manager'), true);
-    assert.equal(await rbacManager.checkAccess('alexey', 'user'), true);
-    assert.equal(await rbacManager.checkAccess('alexey', 'updateProfile', { user: { userId: 1 }, profile: { userId: 1 } }), true);
-    assert.equal(await rbacManager.checkAccess('alexey', 'updateProfile', { user: { userId: 1 }, profile: { userId: 2 } }), true);
+  it('manager', async () => {
+    const m = await createManager();
+    assert.equal(await m.check($.m, $.item.admin), false, `should not have role ${$.item.admin}`);
+    assert.equal(await m.check($.m, $.item.manager), true, `should have role ${$.item.manager}`);
+    assert.equal(await m.check($.m, $.item.user), true, `should have role ${$.item.user}`);
+    assert.equal(await m.check($.m, $.item.trololo), false, `should not have role ${$.item.trololo}`);
+    assert.equal(await m.check($.m, $.item.updateProfile, { me: $.m , owner: $.m }), true, `should be able to ${$.item.updateProfile} of ${$.m}`);
+    assert.equal(await m.check($.m, $.item.updateProfile, { me: $.m , owner: $.a }), false, `should not be able to ${$.item.updateProfile} of ${$.a}`);
   });
 
-  it('should allow certain rule for manager', async () => {
-    const rbacManager = await createRbacManager();
-    // Checking for manager
-    assert.equal(await rbacManager.checkAccess('ilya', 'admin'), false);
-    assert.equal(await rbacManager.checkAccess('ilya', 'manager'), true);
-    assert.equal(await rbacManager.checkAccess('ilya', 'user'), true);
-    assert.equal(await rbacManager.checkAccess('ilya', 'trololo'), false);
-    assert.equal(await rbacManager.checkAccess('ilya', 'updateOwnProfile', { user: { userId: 1 }, profile: { userId: 1 } }), true);
-    assert.equal(await rbacManager.checkAccess('ilya', 'updateOwnProfile', { user: { userId: 1 }, profile: { userId: 2 } }), false);
-    assert.equal(await rbacManager.checkAccess('ilya', 'updateProfile', { user: { userId: 1 }, profile: { userId: 1 } }), true);
-    assert.equal(await rbacManager.checkAccess('ilya', 'updateProfile', { user: { userId: 1 }, profile: { userId: 2 } }), false);
+  it('user', async () => {
+    const m = await createManager();
+    assert.equal(await m.check($.u, $.item.manager), false, `should not have role ${$.item.manager}`);
+    await m.assign($.u, $.item.manager);
+    assert.equal(await m.check($.u, $.item.manager), true, `should have role ${$.item.manager}`);
+    await m.revoke($.u, $.item.manager);
+    assert.equal(await m.check($.u, $.item.manager), false, `should have role ${$.item.manager} revoked`);
+    assert.rejects(m.assign($.u, $.item.trololo), { name: 'Error', message: `No such role ${$.item.trololo}.`});
   });
 });

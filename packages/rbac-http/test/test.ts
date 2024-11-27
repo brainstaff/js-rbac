@@ -11,6 +11,7 @@ import { RbacHttpAssignmentAdapter } from '../src/index.js';
 import { RbacHttpItemAdapter } from '../src/index.js';
 import { RbacHttpItemChildAdapter } from '../src/index.js';
 import { RbacHttpRuleAdapter } from '../src/index.js';
+import { RbacHierarchy } from '@brainstaff/rbac/src/rbac-abstractions.js';
 
 const client = axios.create({
   baseURL: 'http://localhost:4001',
@@ -319,51 +320,48 @@ describe('RbacHttpRuleAdapter', function() {
 
 describe('RbacHttpAdapter', function() {
   this.timeout(timeout);
-  
-  const rbacAssignments: RbacAssignment[] = [
-    { userId: 'alexey', role: 'admin' },
-    { userId: 'ilya', role: 'manager' }
-  ];
-  const rbacItems = [
-    new RbacItem({ name: 'admin', type: 'role' }),
-    new RbacItem({ name: 'manager', type: 'role' }),
-    new RbacItem({ name: 'user', type: 'role' }),
-    new RbacItem({ name: 'updateProfile', type: 'permission' }),
-    new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
-  ];
-  const rbacItemChildren = [
-    { parent: 'admin', child: 'manager' },
-    { parent: 'manager', child: 'user' },
-    { parent: 'user', child: 'updateOwnProfile' },
-    { parent: 'updateOwnProfile', child: 'updateProfile' },
-    { parent: 'admin', child: 'updateProfile' }
-  ];
-  const rbacRules = [
-    { name: 'IsOwnProfile' }
-  ];
-  const rbacAdapter = new RbacAdapter({
-    assignmentAdapter: new RbacHttpAssignmentAdapter({ client }),
-    itemAdapter: new RbacHttpItemAdapter({ client }),
-    itemChildAdapter: new RbacHttpItemChildAdapter({ client }),
-    ruleAdapter: new RbacHttpRuleAdapter({ client }),
-   });
+
+  const $: RbacHierarchy = {
+    assignments: [
+      new RbacAssignment({ userId: 'alexey', role: 'admin' }),
+      new RbacAssignment({ userId: 'ilya', role: 'manager' }),
+    ],
+    items: [
+      new RbacItem({ name: 'admin', type: 'role' }),
+      new RbacItem({ name: 'manager', type: 'role' }),
+      new RbacItem({ name: 'user', type: 'role' }),
+      new RbacItem({ name: 'updateProfile', type: 'permission' }),
+      new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
+    ],
+    itemChildren: [
+      new RbacItemChild({ parent: 'admin', child: 'manager' }),
+      new RbacItemChild({ parent: 'manager', child: 'user' }),
+      new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
+      new RbacItemChild({ parent: 'updateOwnProfile', child: 'updateProfile' }),
+      new RbacItemChild({ parent: 'admin', child: 'updateProfile' }),
+    ],
+    rules: [
+      new RbacRule({ name: 'IsOwnProfile' }),
+    ],
+  };
+
   let server: http.Server;
 
   before(async () => {
     const app = express();
     server = app.listen(4001);
     app.use(express.json());
-    app.get('/rbac/assignments', (request, response) => {
-      response.json(rbacAssignments);
+    app.get('/rbac/assignments', (_req, res) => {
+      res.json($.assignments);
     });
-    app.get('/rbac/items', (request, response) => {
-      response.json(rbacItems);
+    app.get('/rbac/items', (_req, res) => {
+      res.json($.items);
     });
-    app.get('/rbac/item-children', (request, response) => {
-      response.json(rbacItemChildren);
+    app.get('/rbac/item-children', (_req, res) => {
+      res.json($.itemChildren);
     });
-    app.get('/rbac/rules', (request, response) => {
-      response.json(rbacRules);
+    app.get('/rbac/rules', (_req, res) => {
+      res.json($.rules);
     });
   });
 
@@ -371,8 +369,15 @@ describe('RbacHttpAdapter', function() {
     server.close(done);
   });
 
+  const adapter = new RbacAdapter({
+    assignmentAdapter: new RbacHttpAssignmentAdapter({ client }),
+    itemAdapter: new RbacHttpItemAdapter({ client }),
+    itemChildAdapter: new RbacHttpItemChildAdapter({ client }),
+    ruleAdapter: new RbacHttpRuleAdapter({ client }),
+  });
+
   it("should load data via load() function", async () => {
-    const result = await rbacAdapter.load();
-    assert.deepEqual(result, { rbacAssignments, rbacItems, rbacItemChildren, rbacRules });
+    const hierarchy = await adapter.load();
+    assert.deepEqual(hierarchy, $);
   });
 });
