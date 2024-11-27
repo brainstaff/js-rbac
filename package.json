@@ -11,18 +11,15 @@
     "url": "https://github.com/brainstaff/js-rbac.git"
   },
   "scripts": {
-    "check": "lerna run check",
-    "clean": "lerna run clean",
-    "build": "lerna run build",
-    "test": "lerna run test",
-    "pipe": "yarn check ${0:-} && yarn clean ${0:-} && yarn build ${0:-} && yarn test ${0:-}",
-    "publish-all": "lerna run clean && lerna run build && lerna publish --git-remote origin"
+    "check": "npm run check --ws",
+    "clean": "npm run clean --ws",
+    "build": "npm run build --ws",
+    "test": "npm run test --ws",
+    "pipe": "npm run check && npm run clean && npm run build && npm run test",
+    "version": "npm version $npm_package_version --ws",
+    "publish": "npm publish --ws"
   },
   "workspaces": [
     "packages/*"
-  ],
-  "devDependencies": {
-    "lerna": "^8.1.9"
-  },
-  "packageManager": "yarn@4.5.1"
+  ]
 }

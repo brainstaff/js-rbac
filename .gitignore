@@ -1,5 +1,3 @@
 node_modules
 *.iml
-
-.yarn/install-state.gz
 .env
