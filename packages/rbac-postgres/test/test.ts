@@ -50,7 +50,7 @@ after(() => client.destroy());
 describe('RbacPostgresItemAdapter', function() {
   this.timeout(timeout);
 
-  const $ = {
+  const $: Record<string, RbacItem> = {
     admin: new RbacItem({ name: 'admin', type: 'role' }),
     manager: new RbacItem({ name: 'manager', type: 'role' }),
     user: new RbacItem({ name: 'user', type: 'role' }),
@@ -69,7 +69,7 @@ describe('RbacPostgresItemAdapter', function() {
 
   it('should create one and find it', async () => {
     const adapter: RbacItemAdapter = new RbacPostgresItemAdapter({ client });
-    await adapter.create($.regionManager.name, $.regionManager.type);
+    await adapter.create($.regionManager);
     const entry = await adapter.find($.regionManager.name);
     expect(entry).to.be.an('object').that.include($.regionManager);
   });
@@ -77,7 +77,7 @@ describe('RbacPostgresItemAdapter', function() {
   it('should not create existing one', async () => {
     const adapter: RbacItemAdapter = new RbacPostgresItemAdapter({ client });
     try {
-      await adapter.create($.regionManager.name, $.regionManager.type, $.regionManager.rule);
+      await adapter.create($.regionManager);
       expect.fail('Should throw error.');
     } catch (err) {
       if (err instanceof Error) {
@@ -98,7 +98,7 @@ describe('RbacPostgresItemAdapter', function() {
 describe('RbacPostgresAssignmentAdapter', function() {
   this.timeout(timeout);
 
-  const $ = {
+  const $: Record<string, RbacAssignment> = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
@@ -114,7 +114,7 @@ describe('RbacPostgresAssignmentAdapter', function() {
 
   it('should create one and find it', async () => {
     const adapter: RbacAssignmentAdapter = new RbacPostgresAssignmentAdapter({ client });
-    await adapter.create($.igor.userId, $.igor.role);
+    await adapter.create($.igor);
     const entry = await adapter.find($.igor.userId, $.igor.role);
     expect(entry).to.be.an('object').that.include($.igor);
   });
@@ -145,7 +145,7 @@ describe('RbacPostgresAssignmentAdapter', function() {
 describe('RbacPostgresItemChildAdapter', function() {
   this.timeout(timeout);
 
-  const $ = {
+  const $: Record<string, RbacItemChild> = {
     admin_manager: new RbacItemChild({ parent: 'admin', child: 'manager' }),
     manager_user: new RbacItemChild({ parent: 'manager', child: 'user' }),
     user_updateOwnProfile: new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
@@ -170,7 +170,7 @@ describe('RbacPostgresItemChildAdapter', function() {
 
   it('should create one and find it', async () => {
     const adapter: RbacItemChildAdapter = new RbacPostgresItemChildAdapter({ client });
-    await adapter.create($.manager_regionManager.parent, $.manager_regionManager.child);
+    await adapter.create($.manager_regionManager);
     const entry = await adapter.find($.manager_regionManager.parent, $.manager_regionManager.child);
     expect(entry).to.be.an('object').that.include($.manager_regionManager);
   });
@@ -185,7 +185,7 @@ describe('RbacPostgresItemChildAdapter', function() {
 describe('RbacPostgresRuleAdapter', function() {
   this.timeout(timeout);
 
-  const $ = {
+  const $: Record<string, RbacRule> = {
     IsOwnProfile: new RbacRule({ name: 'IsOwnProfile' }),
     IsOwnDocument: new RbacRule({ name: 'IsOwnDocument' }),
     IsGroupLeader: new RbacRule({ name: 'IsGroupLeader' }),
@@ -201,7 +201,7 @@ describe('RbacPostgresRuleAdapter', function() {
 
   it('should create one and find it', async () => {
     const adapter: RbacRuleAdapter = new RbacPostgresRuleAdapter({ client });
-    await adapter.create($.IsGroupLeader.name);
+    await adapter.create($.IsGroupLeader);
     const entry = await adapter.find($.IsGroupLeader.name);
     expect(entry).to.be.an('object').that.include($.IsGroupLeader);
   });

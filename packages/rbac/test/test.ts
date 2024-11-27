@@ -82,11 +82,11 @@ describe('RbacManager', function() {
   it('should assign and revoke permissions to user', async () => {
     const rbacManager = await createRbacManager();
     assert.equal(await rbacManager.checkAccess("igor", "manager"), false);
-    await rbacManager.assign("igor", "manager");
+    await rbacManager.assign({ userId: "igor", role: "manager" });
     assert.equal(await rbacManager.checkAccess("igor", "manager"), true);
     await rbacManager.revoke("igor", "manager");
     assert.equal(await rbacManager.checkAccess("igor", "manager"), false);
-    assert.rejects(rbacManager.assign("igor", "manager2"), { name: 'Error', message: "No such role manager2."});
+    assert.rejects(rbacManager.assign({ userId: "igor", role: "manager2" }), { name: 'Error', message: "No such role manager2."});
   });
 
   it('should allow everything for admin', async () => {

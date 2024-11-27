@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-import { RbacItem, RbacItemAdapter, RbacRule } from '@brainstaff/rbac';
+import { RbacItem, RbacItemAdapter } from '@brainstaff/rbac';
 
 import { rethrow } from '../utils/rethrow';
 
@@ -14,8 +14,9 @@ export default class RbacHttpItemAdapter implements RbacItemAdapter {
   }
 
   @rethrow
-  async store(values: RbacItem[]) {
-    await this.client.post(`/rbac/items`, { rbacItems: values });
+  async store(raw: RbacItem[]) {
+    const all = raw.map(x => new RbacItem(x));
+    await this.client.post(`/rbac/items`, { rbacItems: all });
   }
 
   @rethrow
@@ -25,8 +26,9 @@ export default class RbacHttpItemAdapter implements RbacItemAdapter {
   }
 
   @rethrow
-  async create(name: RbacItem['name'], type: RbacItem['type'], rule?: RbacRule['name']) {
-    await this.client.post(`/rbac/items`, { name, type, rule });
+  async create(raw: RbacItem) {
+    const one = new RbacItem(raw);
+    await this.client.post(`/rbac/items`, one);
   }
 
   @rethrow

@@ -3,19 +3,21 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from "@br
 export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdapter {
   private entries: RbacAssignment[] = [];
 
-  async store(values: RbacAssignment[]) {
-    this.entries = values.map((x) => new RbacAssignment(x));
+  async store(raw: RbacAssignment[]) {
+    const all = raw.map((x) => new RbacAssignment(x));
+    this.entries = all;
   }
 
   async load() {
     return this.entries;
   }
 
-  async create(userId: RbacUserId, role: RbacItem['name']) {
-    if (this.entries.find(x => x.userId === userId && x.role === role)) {
-      throw new Error(`Role ${role} is already assigned to user ${userId}.`);
+  async create(raw: RbacAssignment) {
+    const one = new RbacAssignment(raw);
+    if (this.entries.find(x => x.userId === one.userId && x.role === one.role)) {
+      throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
     }
-    this.entries.push(new RbacAssignment({ userId, role }));
+    this.entries.push(one);
   }
 
   async find(userId: RbacUserId, role: RbacItem['name']) {

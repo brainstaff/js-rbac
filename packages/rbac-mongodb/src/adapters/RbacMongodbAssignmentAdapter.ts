@@ -3,9 +3,10 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@br
 import RbacAssignmentModel from '../models/RbacAssignment';
 
 export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapter {
-  async store(values: RbacAssignment[]) {
+  async store(raw: RbacAssignment[]) {
+    const all = raw.map(x => new RbacAssignment(x));
     await RbacAssignmentModel.deleteMany({});
-    await RbacAssignmentModel.create(values);
+    await RbacAssignmentModel.create(all);
   }
 
   async load() {
@@ -13,11 +14,12 @@ export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapt
     return entries.map(x => new RbacAssignment(x));
   }
 
-  async create(userId: RbacUserId, role: RbacItem['name']) {
-    if (await RbacAssignmentModel.exists({ userId, role })) {
-      throw new Error(`Role ${role} is already assigned to user ${userId}.`);
+  async create(raw: RbacAssignment) {
+    const one = new RbacAssignment(raw);
+    if (await RbacAssignmentModel.exists({ userId: one.userId, role: one.role })) {
+      throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
     }
-    await RbacAssignmentModel.create(new RbacAssignment({ userId, role }));
+    await RbacAssignmentModel.create(one);
   }
 
   async find(userId: RbacUserId, role: RbacItem['name']) {

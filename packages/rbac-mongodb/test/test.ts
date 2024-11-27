@@ -61,7 +61,7 @@ describe('RbacMongodbAssignmentAdapter', function() {
 
   const adapter: RbacAssignmentAdapter = new RbacMongodbAssignmentAdapter();
 
-  const $ = {
+  const $: Record<string, RbacAssignment> = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
@@ -75,7 +75,7 @@ describe('RbacMongodbAssignmentAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.igor.userId, $.igor.role);
+    await adapter.create($.igor);
     const entry = await adapter.find($.igor.userId, $.igor.role);
     expect(entry).to.be.an('object').that.include($.igor);
   });
@@ -105,7 +105,7 @@ describe('RbacMongodbItemAdapter', function() {
 
   const adapter: RbacItemAdapter = new RbacMongodbItemAdapter();
 
-  const $ = {
+  const $: Record<string, RbacItem> = {
     admin: new RbacItem({ name: 'admin', type: 'role' }),
     manager: new RbacItem({ name: 'manager', type: 'role' }),
     user: new RbacItem({ name: 'user', type: 'role' }),
@@ -122,14 +122,14 @@ describe('RbacMongodbItemAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.regionManager.name, $.regionManager.type);
+    await adapter.create($.regionManager);
     const entry = await adapter.find($.regionManager.name);
     expect(entry).to.be.an('object').that.include($.regionManager);
   });
 
   it('should not create existing one', async () => {
     try {
-      await adapter.create($.regionManager.name, $.regionManager.type, $.regionManager.rule);
+      await adapter.create($.regionManager);
       expect.fail('Should throw error.');
     } catch (err) {
       if (err instanceof Error) {
@@ -151,7 +151,7 @@ describe('RbacMongodbItemChildAdapter', function() {
 
   const adapter: RbacItemChildAdapter = new RbacMongodbItemChildAdapter();
 
-  const $ = {
+  const $: Record<string, RbacItemChild> = {
     admin_manager: new RbacItemChild({ parent: 'admin', child: 'manager' }),
     manager_user: new RbacItemChild({ parent: 'manager', child: 'user' }),
     user_updateOwnProfile: new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
@@ -174,7 +174,7 @@ describe('RbacMongodbItemChildAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.manager_regionManager.parent, $.manager_regionManager.child);
+    await adapter.create($.manager_regionManager);
     const entry = await adapter.find($.manager_regionManager.parent, $.manager_regionManager.child);
     expect(entry).to.be.an('object').that.include($.manager_regionManager);
   });
@@ -190,7 +190,7 @@ describe('RbacMongodbRuleAdapter', function() {
 
   const adapter: RbacRuleAdapter = new RbacMongodbRuleAdapter();
 
-  const $ = {
+  const $: Record<string, RbacRule> = {
     IsOwnProfile: new RbacRule({ name: 'IsOwnProfile' }),
     IsOwnDocument: new RbacRule({ name: 'IsOwnDocument' }),
     IsGroupLeader: new RbacRule({ name: 'IsGroupLeader' }),
@@ -204,7 +204,7 @@ describe('RbacMongodbRuleAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.IsGroupLeader.name);
+    await adapter.create($.IsGroupLeader);
     const entry = await adapter.find($.IsGroupLeader.name);
     expect(entry).to.be.an('object').that.include($.IsGroupLeader);
   });

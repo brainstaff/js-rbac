@@ -1,11 +1,13 @@
 import { RbacItemChildAdapter } from '@brainstaff/rbac/src/rbac-adapter';
-import RbacItemChildModel from '../models/RbacItemChild';
 import { RbacItem, RbacItemChild } from '@brainstaff/rbac';
 
+import RbacItemChildModel from '../models/RbacItemChild';
+
 export default class RbacMongodbItemChildAdapter implements RbacItemChildAdapter {
-  async store(values: RbacItemChild[]) {
+  async store(raw: RbacItemChild[]) {
+    const all = raw.map(x => new RbacItemChild(x));
     await RbacItemChildModel.deleteMany({});
-    await RbacItemChildModel.create(values);
+    await RbacItemChildModel.create(all);
   }
 
   async load() {
@@ -13,11 +15,12 @@ export default class RbacMongodbItemChildAdapter implements RbacItemChildAdapter
     return entries.map(x => new RbacItemChild(x));
   }
 
-  async create(parent: RbacItem['name'], child: RbacItem['name']) {
-    if (await RbacItemChildModel.exists({ parent: parent, child: child })) {
-      throw new Error(`Association of ${parent} and ${child} already exists.`);
+  async create(raw: RbacItemChild) {
+    const one = new RbacItemChild(raw);
+    if (await RbacItemChildModel.exists({ parent: one.parent, child: one.child })) {
+      throw new Error(`Association of ${one.parent} and ${one.child} already exists.`);
     }
-    await RbacItemChildModel.create({ parent, child });
+    await RbacItemChildModel.create(one);
   }
 
   async find(parent: RbacItem['name'], child: RbacItem['name']) {
