@@ -1,9 +1,9 @@
 import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from "@brainstaff/rbac";
 
-export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdapter {
-  private entries: RbacAssignment[] = [];
+export default class RbacInMemoryAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
+  private entries: RbacAssignment<RbacContextId>[] = [];
 
-  async store(raw: RbacAssignment[]) {
+  async store(raw: RbacAssignment<RbacContextId>[]) {
     const all = raw.map((x) => new RbacAssignment(x));
     this.entries = all;
   }
@@ -12,7 +12,7 @@ export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdap
     return this.entries;
   }
 
-  async create(raw: RbacAssignment) {
+  async create(raw: RbacAssignment<RbacContextId>) {
     const one = new RbacAssignment(raw);
     if (await this.find(one.userId, one.role)) {
       throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);

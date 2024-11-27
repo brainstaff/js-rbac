@@ -1,15 +1,16 @@
 import { RbacAssignment, RbacItem, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
 import { RbacAdapter } from "./rbac-adapter";
+import { stringify } from "./utils";
 
-export class RbacManager<RbacRulePayload> {
-  private cacheAdapter: RbacAdapter;
-  private persistentAdapter: RbacAdapter;
+export class RbacManager<RbacContextId, RbacRulePayload extends object> {
+  private cacheAdapter: RbacAdapter<RbacContextId>;
+  private persistentAdapter: RbacAdapter<RbacContextId>;
   private ruleFactory: RbacRuleFactory<RbacRulePayload>;
   private isCacheLoaded: boolean;
 
   constructor({ cacheAdapter, persistentAdapter, ruleFactory }: {
-    cacheAdapter: RbacAdapter,
-    persistentAdapter: RbacAdapter,
+    cacheAdapter: RbacAdapter<RbacContextId>,
+    persistentAdapter: RbacAdapter<RbacContextId>,
     ruleFactory: RbacRuleFactory<RbacRulePayload>,
   }) {
     this.cacheAdapter = cacheAdapter;
@@ -31,38 +32,43 @@ export class RbacManager<RbacRulePayload> {
     }
   }
 
-  async checkAccess(userId: RbacUserId, permissionOrRoleName: RbacItem['name'], payload?: RbacRulePayload) {
+  async check(userId: RbacUserId, target: RbacItem['name'], payload?: { contextId?: RbacContextId } & RbacRulePayload) {
     const assignments = await this.currentAdapter.findAssignmentsByUserId(userId);
-    for (let i = 0; i < assignments.length; i++) {
-      if (await this.checkItem(assignments[i].role, permissionOrRoleName, payload)) {
+    if (assignments.length === 0) {
+      return false;
+    }
+    const stringifiedContextId = stringify(payload?.contextId);
+    for (const { role, contextIds } of assignments) {
+      const enabled = contextIds === undefined || contextIds.some(x => stringify(x) === stringifiedContextId);
+      if (enabled && await this.isOk(role, target, payload)) {
         return true;
       }
     }
     return false;
   }
 
-  async checkItem(currentItemName: RbacItem['name'], expectedItemName: RbacItem['name'], payload?: RbacRulePayload) {
-    const currentItem = await this.currentAdapter.findItem(currentItemName);
-    if (!currentItem) {
+  private async isOk(current: RbacItem['name'], target: RbacItem['name'], payload?: RbacRulePayload) {
+    const item = await this.currentAdapter.findItem(current);
+    if (!item) {
       return false;
     }
-    if (currentItemName === expectedItemName) {
+    if (item.name === target) {
       // If we found permission we execute business rule
-      if (currentItem.type === 'permission' && currentItem.rule) {
-        return this.ruleFactory.createRule(currentItem.rule).execute(payload);
+      if (item.type === 'permission' && item.rule) {
+        return this.ruleFactory.createRule(item.rule).execute(payload);
       } else {
         return true;
       }
     } else {
       // Before going deeper let's check business rule
-      if (currentItem.type === 'permission' && currentItem.rule) {
-        if (!(await this.ruleFactory.createRule(currentItem.rule).execute(payload))) {
+      if (item.type === 'permission' && item.rule) {
+        if (!(await this.ruleFactory.createRule(item.rule).execute(payload))) {
           return false;
         }
       }
-      const children = await this.currentAdapter.findItemChildrenByParent(currentItemName);
+      const children = await this.currentAdapter.findItemChildrenByParent(item.name);
       for (let i = 0; i < children.length; i++) {
-        if (await this.checkItem(children[i].child, expectedItemName, payload)) {
+        if (await this.isOk(children[i].child, target, payload)) {
           return true;
         }
       }
@@ -70,7 +76,7 @@ export class RbacManager<RbacRulePayload> {
     }
   }
 
-  async assign(one: RbacAssignment) {
+  async assign(one: RbacAssignment<RbacContextId>) {
     const item = await this.currentAdapter.findItem(one.role);
     if (!item || item.type !== 'role') {
       throw new Error(`No such role ${one.role}.`);

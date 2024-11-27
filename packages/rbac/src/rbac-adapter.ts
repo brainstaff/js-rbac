@@ -1,11 +1,11 @@
 import { RbacAssignment, RbacHierarchy, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
 
-export interface RbacAssignmentAdapter {
-  store: (all: RbacAssignment[]) => Promise<void>;
-  load: () => Promise<RbacAssignment[]>;
-  create: (one: RbacAssignment) => Promise<void>;
-  find: (userId: RbacUserId, role: RbacItem['name']) => Promise<RbacAssignment | null>;
-  findByUserId: (userId: RbacUserId) => Promise<RbacAssignment[]>;
+export interface RbacAssignmentAdapter<RbacContextId> {
+  store: (all: RbacAssignment<RbacContextId>[]) => Promise<void>;
+  load: () => Promise<RbacAssignment<RbacContextId>[]>;
+  create: (one: RbacAssignment<RbacContextId>) => Promise<void>;
+  find: (userId: RbacUserId, item: RbacItem['name']) => Promise<RbacAssignment<RbacContextId> | null>;
+  findByUserId: (userId: RbacUserId) => Promise<RbacAssignment<RbacContextId>[]>;
   delete: (userId: RbacUserId, role: RbacItem['name']) => Promise<void>;
   deleteByUser: (userId: RbacUserId) => Promise<void>;
 }
@@ -33,14 +33,14 @@ export interface RbacRuleAdapter {
   find: (name: RbacRule['name']) => Promise<RbacRule | null>;
 }
   
-export class RbacAdapter {
-  private assignmentAdapter: RbacAssignmentAdapter;
+export class RbacAdapter<RbacContextId> {
+  private assignmentAdapter: RbacAssignmentAdapter<RbacContextId>;
   private itemAdapter: RbacItemAdapter;
   private itemChildAdapter: RbacItemChildAdapter;
   private ruleAdapter: RbacRuleAdapter;
 
   constructor(deps: {
-    assignmentAdapter: RbacAssignmentAdapter,
+    assignmentAdapter: RbacAssignmentAdapter<RbacContextId>,
     itemAdapter: RbacItemAdapter,
     itemChildAdapter: RbacItemChildAdapter,
     ruleAdapter: RbacRuleAdapter,
@@ -51,14 +51,14 @@ export class RbacAdapter {
     this.ruleAdapter = deps.ruleAdapter;
   }
 
-  async store(all: RbacHierarchy): Promise<void> {
+  async store(all: RbacHierarchy<RbacContextId>): Promise<void> {
     await this.assignmentAdapter.store(all.assignments);
     await this.itemAdapter.store(all.items);
     await this.itemChildAdapter.store(all.itemChildren);
     await this.ruleAdapter.store(all.rules);
   }
 
-  async load(): Promise<RbacHierarchy> {
+  async load(): Promise<RbacHierarchy<RbacContextId>> {
     return {
       assignments: await this.assignmentAdapter.load(),
       items: await this.itemAdapter.load(),
@@ -67,7 +67,7 @@ export class RbacAdapter {
     };
   }
 
-  async findAllAssignments(): Promise<RbacAssignment[]> {
+  async findAllAssignments(): Promise<RbacAssignment<RbacContextId>[]> {
     return this.assignmentAdapter.load();
   }
 
@@ -85,7 +85,7 @@ export class RbacAdapter {
 
   // Core for checkAccess
 
-  async findAssignmentsByUserId(userId: RbacUserId): Promise<RbacAssignment[]> {
+  async findAssignmentsByUserId(userId: RbacUserId): Promise<RbacAssignment<RbacContextId>[]> {
     return this.assignmentAdapter.findByUserId(userId);
   }
 
@@ -99,11 +99,11 @@ export class RbacAdapter {
 
   // Core for management
 
-  async createAssignment(one: RbacAssignment): Promise<void> {
+  async createAssignment(one: RbacAssignment<RbacContextId>): Promise<void> {
     return this.assignmentAdapter.create(one);
   }
 
-  async findAssignment(userId: RbacUserId, role: RbacItem['name']): Promise<RbacAssignment | null | undefined> {
+  async findAssignment(userId: RbacUserId, role: RbacItem['name']): Promise<RbacAssignment<RbacContextId> | null | undefined> {
     return this.assignmentAdapter.find(userId, role);
   }
 

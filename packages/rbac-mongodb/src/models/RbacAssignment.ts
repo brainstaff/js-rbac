@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 import { RbacAssignment } from '@brainstaff/rbac';
 
-const RbacAssignmentSchema = new mongoose.Schema<RbacAssignment>({
+const RbacAssignmentSchema = new mongoose.Schema<RbacAssignment<unknown>>({
   userId: {
     type: String
   },

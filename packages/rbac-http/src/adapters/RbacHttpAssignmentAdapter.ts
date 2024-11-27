@@ -4,7 +4,7 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@br
 
 import { rethrow } from '../utils/rethrow';
 
-export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter {
+export default class RbacHttpAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
   private client: AxiosInstance;
 
   constructor(deps: {
@@ -14,7 +14,7 @@ export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter 
   }
 
   @rethrow
-  async store(raw: RbacAssignment[]) {
+  async store(raw: RbacAssignment<RbacContextId>[]) {
     const all = raw.map(x => new RbacAssignment(x));
     await this.client.post(`/rbac/assignments`, { rbacAssignments: all });
   }
@@ -26,7 +26,7 @@ export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter 
   }
 
   @rethrow
-  async create(raw: RbacAssignment) {
+  async create(raw: RbacAssignment<RbacContextId>) {
     const one = new RbacAssignment(raw);
     await this.client.post(`/rbac/assignments`, one);
   }
@@ -34,7 +34,7 @@ export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter 
   @rethrow
   async find(userId: RbacUserId, role: RbacItem['name']) {
     const res = await this.client.get(`/rbac/assignments/${userId}/${role}`);
-    return res.data == null ? null : new RbacAssignment(res.data);
+    return res.data == null ? null : new RbacAssignment<RbacContextId>(res.data);
   }
 
   @rethrow

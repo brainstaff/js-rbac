@@ -64,9 +64,9 @@ describe('RbacHttpAssignmentAdapter', function() {
     server.close(done);
   });
 
-  const adapter: RbacAssignmentAdapter = new RbacHttpAssignmentAdapter({ client });
+  const adapter: RbacAssignmentAdapter<unknown> = new RbacHttpAssignmentAdapter({ client });
 
-  const $: Record<string, RbacAssignment> = {
+  const $: Record<string, RbacAssignment<unknown>> = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
@@ -321,7 +321,7 @@ describe('RbacHttpRuleAdapter', function() {
 describe('RbacHttpAdapter', function() {
   this.timeout(timeout);
 
-  const $: RbacHierarchy = {
+  const $: RbacHierarchy<unknown> = {
     assignments: [
       new RbacAssignment({ userId: 'alexey', role: 'admin' }),
       new RbacAssignment({ userId: 'ilya', role: 'manager' }),

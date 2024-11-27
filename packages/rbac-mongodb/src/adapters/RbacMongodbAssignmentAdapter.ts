@@ -2,19 +2,19 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@br
 
 import RbacAssignmentModel from '../models/RbacAssignment';
 
-export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapter {
-  async store(raw: RbacAssignment[]) {
+export default class RbacMongodbAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
+  async store(raw: RbacAssignment<RbacContextId>[]) {
     const all = raw.map(x => new RbacAssignment(x));
     await RbacAssignmentModel.deleteMany({});
     await RbacAssignmentModel.create(all);
   }
 
   async load() {
-    const entries = await RbacAssignmentModel.find({});
+    const entries = await RbacAssignmentModel.find({}) as RbacAssignment<RbacContextId>[];
     return entries.map(x => new RbacAssignment(x));
   }
 
-  async create(raw: RbacAssignment) {
+  async create(raw: RbacAssignment<RbacContextId>) {
     const one = new RbacAssignment(raw);
     if (await this.find(one.userId, one.role)) {
       throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
@@ -23,12 +23,12 @@ export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapt
   }
 
   async find(userId: RbacUserId, role: RbacItem['name']) {
-    const entry = await RbacAssignmentModel.findOne({ userId, role });
+    const entry = await RbacAssignmentModel.findOne({ userId, role }) as RbacAssignment<RbacContextId>;
     return entry == null ? null : new RbacAssignment(entry);
   }
 
   async findByUserId(userId: RbacUserId) {
-    const entry = await RbacAssignmentModel.find({ userId });
+    const entry = await RbacAssignmentModel.find({ userId }) as RbacAssignment<RbacContextId>[];
     return entry.map(x => new RbacAssignment(x));
   }
 

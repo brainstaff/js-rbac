@@ -38,18 +38,20 @@ export class RbacItemChild {
   }
 }
 
-export class RbacAssignment {
+export class RbacAssignment<RbacContextId> {
   userId: RbacUserId;
   role: RbacItem['name'];
+  contextIds?: RbacContextId[];
 
-  constructor (v: RbacAssignment) {
+  constructor (v: RbacAssignment<RbacContextId>) {
     this.userId = v.userId;
     this.role = v.role;
+    this.contextIds = v.contextIds;
   }
 }
 
-export interface RbacHierarchy {
-  assignments: RbacAssignment[];
+export interface RbacHierarchy<RbacContextId> {
+  assignments: RbacAssignment<RbacContextId>[];
   items: RbacItem[];
   itemChildren: RbacItemChild[];
   rules: RbacRule[];

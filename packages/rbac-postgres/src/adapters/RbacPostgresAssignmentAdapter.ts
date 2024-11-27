@@ -4,25 +4,25 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@br
 
 import RbacAssignmentModel from '../models/RbacAssignment';
 
-export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdapter {
+export default class RbacPostgresAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
   constructor(deps: {
     client: Knex
   }) {
     RbacAssignmentModel.knex(deps.client);
   }
 
-  async store(raw: RbacAssignment[]) {
+  async store(raw: RbacAssignment<RbacContextId>[]) {
     const all = raw.map(x => new RbacAssignment(x));
     await RbacAssignmentModel.query().delete();
     await RbacAssignmentModel.query().insert(all);
   }
 
   async load() {
-    const entries = await RbacAssignmentModel.query();
+    const entries = await RbacAssignmentModel.query() as RbacAssignment<RbacContextId>[];
     return entries.map(x => new RbacAssignment(x));
   }
 
-  async create(raw: RbacAssignment) {
+  async create(raw: RbacAssignment<RbacContextId>) {
     const one = new RbacAssignment(raw);
     if (await this.find(one.userId, one.role)) {
       throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
@@ -31,12 +31,12 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
   }
 
   async find(userId: RbacUserId, role: RbacItem['name']) {
-    const entry = await RbacAssignmentModel.query().findById([userId, role]);
+    const entry = await RbacAssignmentModel.query().findById([userId, role]) as RbacAssignment<RbacContextId>;
     return entry == null ? null : new RbacAssignment(entry);
   }
 
   async findByUserId(userId: RbacUserId) {
-    const entries = await RbacAssignmentModel.query().where({ userId });
+    const entries = await RbacAssignmentModel.query().where({ userId }) as RbacAssignment<RbacContextId>[];
     return entries.map(x => new RbacAssignment(x));
   }
 
