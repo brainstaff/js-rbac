@@ -49,7 +49,7 @@ export class RbacManager<RbacRulePayload> {
     if (currentItemName === expectedItemName) {
       // If we found permission we execute business rule
       if (currentItem.type === 'permission' && currentItem.rule) {
-        return await this.rbacRuleFactory.createRule(currentItem.rule).execute(payload);
+        return this.rbacRuleFactory.createRule(currentItem.rule).execute(payload);
       } else {
         return true;
       }
@@ -82,7 +82,7 @@ export class RbacManager<RbacRulePayload> {
     if (this.isCacheLoaded) {
       await this.rbacCacheAdapter.createAssignment(one);
     }
-    return await this.rbacPersistentAdapter.createAssignment(one);
+    return this.rbacPersistentAdapter.createAssignment(one);
   }
 
   async revoke(userId: RbacUserId, role: RbacItem['name']) {
@@ -93,37 +93,37 @@ export class RbacManager<RbacRulePayload> {
     if (this.isCacheLoaded) {
       await this.rbacCacheAdapter.deleteAssignment(userId, role);
     }
-    return await this.rbacPersistentAdapter.deleteAssignment(userId, role);
+    return this.rbacPersistentAdapter.deleteAssignment(userId, role);
   }
 
   async revokeAll(userId: RbacUserId) {
     if (this.isCacheLoaded) {
       await this.rbacCacheAdapter.deleteAssignment(userId);
     }
-    return await this.rbacPersistentAdapter.deleteAssignment(userId);
+    return this.rbacPersistentAdapter.deleteAssignment(userId);
   }
 
   async fetchUserAssignments(userId: RbacUserId) {
-    return await this.currentAdapter.findAssignmentsByUserId(userId);
+    return this.currentAdapter.findAssignmentsByUserId(userId);
   }
 
   async fetchRoles() {
-    return await this.currentAdapter.findRoles();
+    return this.currentAdapter.findRoles();
   }
 
   async fetchAllAssignments() {
-    return await this.currentAdapter.findAllAssignments();
+    return this.currentAdapter.findAllAssignments();
   }
 
   async fetchAllItems() {
-    return await this.currentAdapter.findAllItems();
+    return this.currentAdapter.findAllItems();
   }
 
   async fetchAllItemsChild() {
-    return await this.currentAdapter.findAllItemsChild();
+    return this.currentAdapter.findAllItemsChild();
   }
 
   async fetchAllRules() {
-    return await this.currentAdapter.findAllRules();
+    return this.currentAdapter.findAllRules();
   }
 }
