@@ -2,84 +2,69 @@ import assert from 'assert';
 
 import { RbacInMemoryAssignmentAdapter, RbacInMemoryItemAdapter, RbacInMemoryItemChildAdapter, RbacInMemoryRuleAdapter } from '@brainstaff/rbac-in-memory'
 
-import { RbacAdapter, RbacAssignment, RbacItem, RbacItemChild, RbacManager, RbacRule, RbacRuleFactory } from '../src/index.js';
+import { RbacAdapter, RbacManager } from '../src/index.js';
 
 const createRbacManager = async () => {
-  const rbacAssignments: RbacAssignment[] = [
-    { userId: 'alexey', role: 'admin' },
-    { userId: 'ilya', role: 'manager' }
-  ];
-
-  const rbacItems: RbacItem[] = [
-    { name: 'admin', type: 'role' },
-    { name: 'manager', type: 'role' },
-    { name: 'user', type: 'role' },
-    { name: 'updateProfile', type: 'permission' },
-    { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' },
-  ];
-
-  const rbacItemChildren: RbacItemChild[] = [
-    { parent: 'admin', child: 'manager' },
-    { parent: 'manager', child: 'user' },
-    { parent: 'user', child: 'updateOwnProfile' },
-    { parent: 'updateOwnProfile', child: 'updateProfile' },
-    { parent: 'admin', child: 'updateProfile' }
-  ];
-
-  const rbacRules: RbacRule[] = [
-    { name: 'IsOwnProfile' }
-  ];
-
-  const rbacCacheAdapter = new RbacAdapter({
-    assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
-    itemAdapter: new RbacInMemoryItemAdapter(),
-    itemChildAdapter: new RbacInMemoryItemChildAdapter(),
-    ruleAdapter: new RbacInMemoryRuleAdapter(),
-  });
-  const rbacPersistentAdapter = new RbacAdapter({
-    assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
-    itemAdapter: new RbacInMemoryItemAdapter(),
-    itemChildAdapter: new RbacInMemoryItemChildAdapter(),
-    ruleAdapter: new RbacInMemoryRuleAdapter(),
-  });
-  await rbacPersistentAdapter.store({
-    rbacAssignments,
-    rbacItems,
-    rbacItemChildren,
-    rbacRules
-  });
-
-  const rbacRuleFactory: RbacRuleFactory<{ 
+  const manager = new RbacManager<{
     user?: { 
       userId?: number;
     },
     profile?: {
       userId?: number;
     }
-  }> = {
-    createRule(name) {
-      switch(name) {
-        case 'IsOwnProfile':
-          return {
-            execute: async ({ user, profile } = {}) => {
-              return user?.userId != null && profile?.userId != null && user.userId === profile.userId;
-            }
-          };
-        default:
-          throw new Error(`Unexpected rule name: ${name}`);
+  }>({
+    cacheAdapter: new RbacAdapter({
+      assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
+      itemAdapter: new RbacInMemoryItemAdapter(),
+      itemChildAdapter: new RbacInMemoryItemChildAdapter(),
+      ruleAdapter: new RbacInMemoryRuleAdapter(),
+    }),
+    persistentAdapter: new RbacAdapter({
+      assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
+      itemAdapter: new RbacInMemoryItemAdapter(),
+      itemChildAdapter: new RbacInMemoryItemChildAdapter(),
+      ruleAdapter: new RbacInMemoryRuleAdapter(),
+    }),
+    ruleFactory: {
+      createRule(name) {
+        switch(name) {
+          case 'IsOwnProfile':
+            return {
+              execute: async ({ user, profile } = {}) => {
+                return user?.userId != null && profile?.userId != null && user.userId === profile.userId;
+              }
+            };
+          default:
+            throw new Error(`Unexpected rule name: ${name}`);
+        }
       }
     }
-  };
-
-  const rbacManager = new RbacManager({
-    rbacCacheAdapter,
-    rbacPersistentAdapter,
-    rbacRuleFactory
   });
-
-  await rbacManager.loadCache();
-
-  return rbacManager;
+  await manager.currentAdapter.store({
+    assignments: [
+      { userId: 'alexey', role: 'admin' },
+      { userId: 'ilya', role: 'manager' },
+    ],
+    items: [
+      { name: 'admin', type: 'role' },
+      { name: 'manager', type: 'role' },
+      { name: 'user', type: 'role' },
+      { name: 'updateProfile', type: 'permission' },
+      { name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' },
+    ],
+    itemChildren: [
+      { parent: 'admin', child: 'manager' },
+      { parent: 'manager', child: 'user' },
+      { parent: 'user', child: 'updateOwnProfile' },
+      { parent: 'updateOwnProfile', child: 'updateProfile' },
+      { parent: 'admin', child: 'updateProfile' },
+    ],
+    rules: [
+      { name: 'IsOwnProfile' },
+    ]
+  });
+  await manager.loadCache();
+  return manager;
 };
 
 describe('RbacManager', function() {

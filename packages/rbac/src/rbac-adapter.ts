@@ -1,4 +1,4 @@
-import { RbacAssignment, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacHierarchy, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
 
 export interface RbacAssignmentAdapter {
   store: (all: RbacAssignment[]) => Promise<void>;
@@ -32,13 +32,6 @@ export interface RbacRuleAdapter {
   create: (one: RbacRule) => Promise<void>;
   find: (name: RbacRule['name']) => Promise<RbacRule | null>;
 }
-
-interface RbacHierarchy {
-  rbacAssignments: RbacAssignment[];
-  rbacItems: RbacItem[];
-  rbacItemChildren: RbacItemChild[];
-  rbacRules: RbacRule[];
-}
   
 export class RbacAdapter {
   private assignmentAdapter: RbacAssignmentAdapter;
@@ -59,18 +52,18 @@ export class RbacAdapter {
   }
 
   async store(all: RbacHierarchy): Promise<void> {
-    await this.assignmentAdapter.store(all.rbacAssignments);
-    await this.itemAdapter.store(all.rbacItems);
-    await this.itemChildAdapter.store(all.rbacItemChildren);
-    await this.ruleAdapter.store(all.rbacRules);
+    await this.assignmentAdapter.store(all.assignments);
+    await this.itemAdapter.store(all.items);
+    await this.itemChildAdapter.store(all.itemChildren);
+    await this.ruleAdapter.store(all.rules);
   }
 
   async load(): Promise<RbacHierarchy> {
     return {
-      rbacAssignments: await this.assignmentAdapter.load(),
-      rbacItems: await this.itemAdapter.load(),
-      rbacItemChildren: await this.itemChildAdapter.load(),
-      rbacRules: await this.ruleAdapter.load(),
+      assignments: await this.assignmentAdapter.load(),
+      items: await this.itemAdapter.load(),
+      itemChildren: await this.itemChildAdapter.load(),
+      rules: await this.ruleAdapter.load(),
     };
   }
 

@@ -47,3 +47,10 @@ export class RbacAssignment {
     this.role = v.role;
   }
 }
+
+export interface RbacHierarchy {
+  assignments: RbacAssignment[];
+  items: RbacItem[];
+  itemChildren: RbacItemChild[];
+  rules: RbacRule[];
+}
