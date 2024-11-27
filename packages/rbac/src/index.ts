@@ -1,7 +1,6 @@
 export {
   RbacUserId,
   RbacRule,
-  RbacRulePayload,
   RbacRuleInstance,
   RbacRuleFactory,
   RbacItem,

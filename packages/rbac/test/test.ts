@@ -49,16 +49,20 @@ const createRbacManager = async () => {
     rbacRules
   });
 
-  const rbacRuleFactory: RbacRuleFactory = {
+  const rbacRuleFactory: RbacRuleFactory<{ 
+    user?: { 
+      userId?: number;
+    },
+    profile?: {
+      userId?: number;
+    }
+  }> = {
     createRule(name) {
       switch(name) {
         case 'IsOwnProfile':
           return {
-            execute: async (payload) => {
-              if (payload && payload.user && payload.user.userId && payload.profile && payload.profile.userId) {
-                return payload.user.userId === payload.profile.userId;
-              }
-              return false;
+            execute: async ({ user, profile } = {}) => {
+              return user?.userId != null && profile?.userId != null && user.userId === profile.userId;
             }
           };
         default:

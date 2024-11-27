@@ -8,14 +8,12 @@ export class RbacRule {
   }
 }
 
-export type RbacRulePayload = any;
-
-export interface RbacRuleInstance {
+export interface RbacRuleInstance<RbacRulePayload> {
   execute: (payload?: RbacRulePayload) => Promise<boolean>;
 }
 
-export interface RbacRuleFactory {
-  createRule: (name: RbacRule['name']) => RbacRuleInstance;
+export interface RbacRuleFactory<RbacRulePayload> {
+  createRule: (name: RbacRule['name']) => RbacRuleInstance<RbacRulePayload>;
 }
 
 export class RbacItem {
