@@ -24,7 +24,7 @@ export default class RbacPostgresItemChildAdapter implements RbacItemChildAdapte
 
   async create(raw: RbacItemChild) {
     const one = new RbacItemChild(raw);
-    if (await RbacItemChildModel.query().findById([one.parent, one.child])) {
+    if (await this.find(one.parent, one.child)) {
       throw new Error(`Association of ${one.parent} and ${one.child} already exists.`);
     }
     await RbacItemChildModel.query().insert(one);

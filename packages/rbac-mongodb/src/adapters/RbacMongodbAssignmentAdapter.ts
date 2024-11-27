@@ -16,7 +16,7 @@ export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapt
 
   async create(raw: RbacAssignment) {
     const one = new RbacAssignment(raw);
-    if (await RbacAssignmentModel.exists({ userId: one.userId, role: one.role })) {
+    if (await this.find(one.userId, one.role)) {
       throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
     }
     await RbacAssignmentModel.create(one);

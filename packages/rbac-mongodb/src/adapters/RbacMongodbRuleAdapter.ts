@@ -16,6 +16,9 @@ export default class RbacMongodbRuleAdapter implements RbacRuleAdapter {
 
   async create(raw: RbacRule) {
     const one = new RbacRule(raw);
+    if (await this.find(one.name)) {
+      throw new Error(`Rule ${one.name} already exists.`);
+    }
     await RbacRuleModel.create(one);
   }
 

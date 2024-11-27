@@ -16,7 +16,7 @@ export default class RbacMongodbItemAdapter implements RbacItemAdapter {
 
   async create(raw: RbacItem) {
     const one = new RbacItem(raw);
-    if (await RbacItemModel.exists({ name: one.name })) {
+    if (await this.find(one.name)) {
       throw new Error(`Item ${one.name} already exists.`);
     }
     await RbacItemModel.create(one);

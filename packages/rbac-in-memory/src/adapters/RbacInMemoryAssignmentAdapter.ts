@@ -14,7 +14,7 @@ export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdap
 
   async create(raw: RbacAssignment) {
     const one = new RbacAssignment(raw);
-    if (this.entries.find(x => x.userId === one.userId && x.role === one.role)) {
+    if (await this.find(one.userId, one.role)) {
       throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
     }
     this.entries.push(one);
