@@ -1,4 +1,5 @@
 import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from "@brainstaff/rbac";
+import { stringify } from "@brainstaff/rbac/src/utils";
 
 export default class RbacInMemoryAssignmentAdapter<RbacContextId = never> implements RbacAssignmentAdapter<RbacContextId> {
   private entries: RbacAssignment<RbacContextId>[] = [];
@@ -28,15 +29,32 @@ export default class RbacInMemoryAssignmentAdapter<RbacContextId = never> implem
     return this.entries.filter(x => x.userId === userId);
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name']) {
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId) {
     const idx = this.entries.findIndex(x => x.userId === userId && x.role === role);
     if (idx === -1) {
       throw new Error(`No assignment between ${userId} and ${role} was found.`);
     }
-    this.entries.splice(idx, 1);
+    if (contextId === undefined) {
+      this.entries.splice(idx, 1);
+    } else {
+      const assignment = this.entries[idx];
+      const contextIdStr = stringify(contextId);
+      assignment.contextIds = assignment.contextIds?.filter(x => stringify(x) !== contextIdStr);
+    }
   }
 
-  async deleteByUser(userId: RbacUserId) {
-    this.entries = this.entries.filter(x => x.userId !== userId);
+  async deleteByUser(userId: RbacUserId, contextId?: RbacContextId) {
+    if (contextId === undefined) {
+      this.entries = this.entries.filter(x => x.userId !== userId);
+    } else {
+      const assignments = this.entries.filter(x => x.userId === userId);
+      if (assignments.length === 0) {
+        return;
+      }
+      const contextIdStr = stringify(contextId);
+      for (const assignment of assignments) {
+        assignment.contextIds = assignment.contextIds?.filter(x => stringify(x) !== contextIdStr);
+      }
+    }
   }
 }

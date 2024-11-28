@@ -44,12 +44,12 @@ export default class RbacHttpAssignmentAdapter<RbacContextId = never> implements
   }
 
   @rethrow
-  async delete(userId: RbacUserId, role: RbacItem['name']) {
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId) {
     await this.client.delete(`/rbac/assignments/${userId}/${role}`);
   }
 
   @rethrow
-  async deleteByUser(userId: RbacUserId) {
+  async deleteByUser(userId: RbacUserId, contextId?: RbacContextId) {
     await this.client.delete(`/rbac/assignments/${userId}`);
   }
 }

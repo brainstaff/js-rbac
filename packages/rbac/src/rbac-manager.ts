@@ -37,9 +37,9 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
     if (assignments.length === 0) {
       return false;
     }
-    const stringifiedContextId = stringify(payload?.contextId);
+    const contextIdStr = stringify(payload?.contextId);
     for (const { role, contextIds } of assignments) {
-      const enabled = contextIds === undefined || contextIds.some(x => stringify(x) === stringifiedContextId);
+      const enabled = contextIds === undefined || contextIds.some(x => stringify(x) === contextIdStr);
       if (enabled && await this.isOk(role, target, payload)) {
         return true;
       }
@@ -78,19 +78,19 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
     }
   }
 
-  async revoke(userId: RbacUserId, role: RbacItem['name']) {
+  async revoke(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId) {
     const assignment = await this.r.findAssignment(userId, role);
     if (!assignment) {
       throw new Error(`Role "${role}" is not attached to the "${userId}".`);
     }
     for (const w of this.w) {
-      await w.deleteAssignment(userId, role);
+      await w.deleteAssignment(userId, role, contextId);
     }
   }
 
-  async revokeAll(userId: RbacUserId) {
+  async revokeAll(userId: RbacUserId, contextId?: RbacContextId) {
     for (const w of this.w) {
-      await w.deleteAssignment(userId);
+      await w.deleteAssignmentsByUser(userId, contextId);
     }
   }
 

@@ -26,6 +26,10 @@ const $ = {
       product: "B",
       customer: "1",
     },
+    c: {
+      product: "C",
+      customer: "1",
+    },
   },
 }
 
@@ -123,9 +127,24 @@ describe('RbacManager', function() {
     const m = await createManager();
     assert.equal(await m.check($.u, $.item.manager), false, `${stringify(undefined)}: should not be ${$.item.manager}`);
     assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), false, `${stringify($.contextId.a)}: should not be ${$.item.manager}`);
-    await m.assign({ userId: $.u, role: $.item.manager, contextIds: [$.contextId.a] });
-    assert.equal(await m.check($.u, $.item.manager), false, `${stringify(undefined)}: should not be ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), true, `${stringify($.contextId.a)}: should be ${$.item.manager}`);
     assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), false, `${stringify($.contextId.b)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.c }), false, `${stringify($.contextId.c)}: should not be ${$.item.manager}`);
+    await m.assign({ userId: $.u, role: $.item.manager, contextIds: [$.contextId.b, $.contextId.c] });
+    assert.equal(await m.check($.u, $.item.manager), false, `${stringify(undefined)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), false, `${stringify($.contextId.a)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), true,  `${stringify($.contextId.b)}: should be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.c }), true,  `${stringify($.contextId.c)}: should be ${$.item.manager}`);
+    await m.revoke($.u, $.item.manager, $.contextId.a);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), false, `${stringify($.contextId.a)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), true,  `${stringify($.contextId.b)}: should be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.c }), true,  `${stringify($.contextId.c)}: should be ${$.item.manager}`);
+    await m.revoke($.u, $.item.manager, $.contextId.b);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), false, `${stringify($.contextId.a)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), false, `${stringify($.contextId.b)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.c }), true,  `${stringify($.contextId.c)}: should be ${$.item.manager}`);
+    await m.revoke($.u, $.item.manager);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), false, `${stringify($.contextId.a)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), false, `${stringify($.contextId.b)}: should not be ${$.item.manager}`);
+    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.c }), false, `${stringify($.contextId.c)}: should not be ${$.item.manager}`);
   });
 });

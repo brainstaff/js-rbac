@@ -6,8 +6,8 @@ export interface RbacAssignmentAdapter<RbacContextId = never> {
   create: (one: RbacAssignment<RbacContextId>) => Promise<void>;
   find: (userId: RbacUserId, item: RbacItem['name']) => Promise<RbacAssignment<RbacContextId> | null>;
   findByUserId: (userId: RbacUserId) => Promise<RbacAssignment<RbacContextId>[]>;
-  delete: (userId: RbacUserId, role: RbacItem['name']) => Promise<void>;
-  deleteByUser: (userId: RbacUserId) => Promise<void>;
+  delete: (userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId) => Promise<void>;
+  deleteByUser: (userId: RbacUserId, contextId?: RbacContextId) => Promise<void>;
 }
 
 export interface RbacItemAdapter {
@@ -95,11 +95,12 @@ export class RbacAdapter<RbacContextId = never> {
     return this.itemAdapter.findByType('role');
   }
 
-  async deleteAssignment(userId: RbacUserId, role?: RbacItem['name']): Promise<void> {
-    if (role) {
-      return this.assignmentAdapter.delete(userId, role);
-    }
-    return this.assignmentAdapter.deleteByUser(userId);
+  async deleteAssignment(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId): Promise<void> {
+    return this.assignmentAdapter.delete(userId, role, contextId);
+  }
+
+  async deleteAssignmentsByUser(userId: RbacUserId, contextId?: RbacContextId): Promise<void> {
+    return this.assignmentAdapter.deleteByUser(userId, contextId);
   }
 
   // Management

@@ -40,7 +40,7 @@ export default class RbacPostgresAssignmentAdapter<RbacContextId = never> implem
     return entries.map(x => new RbacAssignment(x));
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name']) {
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId) {
     const entry = await RbacAssignmentModel.query().findById([userId, role]);
     if (!entry) {
       throw new Error(`No assignment between ${userId} and ${role} was found.`);
@@ -48,7 +48,7 @@ export default class RbacPostgresAssignmentAdapter<RbacContextId = never> implem
     await RbacAssignmentModel.query().deleteById([userId, role]);
   }
 
-  async deleteByUser(userId: RbacUserId) {
+  async deleteByUser(userId: RbacUserId, contextId?: RbacContextId) {
     const entry = await RbacAssignmentModel.query().where({ userId });
     await RbacAssignmentModel.query().where({ userId }).delete();
   }
