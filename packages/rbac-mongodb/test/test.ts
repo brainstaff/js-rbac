@@ -1,11 +1,10 @@
 import mongoose from 'mongoose';
 
-import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter, RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
+import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter } from '@brainstaff/rbac';
 
 import { RbacMongodbAssignmentAdapter } from '../src/index.js';
 import { RbacMongodbItemAdapter } from '../src/index.js';
 import { RbacMongodbItemChildAdapter } from '../src/index.js';
-import { RbacMongodbRuleAdapter } from '../src/index.js';
 
 interface Logger {
   info: (message: string) => void;
@@ -61,7 +60,7 @@ describe('RbacMongodbAssignmentAdapter', function() {
 
   const adapter: RbacAssignmentAdapter = new RbacMongodbAssignmentAdapter();
 
-  const $: Record<string, RbacAssignment> = {
+  const $ = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
@@ -105,17 +104,17 @@ describe('RbacMongodbItemAdapter', function() {
 
   const adapter: RbacItemAdapter = new RbacMongodbItemAdapter();
 
-  const $: Record<string, RbacItem> = {
-    admin: new RbacItem({ name: 'admin', type: 'role' }),
-    manager: new RbacItem({ name: 'manager', type: 'role' }),
-    user: new RbacItem({ name: 'user', type: 'role' }),
-    updateProfile: new RbacItem({ name: 'updateProfile', type: 'permission' }),
-    updateOwnProfile: new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
-    regionManager: new RbacItem({ name: 'region manager', type: 'role' }),
+  const $ = {
+    admin: new RbacItem({ type: 'role', name: 'admin',  }),
+    manager: new RbacItem({ type: 'role', name: 'manager' }),
+    user: new RbacItem({ type: 'role', name: 'user' }),
+    regionManager: new RbacItem({ type: 'role', name: 'region manager' }),
+    isOwnProfile: new RbacItem({ type: 'rule', name: 'isOwnProfile' }),
+    updateProfile: new RbacItem({ type: 'perm', name: 'updateProfile' }),
   }
 
   it('should store many and load them', async () => {
-    const values = [$.admin, $.manager, $.user, $.updateProfile, $.updateOwnProfile];
+    const values = [$.admin, $.manager, $.user, $.updateProfile, $.isOwnProfile];
     await adapter.store(values);
     const entries = await adapter.load();
     expect(entries).to.have.deep.members(values);
@@ -151,11 +150,11 @@ describe('RbacMongodbItemChildAdapter', function() {
 
   const adapter: RbacItemChildAdapter = new RbacMongodbItemChildAdapter();
 
-  const $: Record<string, RbacItemChild> = {
+  const $ = {
     admin_manager: new RbacItemChild({ parent: 'admin', child: 'manager' }),
     manager_user: new RbacItemChild({ parent: 'manager', child: 'user' }),
-    user_updateOwnProfile: new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
-    updateOwnProfile_updateProfile: ({ parent: 'updateOwnProfile', child: 'updateProfile' }),
+    user_isOwnProfile: new RbacItemChild({ parent: 'user', child: 'isOwnProfile' }),
+    isOwnProfile_updateProfile: ({ parent: 'isOwnProfile', child: 'updateProfile' }),
     admin_updateProfile: new RbacItemChild({ parent: 'admin', child: 'updateProfile' }),
     manager_regionManager: new RbacItemChild({ parent: 'manager', child: 'region manager' }),
   }
@@ -164,8 +163,8 @@ describe('RbacMongodbItemChildAdapter', function() {
     const values = [
       $.admin_manager,
       $.manager_user,
-      $.user_updateOwnProfile,
-      $.updateOwnProfile_updateProfile,
+      $.user_isOwnProfile,
+      $.isOwnProfile_updateProfile,
       $.admin_updateProfile,
     ]
     await adapter.store(values);
@@ -182,30 +181,5 @@ describe('RbacMongodbItemChildAdapter', function() {
   it('should find many by parent', async () => {
     const entry = await adapter.findByParent($.admin_manager.parent);
     expect(entry).to.have.deep.members([$.admin_manager, $.admin_updateProfile]);
-  });
-});
-
-describe('RbacMongodbRuleAdapter', function() {
-  this.timeout(timeout);
-
-  const adapter: RbacRuleAdapter = new RbacMongodbRuleAdapter();
-
-  const $: Record<string, RbacRule> = {
-    IsOwnProfile: new RbacRule({ name: 'IsOwnProfile' }),
-    IsOwnDocument: new RbacRule({ name: 'IsOwnDocument' }),
-    IsGroupLeader: new RbacRule({ name: 'IsGroupLeader' }),
-  };
-
-  it('should store many and load them', async () => {
-    const values = [$.IsOwnProfile, $.IsOwnDocument];
-    await adapter.store(values);
-    const entries = await adapter.load();
-    expect(entries).to.have.deep.members(values);
-  });
-
-  it('should create one and find it', async () => {
-    await adapter.create($.IsGroupLeader);
-    const entry = await adapter.find($.IsGroupLeader.name);
-    expect(entry).to.be.an('object').that.include($.IsGroupLeader);
   });
 });

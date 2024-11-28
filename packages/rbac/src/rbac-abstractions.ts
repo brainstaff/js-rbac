@@ -1,30 +1,20 @@
 export type RbacUserId = string;
 
-export class RbacRule {
-  name: string;
-
-  constructor(v: RbacRule) {
-    this.name = v.name;
-  }
-}
-
 export interface RbacRuleInstance<RbacRulePayload> {
   execute: (payload?: RbacRulePayload) => Promise<boolean>;
 }
 
 export interface RbacRuleFactory<RbacRulePayload> {
-  createRule: (name: RbacRule['name']) => RbacRuleInstance<RbacRulePayload>;
+  createRule: (name: string) => RbacRuleInstance<RbacRulePayload>;
 }
 
 export class RbacItem {
-  type: 'role' | 'permission';
+  type: 'role' | 'rule' | 'perm';
   name: string;
-  rule?: RbacRule['name'];
 
   constructor(v: RbacItem) {
     this.type = v.type;
     this.name = v.name;
-    this.rule = v.rule;
   }
 }
 
@@ -54,5 +44,4 @@ export interface RbacHierarchy<RbacContextId = never> {
   assignments: RbacAssignment<RbacContextId>[];
   items: RbacItem[];
   itemChildren: RbacItemChild[];
-  rules: RbacRule[];
 }

@@ -4,13 +4,12 @@ import assert from 'node:assert';
 import express from 'express';
 import axios from 'axios';
 
-import { RbacAdapter, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter, RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
-import { RbacInMemoryAssignmentAdapter, RbacInMemoryItemAdapter, RbacInMemoryItemChildAdapter, RbacInMemoryRuleAdapter } from '@brainstaff/rbac-in-memory'
+import { RbacAdapter, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter } from '@brainstaff/rbac';
+import { RbacInMemoryAssignmentAdapter, RbacInMemoryItemAdapter, RbacInMemoryItemChildAdapter } from '@brainstaff/rbac-in-memory'
 
 import { RbacHttpAssignmentAdapter } from '../src/index.js';
 import { RbacHttpItemAdapter } from '../src/index.js';
 import { RbacHttpItemChildAdapter } from '../src/index.js';
-import { RbacHttpRuleAdapter } from '../src/index.js';
 import { RbacHierarchy } from '@brainstaff/rbac/src/rbac-abstractions.js';
 
 const client = axios.create({
@@ -66,7 +65,7 @@ describe('RbacHttpAssignmentAdapter', function() {
 
   const adapter: RbacAssignmentAdapter = new RbacHttpAssignmentAdapter({ client });
 
-  const $: Record<string, RbacAssignment> = {
+  const $ = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
@@ -130,11 +129,11 @@ describe('RbacHttpItemAdapter', function() {
     const db = new RbacInMemoryItemAdapter();
     app.post('/rbac/items', (req, res) => {
       const errHandler = newErrHandler(res);
-      const { rbacItems, name, type, rule } = req.body;
+      const { rbacItems, name, type } = req.body;
       if (rbacItems) {
         db.store(rbacItems).then(() => res.end()).catch(errHandler);
       } else {
-        db.create({ name, type, rule }).then(() => res.end()).catch(errHandler);
+        db.create({ name, type }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/items', (_req, res) => {
@@ -154,17 +153,17 @@ describe('RbacHttpItemAdapter', function() {
 
   const adapter: RbacItemAdapter = new RbacHttpItemAdapter({ client });
 
-  const $: Record<string, RbacItem> = {
-    admin: new RbacItem({ name: 'admin', type: 'role' }),
-    manager: new RbacItem({ name: 'manager', type: 'role' }),
-    user: new RbacItem({ name: 'user', type: 'role' }),
-    updateProfile: new RbacItem({ name: 'updateProfile', type: 'permission' }),
-    updateOwnProfile: new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
-    regionManager: new RbacItem({ name: 'region manager', type: 'role' }),
+  const $ = {
+    admin: new RbacItem({ type: 'role', name: 'admin' }),
+    manager: new RbacItem({ type: 'role', name: 'manager' }),
+    user: new RbacItem({ type: 'role', name: 'user' }),
+    updateProfile: new RbacItem({ type: 'perm', name: 'updateProfile' }),
+    isOwnProfile: new RbacItem({ type: 'rule', name: 'isOwnProfile' }),
+    regionManager: new RbacItem({ type: 'role', name: 'region manager' }),
   }
 
   it('should store many and load them', async () => {
-    const values = [$.admin, $.manager, $.user, $.updateProfile, $.updateOwnProfile];
+    const values = [$.admin, $.manager, $.user, $.updateProfile, $.isOwnProfile];
     await adapter.store(values);
     const entries = await adapter.load();
     assert.deepEqual(entries, values);
@@ -231,11 +230,11 @@ describe('RbacHttpItemChildAdapter', function() {
 
   const adapter: RbacItemChildAdapter = new RbacHttpItemChildAdapter({ client });
 
-  const $: Record<string, RbacItemChild> = {
+  const $ = {
     admin_manager: new RbacItemChild({ parent: 'admin', child: 'manager' }),
     manager_user: new RbacItemChild({ parent: 'manager', child: 'user' }),
-    user_updateOwnProfile: new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
-    updateOwnProfile_updateProfile: new RbacItemChild({ parent: 'updateOwnProfile', child: 'updateProfile' }),
+    user_isOwnProfile: new RbacItemChild({ parent: 'user', child: 'isOwnProfile' }),
+    isOwnProfile_updateProfile: new RbacItemChild({ parent: 'isOwnProfile', child: 'updateProfile' }),
     admin_updateProfile: new RbacItemChild({ parent: 'admin', child: 'updateProfile' }),
     manager_regionManager: new RbacItemChild({ parent: 'manager', child: 'region manager' }),
   }
@@ -244,8 +243,8 @@ describe('RbacHttpItemChildAdapter', function() {
     const values = [
       $.admin_manager,
       $.manager_user,
-      $.user_updateOwnProfile,
-      $.updateOwnProfile_updateProfile,
+      $.user_isOwnProfile,
+      $.isOwnProfile_updateProfile,
       $.admin_updateProfile,
     ]
     await adapter.store(values);
@@ -265,59 +264,6 @@ describe('RbacHttpItemChildAdapter', function() {
   });
 });
 
-describe('RbacHttpRuleAdapter', function() {
-  this.timeout(timeout);
-
-  let server: http.Server;
-
-  before(async () => {
-    const app = express();
-    server = app.listen(4001);
-    app.use(express.json());
-    const db = new RbacInMemoryRuleAdapter();
-    app.post('/rbac/rules', (req, res) => {
-      const errHandler = newErrHandler(res);
-      const { rbacRules, name } = req.body;
-      if (rbacRules) {
-        db.store(rbacRules).then(() => res.end()).catch(errHandler);
-      } else {
-        db.create({ name }).then(() => res.end()).catch(errHandler);
-      }
-    });
-    app.get('/rbac/rules', (_req, res) => {
-      db.load().then(entries => res.json(entries)).catch(newErrHandler(res));
-    });
-    app.get('/rbac/rules/:name', (req, res) => {
-      db.find(req.params.name).then(entry => res.json(entry)).catch(newErrHandler(res));
-    });
-  });
-
-  after((done) => {
-    server.close(done);
-  });
-
-  const adapter: RbacRuleAdapter = new RbacHttpRuleAdapter({ client });
-  
-  const $: Record<string, RbacRule> = {
-    IsOwnProfile: new RbacRule({ name: 'IsOwnProfile' }),
-    IsOwnDocument: new RbacRule({ name: 'IsOwnDocument' }),
-    IsGroupLeader: new RbacRule({ name: 'IsGroupLeader' }),
-  };
-
-  it('should store many and load them', async () => {
-    const values = [$.IsOwnProfile, $.IsOwnDocument];
-    await adapter.store(values);
-    const entries = await adapter.load();
-    assert.deepEqual(entries, values);
-  });
-
-  it('should create one and find it', async () => {
-    await adapter.create($.IsGroupLeader);
-    const entry = await adapter.find($.IsGroupLeader.name);
-    assert.deepEqual(entry, $.IsGroupLeader);
-  });
-});
-
 describe('RbacHttpAdapter', function() {
   this.timeout(timeout);
 
@@ -327,21 +273,18 @@ describe('RbacHttpAdapter', function() {
       new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     ],
     items: [
-      new RbacItem({ name: 'admin', type: 'role' }),
-      new RbacItem({ name: 'manager', type: 'role' }),
-      new RbacItem({ name: 'user', type: 'role' }),
-      new RbacItem({ name: 'updateProfile', type: 'permission' }),
-      new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
+      new RbacItem({ type: 'role', name: 'admin' }),
+      new RbacItem({ type: 'role', name: 'manager' }),
+      new RbacItem({ type: 'role', name: 'user' }),
+      new RbacItem({ type: 'rule', name: 'isOwnProfile' }),
+      new RbacItem({ type: 'perm', name: 'updateProfile' }),
     ],
     itemChildren: [
       new RbacItemChild({ parent: 'admin', child: 'manager' }),
       new RbacItemChild({ parent: 'manager', child: 'user' }),
-      new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
-      new RbacItemChild({ parent: 'updateOwnProfile', child: 'updateProfile' }),
+      new RbacItemChild({ parent: 'user', child: 'isOwnProfile' }),
+      new RbacItemChild({ parent: 'isOwnProfile', child: 'updateProfile' }),
       new RbacItemChild({ parent: 'admin', child: 'updateProfile' }),
-    ],
-    rules: [
-      new RbacRule({ name: 'IsOwnProfile' }),
     ],
   };
 
@@ -360,9 +303,6 @@ describe('RbacHttpAdapter', function() {
     app.get('/rbac/item-children', (_req, res) => {
       res.json($.itemChildren);
     });
-    app.get('/rbac/rules', (_req, res) => {
-      res.json($.rules);
-    });
   });
 
   after((done) => {
@@ -373,7 +313,6 @@ describe('RbacHttpAdapter', function() {
     assignmentAdapter: new RbacHttpAssignmentAdapter({ client }),
     itemAdapter: new RbacHttpItemAdapter({ client }),
     itemChildAdapter: new RbacHttpItemChildAdapter({ client }),
-    ruleAdapter: new RbacHttpRuleAdapter({ client }),
   });
 
   it("should load data via load() function", async () => {

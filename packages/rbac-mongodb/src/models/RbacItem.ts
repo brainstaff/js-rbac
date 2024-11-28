@@ -10,14 +10,11 @@ const RbacItemSchema = new mongoose.Schema<RbacItem>({
   type: {
     type: String,
     enum: [
-      'permission',
-      'role'
+      'role',
+      'rule',
+      'perm',
     ]
   },
-  rule: {
-    type: String,
-    ref: 'RbacRule'
-  }
 });
 
 export default mongoose.model('RbacItem', RbacItemSchema, 'RbacItem');

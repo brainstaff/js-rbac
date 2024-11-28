@@ -2,12 +2,11 @@ import fs from 'node:fs';
 
 import knex from 'knex';
 
-import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter, RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
+import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter } from '@brainstaff/rbac';
 
 import { RbacPostgresAssignmentAdapter } from '../src/index.js';
 import { RbacPostgresItemAdapter } from '../src/index.js';
 import { RbacPostgresItemChildAdapter } from '../src/index.js';
-import { RbacPostgresRuleAdapter } from '../src/index.js';
 
 // Initializing connection to test DB
 
@@ -50,18 +49,18 @@ after(() => client.destroy());
 describe('RbacPostgresItemAdapter', function() {
   this.timeout(timeout);
 
-  const $: Record<string, RbacItem> = {
-    admin: new RbacItem({ name: 'admin', type: 'role' }),
-    manager: new RbacItem({ name: 'manager', type: 'role' }),
-    user: new RbacItem({ name: 'user', type: 'role' }),
-    updateProfile: new RbacItem({ name: 'updateProfile', type: 'permission' }),
-    updateOwnProfile: new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
-    regionManager: new RbacItem({ name: 'region manager', type: 'role' }),
+  const $ = {
+    admin: new RbacItem({ type: 'role', name: 'admin'  }),
+    manager: new RbacItem({ type: 'role', name: 'manager' }),
+    user: new RbacItem({ type: 'role', name: 'user' }),
+    updateProfile: new RbacItem({ type: 'perm', name: 'updateProfile' }),
+    isOwnProfile: new RbacItem({ type: 'rule', name: 'isOwnProfile' }),
+    regionManager: new RbacItem({ type: 'role', name: 'region manager' }),
   }
 
   it('should store many and load them', async () => {
     const adapter: RbacItemAdapter = new RbacPostgresItemAdapter({ client });
-    const values = [$.admin, $.manager, $.user, $.updateProfile, $.updateOwnProfile];
+    const values = [$.admin, $.manager, $.user, $.updateProfile, $.isOwnProfile];
     await adapter.store(values);
     const entries = await adapter.load();
     expect(entries).to.have.deep.members(values);
@@ -98,7 +97,7 @@ describe('RbacPostgresItemAdapter', function() {
 describe('RbacPostgresAssignmentAdapter', function() {
   this.timeout(timeout);
 
-  const $: Record<string, RbacAssignment> = {
+  const $ = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
@@ -145,11 +144,11 @@ describe('RbacPostgresAssignmentAdapter', function() {
 describe('RbacPostgresItemChildAdapter', function() {
   this.timeout(timeout);
 
-  const $: Record<string, RbacItemChild> = {
+  const $ = {
     admin_manager: new RbacItemChild({ parent: 'admin', child: 'manager' }),
     manager_user: new RbacItemChild({ parent: 'manager', child: 'user' }),
-    user_updateOwnProfile: new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
-    updateOwnProfile_updateProfile: new RbacItemChild({ parent: 'updateOwnProfile', child: 'updateProfile' }),
+    user_isOwnProfile: new RbacItemChild({ parent: 'user', child: 'isOwnProfile' }),
+    isOwnProfile_updateProfile: new RbacItemChild({ parent: 'isOwnProfile', child: 'updateProfile' }),
     admin_updateProfile: new RbacItemChild({ parent: 'admin', child: 'updateProfile' }),
     manager_regionManager: new RbacItemChild({ parent: 'manager', child: 'region manager' }),
   }
@@ -159,8 +158,8 @@ describe('RbacPostgresItemChildAdapter', function() {
     const values = [
       $.admin_manager,
       $.manager_user,
-      $.user_updateOwnProfile,
-      $.updateOwnProfile_updateProfile,
+      $.user_isOwnProfile,
+      $.isOwnProfile_updateProfile,
       $.admin_updateProfile,
     ]
     await adapter.store(values);
@@ -179,30 +178,5 @@ describe('RbacPostgresItemChildAdapter', function() {
     const adapter: RbacItemChildAdapter = new RbacPostgresItemChildAdapter({ client });
     const entry = await adapter.findByParent($.admin_manager.parent);
     expect(entry).to.have.deep.members([$.admin_manager, $.admin_updateProfile]);
-  });
-});
-
-describe('RbacPostgresRuleAdapter', function() {
-  this.timeout(timeout);
-
-  const $: Record<string, RbacRule> = {
-    IsOwnProfile: new RbacRule({ name: 'IsOwnProfile' }),
-    IsOwnDocument: new RbacRule({ name: 'IsOwnDocument' }),
-    IsGroupLeader: new RbacRule({ name: 'IsGroupLeader' }),
-  };
-
-  it('should store many and load them', async () => {
-    const adapter: RbacRuleAdapter = new RbacPostgresRuleAdapter({ client });
-    const values = [$.IsOwnProfile, $.IsOwnDocument];
-    await adapter.store(values);
-    const entries = await adapter.load();
-    expect(entries).to.have.deep.members(values);
-  });
-
-  it('should create one and find it', async () => {
-    const adapter: RbacRuleAdapter = new RbacPostgresRuleAdapter({ client });
-    await adapter.create($.IsGroupLeader);
-    const entry = await adapter.find($.IsGroupLeader.name);
-    expect(entry).to.be.an('object').that.include($.IsGroupLeader);
   });
 });

@@ -1,4 +1,4 @@
-import { RbacAssignment, RbacHierarchy, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacHierarchy, RbacItem, RbacItemChild, RbacUserId } from "./rbac-abstractions";
 
 export interface RbacAssignmentAdapter<RbacContextId = never> {
   store: (all: RbacAssignment<RbacContextId>[]) => Promise<void>;
@@ -25,37 +25,26 @@ export interface RbacItemChildAdapter {
   find: (parent: RbacItem['name'], child: RbacItem['name']) => Promise<RbacItemChild | null>;
   findByParent: (name: RbacItem['name']) => Promise<RbacItemChild[]>;
 }
-
-export interface RbacRuleAdapter {
-  store: (all: RbacRule[]) => Promise<void>;
-  load: () => Promise<RbacRule[]>;
-  create: (one: RbacRule) => Promise<void>;
-  find: (name: RbacRule['name']) => Promise<RbacRule | null>;
-}
   
 export class RbacAdapter<RbacContextId = never> {
   private assignmentAdapter: RbacAssignmentAdapter<RbacContextId>;
   private itemAdapter: RbacItemAdapter;
   private itemChildAdapter: RbacItemChildAdapter;
-  private ruleAdapter: RbacRuleAdapter;
 
   constructor(deps: {
     assignmentAdapter: RbacAssignmentAdapter<RbacContextId>,
     itemAdapter: RbacItemAdapter,
     itemChildAdapter: RbacItemChildAdapter,
-    ruleAdapter: RbacRuleAdapter,
   }) {
     this.assignmentAdapter = deps.assignmentAdapter;
     this.itemAdapter = deps.itemAdapter;
     this.itemChildAdapter = deps.itemChildAdapter;
-    this.ruleAdapter = deps.ruleAdapter;
   }
 
   async store(all: RbacHierarchy<RbacContextId>): Promise<void> {
     await this.assignmentAdapter.store(all.assignments);
     await this.itemAdapter.store(all.items);
     await this.itemChildAdapter.store(all.itemChildren);
-    await this.ruleAdapter.store(all.rules);
   }
 
   async load(): Promise<RbacHierarchy<RbacContextId>> {
@@ -63,7 +52,6 @@ export class RbacAdapter<RbacContextId = never> {
       assignments: await this.assignmentAdapter.load(),
       items: await this.itemAdapter.load(),
       itemChildren: await this.itemChildAdapter.load(),
-      rules: await this.ruleAdapter.load(),
     };
   }
 
@@ -77,10 +65,6 @@ export class RbacAdapter<RbacContextId = never> {
 
   async findAllItemsChild(): Promise<RbacItemChild[]> {
     return this.itemChildAdapter.load();
-  }
-
-  async findAllRules(): Promise<RbacRule[]> {
-    return this.ruleAdapter.load();
   }
 
   // Core for checkAccess
@@ -126,9 +110,5 @@ export class RbacAdapter<RbacContextId = never> {
 
   async createItemChild(one: RbacItemChild): Promise<void> {
     return this.itemChildAdapter.create(one);
-  }
-
-  async createRule(one: RbacRule): Promise<void> {
-    return this.ruleAdapter.create(one);
   }
 }

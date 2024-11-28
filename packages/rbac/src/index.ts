@@ -1,6 +1,5 @@
 export {
   RbacUserId,
-  RbacRule,
   RbacRuleInstance,
   RbacRuleFactory,
   RbacItem,
@@ -11,7 +10,6 @@ export {
   RbacAssignmentAdapter,
   RbacItemAdapter,
   RbacItemChildAdapter,
-  RbacRuleAdapter,
   RbacAdapter,
 } from "./rbac-adapter";
 export { RbacManager } from "./rbac-manager";

@@ -49,31 +49,19 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
 
   private async isOk(current: RbacItem['name'], target: RbacItem['name'], payload?: RbacRulePayload) {
     const item = await this.currentAdapter.findItem(current);
-    if (!item) {
+    if (item == null) {
       return false;
     }
-    if (item.name === target) {
-      // If we found permission we execute business rule
-      if (item.type === 'permission' && item.rule) {
-        return this.ruleFactory.createRule(item.rule).execute(payload);
-      } else {
+    const ok = item.type !== 'rule' || await this.ruleFactory.createRule(item.name).execute(payload);
+    if (item.name === target || !ok) {
+      return ok;
+    }
+    for (const { child } of await this.currentAdapter.findItemChildrenByParent(item.name)) {
+      if (await this.isOk(child, target, payload)) {
         return true;
       }
-    } else {
-      // Before going deeper let's check business rule
-      if (item.type === 'permission' && item.rule) {
-        if (!(await this.ruleFactory.createRule(item.rule).execute(payload))) {
-          return false;
-        }
-      }
-      const children = await this.currentAdapter.findItemChildrenByParent(item.name);
-      for (let i = 0; i < children.length; i++) {
-        if (await this.isOk(children[i].child, target, payload)) {
-          return true;
-        }
-      }
-      return false;
     }
+    return false;
   }
 
   async assign(one: RbacAssignment<RbacContextId>) {
@@ -127,9 +115,5 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
 
   async fetchAllItemsChild() {
     return this.currentAdapter.findAllItemsChild();
-  }
-
-  async fetchAllRules() {
-    return this.currentAdapter.findAllRules();
   }
 }
