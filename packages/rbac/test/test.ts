@@ -38,33 +38,12 @@ const createManager = async () => {
     me?: string,
     owner?: string,
   };
-  const m = new RbacManager<RbacContextId, RbacRulePayload>({
-    cacheAdapter: new RbacAdapter({
-      assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
-      itemAdapter: new RbacInMemoryItemAdapter(),
-      itemChildAdapter: new RbacInMemoryItemChildAdapter(),
-    }),
-    persistentAdapter: new RbacAdapter({
-      assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
-      itemAdapter: new RbacInMemoryItemAdapter(),
-      itemChildAdapter: new RbacInMemoryItemChildAdapter(),
-    }),
-    ruleFactory: {
-      createRule(name) {
-        switch(name) {
-          case $.item.isOwnProfile:
-            return {
-              execute: async ({ me, owner } = {}) => {
-                return me != null && owner != null && me === owner;
-              }
-            };
-          default:
-            throw new Error(`Unexpected rule: ${name}`);
-        }
-      }
-    }
+  const persistentAdapter = new RbacAdapter<RbacContextId>({
+    assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
+    itemAdapter: new RbacInMemoryItemAdapter(),
+    itemChildAdapter: new RbacInMemoryItemChildAdapter(),
   });
-  await m.currentAdapter.store({
+  await persistentAdapter.store({
     assignments: [
       { userId: $.a, role: $.item.admin },
       { userId: $.m, role: $.item.manager },
@@ -83,6 +62,28 @@ const createManager = async () => {
       { parent: $.item.isOwnProfile, child: $.item.updateProfile },
       { parent: $.item.admin, child: $.item.updateProfile },
     ],
+  });
+  const m = new RbacManager<RbacContextId, RbacRulePayload>({
+    cacheAdapter: new RbacAdapter({
+      assignmentAdapter: new RbacInMemoryAssignmentAdapter(),
+      itemAdapter: new RbacInMemoryItemAdapter(),
+      itemChildAdapter: new RbacInMemoryItemChildAdapter(),
+    }),
+    persistentAdapter,
+    ruleFactory: {
+      createRule(name) {
+        switch(name) {
+          case $.item.isOwnProfile:
+            return {
+              execute: async ({ me, owner } = {}) => {
+                return me != null && owner != null && me === owner;
+              }
+            };
+          default:
+            throw new Error(`Unexpected rule: ${name}`);
+        }
+      }
+    }
   });
   await m.loadCache();
   return m;

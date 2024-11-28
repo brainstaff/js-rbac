@@ -24,16 +24,16 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
     this.isCacheLoaded = true;
   }
 
-  get currentAdapter() {
-    if (this.isCacheLoaded) {
-      return this.cacheAdapter;
-    } else {
-      return this.persistentAdapter;
-    }
+  private get r() {
+    return this.isCacheLoaded ? this.cacheAdapter : this.persistentAdapter;
+  }
+
+  private get w() {
+    return [this.isCacheLoaded ? this.cacheAdapter : null, this.persistentAdapter].filter(x => x != null);
   }
 
   async check(userId: RbacUserId, target: RbacItem['name'], payload?: { contextId?: RbacContextId } & RbacRulePayload) {
-    const assignments = await this.currentAdapter.findAssignmentsByUserId(userId);
+    const assignments = await this.r.findAssignmentsByUserId(userId);
     if (assignments.length === 0) {
       return false;
     }
@@ -48,7 +48,7 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
   }
 
   private async isOk(current: RbacItem['name'], target: RbacItem['name'], payload?: RbacRulePayload) {
-    const item = await this.currentAdapter.findItem(current);
+    const item = await this.r.findItem(current);
     if (item == null) {
       return false;
     }
@@ -56,7 +56,7 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
     if (item.name === target || !ok) {
       return ok;
     }
-    for (const { child } of await this.currentAdapter.findItemChildrenByParent(item.name)) {
+    for (const { child } of await this.r.findItemChildrenByParent(item.name)) {
       if (await this.isOk(child, target, payload)) {
         return true;
       }
@@ -65,55 +65,52 @@ export class RbacManager<RbacContextId, RbacRulePayload extends object> {
   }
 
   async assign(one: RbacAssignment<RbacContextId>) {
-    const item = await this.currentAdapter.findItem(one.role);
+    const item = await this.r.findItem(one.role);
     if (!item || item.type !== 'role') {
       throw new Error(`No such role ${one.role}.`);
     }
-    const exists = await this.currentAdapter.findAssignment(one.userId, one.role) != null;
+    const exists = await this.r.findAssignment(one.userId, one.role) != null;
     if (exists) {
       return true;
     }
-    if (this.isCacheLoaded) {
-      await this.cacheAdapter.createAssignment(one);
+    for (const w of this.w) {
+      await w.createAssignment(one);
     }
-    return this.persistentAdapter.createAssignment(one);
   }
 
   async revoke(userId: RbacUserId, role: RbacItem['name']) {
-    const assignment = await this.currentAdapter.findAssignment(userId, role);
+    const assignment = await this.r.findAssignment(userId, role);
     if (!assignment) {
       throw new Error(`Role "${role}" is not attached to the "${userId}".`);
     }
-    if (this.isCacheLoaded) {
-      await this.cacheAdapter.deleteAssignment(userId, role);
+    for (const w of this.w) {
+      await w.deleteAssignment(userId, role);
     }
-    return this.persistentAdapter.deleteAssignment(userId, role);
   }
 
   async revokeAll(userId: RbacUserId) {
-    if (this.isCacheLoaded) {
-      await this.cacheAdapter.deleteAssignment(userId);
+    for (const w of this.w) {
+      await w.deleteAssignment(userId);
     }
-    return this.persistentAdapter.deleteAssignment(userId);
   }
 
   async fetchUserAssignments(userId: RbacUserId) {
-    return this.currentAdapter.findAssignmentsByUserId(userId);
+    return this.r.findAssignmentsByUserId(userId);
   }
 
   async fetchRoles() {
-    return this.currentAdapter.findRoles();
+    return this.r.findRoles();
   }
 
   async fetchAllAssignments() {
-    return this.currentAdapter.findAllAssignments();
+    return this.r.findAllAssignments();
   }
 
   async fetchAllItems() {
-    return this.currentAdapter.findAllItems();
+    return this.r.findAllItems();
   }
 
   async fetchAllItemsChild() {
-    return this.currentAdapter.findAllItemsChild();
+    return this.r.findAllItemsChild();
   }
 }
