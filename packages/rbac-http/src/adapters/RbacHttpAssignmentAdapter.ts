@@ -4,7 +4,7 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@br
 
 import { rethrow } from '../utils/rethrow';
 
-export default class RbacHttpAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
+export default class RbacHttpAssignmentAdapter<RbacContextId = never> implements RbacAssignmentAdapter<RbacContextId> {
   private client: AxiosInstance;
 
   constructor(deps: {

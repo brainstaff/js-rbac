@@ -1,6 +1,6 @@
 import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from "@brainstaff/rbac";
 
-export default class RbacInMemoryAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
+export default class RbacInMemoryAssignmentAdapter<RbacContextId = never> implements RbacAssignmentAdapter<RbacContextId> {
   private entries: RbacAssignment<RbacContextId>[] = [];
 
   async store(raw: RbacAssignment<RbacContextId>[]) {

@@ -4,7 +4,7 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@br
 
 import RbacAssignmentModel from '../models/RbacAssignment';
 
-export default class RbacPostgresAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
+export default class RbacPostgresAssignmentAdapter<RbacContextId = never> implements RbacAssignmentAdapter<RbacContextId> {
   constructor(deps: {
     client: Knex
   }) {

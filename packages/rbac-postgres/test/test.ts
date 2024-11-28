@@ -98,14 +98,14 @@ describe('RbacPostgresItemAdapter', function() {
 describe('RbacPostgresAssignmentAdapter', function() {
   this.timeout(timeout);
 
-  const $: Record<string, RbacAssignment<unknown>> = {
+  const $: Record<string, RbacAssignment> = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
   }
 
   it('should store many and load them', async () => {
-    const adapter: RbacAssignmentAdapter<unknown> = new RbacPostgresAssignmentAdapter({ client });
+    const adapter: RbacAssignmentAdapter = new RbacPostgresAssignmentAdapter({ client });
     const values = [$.alexey, $.ilya];
     await adapter.store(values);
     const entries = await adapter.load();
@@ -113,20 +113,20 @@ describe('RbacPostgresAssignmentAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    const adapter: RbacAssignmentAdapter<unknown> = new RbacPostgresAssignmentAdapter({ client });
+    const adapter: RbacAssignmentAdapter = new RbacPostgresAssignmentAdapter({ client });
     await adapter.create($.igor);
     const entry = await adapter.find($.igor.userId, $.igor.role);
     expect(entry).to.be.an('object').that.include($.igor);
   });
 
   it('should find many by user', async () => {
-    const adapter: RbacAssignmentAdapter<unknown> = new RbacPostgresAssignmentAdapter({ client });
+    const adapter: RbacAssignmentAdapter = new RbacPostgresAssignmentAdapter({ client });
     const entries = await adapter.findByUserId($.igor.userId);
     expect(entries).to.have.deep.members([$.igor]);
   });
 
   it('should delete one and be unable to find it', async () => {
-    const adapter: RbacAssignmentAdapter<unknown> = new RbacPostgresAssignmentAdapter({ client });
+    const adapter: RbacAssignmentAdapter = new RbacPostgresAssignmentAdapter({ client });
     await adapter.delete($.igor.userId, $.igor.role);
     const entry = await adapter.find($.igor.userId, $.igor.role);
     expect(entry).to.be.null;
@@ -135,7 +135,7 @@ describe('RbacPostgresAssignmentAdapter', function() {
   });
 
   it('should delete many by user', async () => {
-    const adapter: RbacAssignmentAdapter<unknown> = new RbacPostgresAssignmentAdapter({ client });
+    const adapter: RbacAssignmentAdapter = new RbacPostgresAssignmentAdapter({ client });
     await adapter.deleteByUser($.alexey.userId);
     const all = await adapter.load();
     expect(all).to.have.deep.members([$.ilya]);

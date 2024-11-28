@@ -2,7 +2,7 @@ import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@br
 
 import RbacAssignmentModel from '../models/RbacAssignment';
 
-export default class RbacMongodbAssignmentAdapter<RbacContextId> implements RbacAssignmentAdapter<RbacContextId> {
+export default class RbacMongodbAssignmentAdapter<RbacContextId = never> implements RbacAssignmentAdapter<RbacContextId> {
   async store(raw: RbacAssignment<RbacContextId>[]) {
     const all = raw.map(x => new RbacAssignment(x));
     await RbacAssignmentModel.deleteMany({});

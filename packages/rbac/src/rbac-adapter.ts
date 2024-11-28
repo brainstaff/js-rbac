@@ -1,6 +1,6 @@
 import { RbacAssignment, RbacHierarchy, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
 
-export interface RbacAssignmentAdapter<RbacContextId> {
+export interface RbacAssignmentAdapter<RbacContextId = never> {
   store: (all: RbacAssignment<RbacContextId>[]) => Promise<void>;
   load: () => Promise<RbacAssignment<RbacContextId>[]>;
   create: (one: RbacAssignment<RbacContextId>) => Promise<void>;
@@ -33,7 +33,7 @@ export interface RbacRuleAdapter {
   find: (name: RbacRule['name']) => Promise<RbacRule | null>;
 }
   
-export class RbacAdapter<RbacContextId> {
+export class RbacAdapter<RbacContextId = never> {
   private assignmentAdapter: RbacAssignmentAdapter<RbacContextId>;
   private itemAdapter: RbacItemAdapter;
   private itemChildAdapter: RbacItemChildAdapter;

@@ -38,7 +38,7 @@ export class RbacItemChild {
   }
 }
 
-export class RbacAssignment<RbacContextId> {
+export class RbacAssignment<RbacContextId = never> {
   userId: RbacUserId;
   role: RbacItem['name'];
   contextIds?: RbacContextId[];
@@ -50,7 +50,7 @@ export class RbacAssignment<RbacContextId> {
   }
 }
 
-export interface RbacHierarchy<RbacContextId> {
+export interface RbacHierarchy<RbacContextId = never> {
   assignments: RbacAssignment<RbacContextId>[];
   items: RbacItem[];
   itemChildren: RbacItemChild[];

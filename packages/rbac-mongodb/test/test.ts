@@ -59,9 +59,9 @@ after(() => mongooseConnection.disconnect());
 describe('RbacMongodbAssignmentAdapter', function() {
   this.timeout(timeout);
 
-  const adapter: RbacAssignmentAdapter<unknown> = new RbacMongodbAssignmentAdapter();
+  const adapter: RbacAssignmentAdapter = new RbacMongodbAssignmentAdapter();
 
-  const $: Record<string, RbacAssignment<unknown>> = {
+  const $: Record<string, RbacAssignment> = {
     alexey: new RbacAssignment({ userId: 'alexey', role: 'admin' }),
     ilya: new RbacAssignment({ userId: 'ilya', role: 'manager' }),
     igor: new RbacAssignment({ userId: 'igor', role: 'manager' }),
