@@ -1,9 +1,8 @@
 import { Knex } from 'knex';
 
-import { RbacItem, RbacItemAdapter } from '@brainstaff/rbac';
+import { RbacItem, RbacItemAdapter, RbacItemAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacItemModel from '../models/RbacItem';
-import { toRbacItem } from '../utils/mappers';
 
 export default class RbacPostgresItemAdapter implements RbacItemAdapter {
   constructor(deps: {
@@ -20,24 +19,24 @@ export default class RbacPostgresItemAdapter implements RbacItemAdapter {
 
   async load() {
     const entries = await RbacItemModel.query();
-    return entries.map(toRbacItem);
+    return entries.map(x => new RbacItem(x));
   }
 
   async create(raw: RbacItem) {
     const one = new RbacItem(raw);
     if (await this.find(one.name)) {
-      throw new Error(`Item ${one.name} already exists.`);
+      throw new RbacItemAlreadyExistsError(one);
     }
     await RbacItemModel.query().insert(one);
   }
 
   async find(name: RbacItem['name']) {
     const value = await RbacItemModel.query().findById([name]);
-    return value == null ? null : toRbacItem(value);
+    return value == null ? null : new RbacItem(value);
   }
 
   async findByType(type: RbacItem['type']) {
     const entries = await RbacItemModel.query().where({ type });
-    return entries.map(toRbacItem);
+    return entries.map(x => new RbacItem(x));
   }
 }

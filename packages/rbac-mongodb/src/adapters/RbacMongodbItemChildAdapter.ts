@@ -1,5 +1,5 @@
 import { RbacItemChildAdapter } from '@brainstaff/rbac/src/rbac-adapter';
-import { RbacItem, RbacItemChild } from '@brainstaff/rbac';
+import { RbacItem, RbacItemChild, RbacItemChildAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacItemChildModel from '../models/RbacItemChild';
 
@@ -18,7 +18,7 @@ export default class RbacMongodbItemChildAdapter implements RbacItemChildAdapter
   async create(raw: RbacItemChild) {
     const one = new RbacItemChild(raw);
     if (await this.find(one.parent, one.child)) {
-      throw new Error(`Association of ${one.parent} and ${one.child} already exists.`);
+      throw new RbacItemChildAlreadyExistsError(one);
     }
     await RbacItemChildModel.create(one);
   }

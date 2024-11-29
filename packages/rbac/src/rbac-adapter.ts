@@ -1,13 +1,13 @@
-import { RbacAssignment, RbacHierarchy, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacAssignmnentContextId, RbacHierarchy, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
 
 export interface RbacAssignmentAdapter {
   store: (all: RbacAssignment[]) => Promise<void>;
-  load: () => Promise<RbacAssignment[]>;
+  load: (contextId?: RbacAssignmnentContextId) => Promise<RbacAssignment[]>;
   create: (one: RbacAssignment) => Promise<void>;
-  find: (userId: RbacUserId, role: RbacItem['name']) => Promise<RbacAssignment | null>;
-  findByUserId: (userId: RbacUserId) => Promise<RbacAssignment[]>;
-  delete: (userId: RbacUserId, role: RbacItem['name']) => Promise<void>;
-  deleteByUser: (userId: RbacUserId) => Promise<void>;
+  find: (userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId) => Promise<RbacAssignment | null>;
+  findByUserId: (userId: RbacUserId, contextId?: RbacAssignmnentContextId) => Promise<RbacAssignment[]>;
+  delete: (userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId) => Promise<void>;
+  deleteByUser: (userId: RbacUserId, contextId?: RbacAssignmnentContextId) => Promise<void>;
 }
 
 export interface RbacItemAdapter {
@@ -67,8 +67,8 @@ export class RbacAdapter {
     };
   }
 
-  async findAllAssignments(): Promise<RbacAssignment[]> {
-    return this.assignmentAdapter.load();
+  async findAllAssignments(contextId?: RbacAssignmnentContextId): Promise<RbacAssignment[]> {
+    return this.assignmentAdapter.load(contextId);
   }
 
   async findAllItems(): Promise<RbacItem[]> {
@@ -85,8 +85,8 @@ export class RbacAdapter {
 
   // Core for checking access
 
-  async findAssignmentsByUserId(userId: RbacUserId): Promise<RbacAssignment[]> {
-    return this.assignmentAdapter.findByUserId(userId);
+  async findAssignmentsByUserId(userId: RbacUserId, contextId?: RbacAssignmnentContextId): Promise<RbacAssignment[]> {
+    return this.assignmentAdapter.findByUserId(userId, contextId);
   }
 
   async findItem(name: RbacItem['name']): Promise<RbacItem | null | undefined> {
@@ -103,19 +103,20 @@ export class RbacAdapter {
     return this.assignmentAdapter.create(one);
   }
 
-  async findAssignment(userId: RbacUserId, role: RbacItem['name']): Promise<RbacAssignment | null | undefined> {
-    return this.assignmentAdapter.find(userId, role);
+  async findAssignment(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<RbacAssignment | null | undefined> {
+    return this.assignmentAdapter.find(userId, role, contextId);
   }
 
   async findRoles(): Promise<RbacItem[]> {
     return this.itemAdapter.findByType('role');
   }
 
-  async deleteAssignment(userId: RbacUserId, role?: RbacItem['name']): Promise<void> {
-    if (role) {
-      return this.assignmentAdapter.delete(userId, role);
-    }
-    return this.assignmentAdapter.deleteByUser(userId);
+  async deleteAssignment(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<void> {
+    return this.assignmentAdapter.delete(userId, role, contextId);
+  }
+
+  async deleteAssignmentsByUser(userId: RbacUserId, contextId?: RbacAssignmnentContextId): Promise<void> {
+    return this.assignmentAdapter.deleteByUser(userId, contextId);
   }
 
   // Management

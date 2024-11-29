@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@brainstaff/rbac';
+import { defaultRbacAssignmentContextId, RbacAssignment, RbacAssignmentAdapter, RbacAssignmnentContextId, RbacItem, RbacUserId } from '@brainstaff/rbac';
 
 import { rethrow } from '../utils/rethrow';
 
@@ -20,8 +20,8 @@ export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter 
   }
 
   @rethrow
-  async load() {
-    const res = await this.client.get(`/rbac/assignments`);
+  async load(contextId = defaultRbacAssignmentContextId) {
+    const res = await this.client.get(`/rbac/assignments`, { params: { contextId } });
     return res.data.map((x: any) => new RbacAssignment(x));
   }
 
@@ -32,24 +32,24 @@ export default class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter 
   }
 
   @rethrow
-  async find(userId: RbacUserId, role: RbacItem['name']) {
-    const res = await this.client.get(`/rbac/assignments/${userId}/${role}`);
+  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+    const res = await this.client.get(`/rbac/assignments/${userId}/${role}`, { params: { contextId } });
     return res.data == null ? null : new RbacAssignment(res.data);
   }
 
   @rethrow
-  async findByUserId(userId: RbacUserId) {
-    const res = await this.client.get(`/rbac/assignments/${userId}`);
+  async findByUserId(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+    const res = await this.client.get(`/rbac/assignments/${userId}`, { params: { contextId } });
     return res.data.map((x: any) => new RbacAssignment(x));
   }
 
   @rethrow
-  async delete(userId: RbacUserId, role: RbacItem['name']) {
-    await this.client.delete(`/rbac/assignments/${userId}/${role}`);
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+    await this.client.delete(`/rbac/assignments/${userId}/${role}`, { params: { contextId } });
   }
 
   @rethrow
-  async deleteByUser(userId: RbacUserId) {
-    await this.client.delete(`/rbac/assignments/${userId}`);
+  async deleteByUser(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+    await this.client.delete(`/rbac/assignments/${userId}`, { params: { contextId } });
   }
 }

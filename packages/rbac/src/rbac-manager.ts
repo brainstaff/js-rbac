@@ -1,4 +1,4 @@
-import { RbacAssignment, RbacItem, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
+import { defaultRbacAssignmentContextId, RbacAssignment, RbacAssignmnentContextId, RbacItem, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
 import { RbacAdapter } from "./rbac-adapter";
 
 export class RbacManager<RbacRulePayload = unknown> {
@@ -31,10 +31,10 @@ export class RbacManager<RbacRulePayload = unknown> {
     }
   }
 
-  async check(userId: RbacUserId, itemName: RbacItem['name'], payload?: RbacRulePayload) {
-    const assignments = await this.currentAdapter.findAssignmentsByUserId(userId);
+  async check(userId: RbacUserId, itemName: RbacItem['name'], opts?: { contextId?: RbacAssignmnentContextId, payload?: RbacRulePayload}) {
+    const assignments = await this.currentAdapter.findAssignmentsByUserId(userId, opts?.contextId);
     for (const assignment of assignments) {
-      if (await this.isOk(assignment.role, itemName, payload)) {
+      if (await this.isOk(assignment.role, itemName, opts?.payload)) {
         return true;
       }
     }
@@ -59,49 +59,49 @@ export class RbacManager<RbacRulePayload = unknown> {
     return false;
   }
 
-  async assign(userId: RbacUserId, role: RbacItem['name']) {
+  async assign(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId) {
     const item = await this.currentAdapter.findItem(role);
     if (item == null || item.type !== 'role') {
       throw new Error(`No such role ${role}.`);
     }
-    if (await this.currentAdapter.findAssignment(userId, role) != null) {
+    if (await this.currentAdapter.findAssignment(userId, role, contextId) != null) {
       return true;
     }
-    const assignment = new RbacAssignment({ userId, role });
+    const assignment = new RbacAssignment({ userId, role, contextId });
     if (this.isCacheLoaded) {
       await this.cacheAdapter.createAssignment(assignment);
     }
     return this.persistentAdapter.createAssignment(assignment);
   }
 
-  async revoke(userId: RbacUserId, role: RbacItem['name']) {
-    const assignment = await this.currentAdapter.findAssignment(userId, role);
+  async revoke(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId) {
+    const assignment = await this.currentAdapter.findAssignment(userId, role, contextId);
     if (!assignment) {
       throw new Error(`Role "${role}" is not attached to the "${userId}".`);
     }
     if (this.isCacheLoaded) {
-      await this.cacheAdapter.deleteAssignment(userId, role);
+      await this.cacheAdapter.deleteAssignment(userId, role, contextId);
     }
-    return this.persistentAdapter.deleteAssignment(userId, role);
+    return this.persistentAdapter.deleteAssignment(userId, role, contextId);
   }
 
-  async revokeAll(userId: RbacUserId) {
+  async revokeAll(userId: RbacUserId, contextId?: RbacAssignmnentContextId) {
     if (this.isCacheLoaded) {
-      await this.cacheAdapter.deleteAssignment(userId);
+      await this.cacheAdapter.deleteAssignmentsByUser(userId, contextId);
     }
-    return this.persistentAdapter.deleteAssignment(userId);
+    return this.persistentAdapter.deleteAssignmentsByUser(userId, contextId);
   }
 
-  async fetchUserAssignments(userId: RbacUserId) {
-    return this.currentAdapter.findAssignmentsByUserId(userId);
+  async fetchUserAssignments(userId: RbacUserId, contextId?: RbacAssignmnentContextId) {
+    return this.currentAdapter.findAssignmentsByUserId(userId, contextId);
   }
 
   async fetchRoles() {
     return this.currentAdapter.findRoles();
   }
 
-  async fetchAllAssignments() {
-    return this.currentAdapter.findAllAssignments();
+  async fetchAllAssignments(contextId?: RbacAssignmnentContextId) {
+    return this.currentAdapter.findAllAssignments(contextId);
   }
 
   async fetchAllItems() {

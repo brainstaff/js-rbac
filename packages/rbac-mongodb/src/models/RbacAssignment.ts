@@ -9,6 +9,9 @@ const RbacAssignmentSchema = new mongoose.Schema<RbacAssignment>({
   role: {
     type: String,
     ref: 'RbacItem'
+  },
+  contextId: {
+    type: String
   }
 });
 

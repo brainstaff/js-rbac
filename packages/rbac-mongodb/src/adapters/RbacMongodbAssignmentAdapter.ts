@@ -1,4 +1,4 @@
-import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@brainstaff/rbac';
+import { defaultRbacAssignmentContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacAssignmentModel from '../models/RbacAssignment';
 
@@ -9,38 +9,38 @@ export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapt
     await RbacAssignmentModel.create(all);
   }
 
-  async load() {
-    const entries = await RbacAssignmentModel.find({});
+  async load(contextId = defaultRbacAssignmentContextId) {
+    const entries = await RbacAssignmentModel.find({ contextId });
     return entries.map(x => new RbacAssignment(x));
   }
 
   async create(raw: RbacAssignment) {
     const one = new RbacAssignment(raw);
-    if (await this.find(one.userId, one.role)) {
-      throw new Error(`Role ${one.role} is already assigned to user ${one.userId}.`);
+    if (await this.find(one.userId, one.role, one.contextId)) {
+      throw new RbacAssignmentAlreadyExistsError(one);
     }
     await RbacAssignmentModel.create(one);
   }
 
-  async find(userId: RbacUserId, role: RbacItem['name']) {
-    const entry = await RbacAssignmentModel.findOne({ userId, role });
+  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+    const entry = await RbacAssignmentModel.findOne({ userId, role, contextId });
     return entry == null ? null : new RbacAssignment(entry);
   }
 
-  async findByUserId(userId: RbacUserId) {
-    const entry = await RbacAssignmentModel.find({ userId });
+  async findByUserId(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+    const entry = await RbacAssignmentModel.find({ userId, contextId });
     return entry.map(x => new RbacAssignment(x));
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name']) {
-    const entry = await RbacAssignmentModel.findOne({ userId, role });
-    if (!entry) {
-      throw new Error(`No assignment between ${userId} and ${role} was found.`);
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+    const entry = await this.find(userId, role, contextId);
+    if (entry == null) {
+      throw new RbacAssignmentNotFoundError({ userId, role, contextId });
     }
-    await RbacAssignmentModel.findByIdAndDelete(entry._id);
+    await RbacAssignmentModel.deleteOne({userId, role, contextId});
   }
 
-  async deleteByUser(userId: RbacUserId) {
-    await RbacAssignmentModel.deleteMany({ userId });
+  async deleteByUser(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+    await RbacAssignmentModel.deleteMany({ userId, contextId });
   }
 }

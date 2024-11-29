@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 import knex from 'knex';
 
-import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter, RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
+import { buildRbacItemAlreadyExistsErrorMessage, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter, RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
 
 import { RbacPostgresAssignmentAdapter } from '../src/index.js';
 import { RbacPostgresItemAdapter } from '../src/index.js';
@@ -81,7 +81,7 @@ describe('RbacPostgresItemAdapter', function() {
       expect.fail('Should throw error.');
     } catch (err) {
       if (err instanceof Error) {
-        expect(err.message).to.be.equal(`Item ${$.regionManager.name} already exists.`);
+        expect(err.message).to.be.equal(buildRbacItemAlreadyExistsErrorMessage($.regionManager));
       } else {
         expect.fail("Thrown error should inherit from Error.");
       }

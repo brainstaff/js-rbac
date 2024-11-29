@@ -1,4 +1,4 @@
-import { RbacItem, RbacItemChild, RbacItemChildAdapter } from "@brainstaff/rbac";
+import { RbacItem, RbacItemChild, RbacItemChildAdapter, RbacItemChildAlreadyExistsError } from "@brainstaff/rbac";
 
 export default class RbacInMemoryItemChildAdapter implements RbacItemChildAdapter {
   private entries: RbacItemChild[] = [];
@@ -15,7 +15,7 @@ export default class RbacInMemoryItemChildAdapter implements RbacItemChildAdapte
   async create(raw: RbacItemChild) {
     const one = new RbacItemChild(raw);
     if (await this.find(one.parent, one.child)) {
-      throw new Error(`Association of ${one.parent} and ${one.child} already exists.`);
+      throw new RbacItemChildAlreadyExistsError(one);
     }
     this.entries.push(one);
   }

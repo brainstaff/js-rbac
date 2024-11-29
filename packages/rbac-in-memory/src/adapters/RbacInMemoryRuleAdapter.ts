@@ -1,4 +1,4 @@
-import { RbacRule, RbacRuleAdapter } from "@brainstaff/rbac";
+import { RbacRule, RbacRuleAdapter, RbacRuleAlreadyExistsError } from "@brainstaff/rbac";
 
 export default class RbacInMemoryRuleAdapter implements RbacRuleAdapter {
   private entries: RbacRule[] = [];
@@ -15,7 +15,7 @@ export default class RbacInMemoryRuleAdapter implements RbacRuleAdapter {
   async create(raw: RbacRule) {
     const one = new RbacRule(raw);
     if (await this.find(one.name)) {
-      throw new Error(`Rule ${one.name} already exists.`);
+      throw new RbacRuleAlreadyExistsError(one);
     }
     this.entries.push(one);
   }

@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-import { RbacItem, RbacItemChild, RbacItemChildAdapter } from '@brainstaff/rbac';
+import { RbacItem, RbacItemChild, RbacItemChildAdapter, RbacItemChildAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacItemChildModel from '../models/RbacItemChild';
 
@@ -25,7 +25,7 @@ export default class RbacPostgresItemChildAdapter implements RbacItemChildAdapte
   async create(raw: RbacItemChild) {
     const one = new RbacItemChild(raw);
     if (await this.find(one.parent, one.child)) {
-      throw new Error(`Association of ${one.parent} and ${one.child} already exists.`);
+      throw new RbacItemChildAlreadyExistsError(one);
     }
     await RbacItemChildModel.query().insert(one);
   }

@@ -1,4 +1,4 @@
-import { RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
+import { RbacRule, RbacRuleAdapter, RbacRuleAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacRuleModel from '../models/RbacRule';
 
@@ -17,7 +17,7 @@ export default class RbacMongodbRuleAdapter implements RbacRuleAdapter {
   async create(raw: RbacRule) {
     const one = new RbacRule(raw);
     if (await this.find(one.name)) {
-      throw new Error(`Rule ${one.name} already exists.`);
+      throw new RbacRuleAlreadyExistsError(one);
     }
     await RbacRuleModel.create(one);
   }
