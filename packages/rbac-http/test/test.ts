@@ -4,7 +4,7 @@ import assert from 'node:assert';
 import express from 'express';
 import axios from 'axios';
 
-import { RbacAdapter, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter, RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
+import { buildRbacAssignmentNotFoundErrorMessage, buildRbacItemAlreadyExistsErrorMessage, RbacAdapter, RbacAssignment, RbacAssignmentAdapter, RbacHierarchy, RbacItem, RbacItemAdapter, RbacItemChild, RbacItemChildAdapter, RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
 import { RbacInMemoryAssignmentAdapter, RbacInMemoryItemAdapter, RbacInMemoryItemChildAdapter, RbacInMemoryRuleAdapter } from '@brainstaff/rbac-in-memory'
 
 import { RbacHttpAssignmentAdapter } from '../src/index.js';
@@ -20,7 +20,11 @@ const client = axios.create({
 const timeout = 10000;
 
 const newErrHandler = (res: express.Response) => {
-  return (err: unknown) => res.status(400).json({ message: err instanceof Error ? err.message : 'No message.' });
+  return (err: unknown) => {
+    res.status(typeof err === 'number' ? err : 400).json({
+      message: err instanceof Error ? err.message : 'No message.'
+    });
+  };
 };
 
 describe('RbacHttpAssignmentAdapter', function() {
@@ -39,23 +43,48 @@ describe('RbacHttpAssignmentAdapter', function() {
       if (rbacAssignments) {
         db.store(rbacAssignments).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(userId, role).then(() => res.end()).catch(errHandler);
+        db.create(new RbacAssignment({ userId, role })).then(() => res.end()).catch(errHandler);
       }
     });
-    app.get('/rbac/assignments', (_req, res) => {
-      db.load().then(entries => res.json(entries)).catch(newErrHandler(res));
+    app.get('/rbac/assignments', (req, res) => {
+      const handleErr = newErrHandler(res);
+      const { contextId } = req.query;
+      if (typeof contextId !== 'string' || typeof contextId === 'undefined') {
+        return handleErr(400);
+      }
+      db.load(contextId).then(entries => res.json(entries)).catch(handleErr);
     });
     app.get('/rbac/assignments/:userId/:role', (req, res) => {
-      db.find(req.params.userId, req.params.role).then(entries => res.json(entries)).catch(newErrHandler(res));
+      const handleErr = newErrHandler(res);
+      const { userId, role } = req.params, { contextId } = req.query;
+      if (typeof contextId !== 'string' || typeof contextId === 'undefined') {
+        return handleErr(400);
+      }
+      db.find(userId, role, contextId).then(entries => res.json(entries)).catch(handleErr);
     });
     app.get('/rbac/assignments/:userId', (req, res) => {
-      db.findByUserId(req.params.userId).then(entry => res.json(entry)).catch(newErrHandler(res));
+      const handleErr = newErrHandler(res);
+      const { userId } = req.params, { contextId } = req.query;
+      if (typeof contextId !== 'string' || typeof contextId === 'undefined') {
+        return handleErr(400);
+      }
+      db.findByUserId(userId, contextId).then(entry => res.json(entry)).catch(handleErr);
     });
     app.delete('/rbac/assignments/:userId/:role', (req, res) => {
-      db.delete(req.params.userId, req.params.role).then(entry => res.json(entry)).catch(newErrHandler(res));
+      const handleErr = newErrHandler(res);
+      const { userId, role } = req.params, { contextId } = req.query;
+      if (typeof contextId !== 'string' || typeof contextId === 'undefined') {
+        return handleErr(400);
+      }
+      db.delete(userId, role, contextId).then(entry => res.json(entry)).catch(handleErr);
     });
     app.delete('/rbac/assignments/:userId', (req, res) => {
-      db.deleteByUser(req.params.userId).then(entry => res.json(entry)).catch(newErrHandler(res));
+      const handleErr = newErrHandler(res);
+      const { userId } = req.params, { contextId } = req.query;
+      if (typeof contextId !== 'string' || typeof contextId === 'undefined') {
+        return handleErr(400);
+      }
+      db.deleteByUser(userId, contextId).then(entry => res.json(entry)).catch(handleErr);
     });
   });
 
@@ -79,7 +108,7 @@ describe('RbacHttpAssignmentAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.igor.userId, $.igor.role);
+    await adapter.create($.igor);
     const entry = await adapter.find($.igor.userId, $.igor.role);
     assert.deepEqual(entry, $.igor);
   });
@@ -103,7 +132,7 @@ describe('RbacHttpAssignmentAdapter', function() {
       assert.fail('Should throw error.');
     } catch (err) {
       if (err instanceof Error)  {
-        assert.deepEqual(err.message, `No assignment between ${$.igor.userId} and ${$.igor.role} was found.`);
+        assert.deepEqual(err.message, buildRbacAssignmentNotFoundErrorMessage($.igor));
       } else {
         assert.fail('Thrown error should inherit from Error.');
       }
@@ -133,7 +162,7 @@ describe('RbacHttpItemAdapter', function() {
       if (rbacItems) {
         db.store(rbacItems).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(name, type, rule).then(() => res.end()).catch(errHandler);
+        db.create({ name, type, rule }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/items', (_req, res) => {
@@ -170,18 +199,18 @@ describe('RbacHttpItemAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.regionManager.name, $.regionManager.type, $.regionManager.rule);
+    await adapter.create($.regionManager);
     const entry = await adapter.find($.regionManager.name);
     assert.deepEqual(entry, $.regionManager);
   });
 
   it('should not create existing one', async () => {
     try {
-      await adapter.create($.regionManager.name, $.regionManager.type, $.regionManager.rule);
+      await adapter.create($.regionManager);
       assert.fail('Should throw error.');
     } catch (err) {
       if (err instanceof Error) {
-        assert.equal(err.message, `Item ${$.regionManager.name} already exists.`);
+        assert.equal(err.message, buildRbacItemAlreadyExistsErrorMessage($.regionManager));
       } else {
         assert.fail('Thrown error should inherit from Error.');
       }
@@ -210,7 +239,7 @@ describe('RbacHttpItemChildAdapter', function() {
       if (rbacItemChildren) {
         db.store(rbacItemChildren).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(parent, child).then(() => res.end()).catch(errHandler);
+        db.create({ parent, child }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/item-children', (_req, res) => {
@@ -253,7 +282,7 @@ describe('RbacHttpItemChildAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.manager_regionManager.parent, $.manager_regionManager.child);
+    await adapter.create($.manager_regionManager);
     const entry = await adapter.find($.manager_regionManager.parent, $.manager_regionManager.child);
     assert.deepEqual(entry, $.manager_regionManager);
   });
@@ -280,7 +309,7 @@ describe('RbacHttpRuleAdapter', function() {
       if (rbacRules) {
         db.store(rbacRules).then(() => res.end()).catch(errHandler);
       } else {
-        db.create(name).then(() => res.end()).catch(errHandler);
+        db.create({ name }).then(() => res.end()).catch(errHandler);
       }
     });
     app.get('/rbac/rules', (_req, res) => {
@@ -311,7 +340,7 @@ describe('RbacHttpRuleAdapter', function() {
   });
 
   it('should create one and find it', async () => {
-    await adapter.create($.IsGroupLeader.name);
+    await adapter.create($.IsGroupLeader);
     const entry = await adapter.find($.IsGroupLeader.name);
     assert.deepEqual(entry, $.IsGroupLeader);
   });
@@ -319,51 +348,48 @@ describe('RbacHttpRuleAdapter', function() {
 
 describe('RbacHttpAdapter', function() {
   this.timeout(timeout);
-  
-  const rbacAssignments: RbacAssignment[] = [
-    { userId: 'alexey', role: 'admin' },
-    { userId: 'ilya', role: 'manager' }
-  ];
-  const rbacItems = [
-    new RbacItem({ name: 'admin', type: 'role' }),
-    new RbacItem({ name: 'manager', type: 'role' }),
-    new RbacItem({ name: 'user', type: 'role' }),
-    new RbacItem({ name: 'updateProfile', type: 'permission' }),
-    new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
-  ];
-  const rbacItemChildren = [
-    { parent: 'admin', child: 'manager' },
-    { parent: 'manager', child: 'user' },
-    { parent: 'user', child: 'updateOwnProfile' },
-    { parent: 'updateOwnProfile', child: 'updateProfile' },
-    { parent: 'admin', child: 'updateProfile' }
-  ];
-  const rbacRules = [
-    { name: 'IsOwnProfile' }
-  ];
-  const rbacAdapter = new RbacAdapter({
-    assignmentAdapter: new RbacHttpAssignmentAdapter({ client }),
-    itemAdapter: new RbacHttpItemAdapter({ client }),
-    itemChildAdapter: new RbacHttpItemChildAdapter({ client }),
-    ruleAdapter: new RbacHttpRuleAdapter({ client }),
-   });
+
+  const $: RbacHierarchy = {
+    assignments: [
+      new RbacAssignment({ userId: 'alexey', role: 'admin' }),
+      new RbacAssignment({ userId: 'ilya', role: 'manager' }),
+    ],
+    items: [
+      new RbacItem({ name: 'admin', type: 'role' }),
+      new RbacItem({ name: 'manager', type: 'role' }),
+      new RbacItem({ name: 'user', type: 'role' }),
+      new RbacItem({ name: 'updateProfile', type: 'permission' }),
+      new RbacItem({ name: 'updateOwnProfile', type: 'permission', rule: 'IsOwnProfile' }),
+    ],
+    itemChildren: [
+      new RbacItemChild({ parent: 'admin', child: 'manager' }),
+      new RbacItemChild({ parent: 'manager', child: 'user' }),
+      new RbacItemChild({ parent: 'user', child: 'updateOwnProfile' }),
+      new RbacItemChild({ parent: 'updateOwnProfile', child: 'updateProfile' }),
+      new RbacItemChild({ parent: 'admin', child: 'updateProfile' }),
+    ],
+    rules: [
+      new RbacRule({ name: 'IsOwnProfile' }),
+    ],
+  };
+
   let server: http.Server;
 
   before(async () => {
     const app = express();
     server = app.listen(4001);
     app.use(express.json());
-    app.get('/rbac/assignments', (request, response) => {
-      response.json(rbacAssignments);
+    app.get('/rbac/assignments', (_req, res) => {
+      res.json($.assignments);
     });
-    app.get('/rbac/items', (request, response) => {
-      response.json(rbacItems);
+    app.get('/rbac/items', (_req, res) => {
+      res.json($.items);
     });
-    app.get('/rbac/item-children', (request, response) => {
-      response.json(rbacItemChildren);
+    app.get('/rbac/item-children', (_req, res) => {
+      res.json($.itemChildren);
     });
-    app.get('/rbac/rules', (request, response) => {
-      response.json(rbacRules);
+    app.get('/rbac/rules', (_req, res) => {
+      res.json($.rules);
     });
   });
 
@@ -371,8 +397,15 @@ describe('RbacHttpAdapter', function() {
     server.close(done);
   });
 
+  const adapter = new RbacAdapter({
+    assignmentAdapter: new RbacHttpAssignmentAdapter({ client }),
+    itemAdapter: new RbacHttpItemAdapter({ client }),
+    itemChildAdapter: new RbacHttpItemChildAdapter({ client }),
+    ruleAdapter: new RbacHttpRuleAdapter({ client }),
+  });
+
   it("should load data via load() function", async () => {
-    const result = await rbacAdapter.load();
-    assert.deepEqual(result, { rbacAssignments, rbacItems, rbacItemChildren, rbacRules });
+    const hierarchy = await adapter.load();
+    assert.deepEqual(hierarchy, $);
   });
 });

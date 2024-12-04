@@ -1,40 +1,42 @@
-import { RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from "@brainstaff/rbac";
+import { defaultRbacAssignmentContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from "@brainstaff/rbac";
 
 export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdapter {
   private entries: RbacAssignment[] = [];
 
-  async store(values: RbacAssignment[]) {
-    this.entries = values.map((x) => new RbacAssignment(x));
+  async store(raw: RbacAssignment[]) {
+    const all = raw.map((x) => new RbacAssignment(x));
+    this.entries = all;
   }
 
-  async load() {
-    return this.entries;
+  async load(contextId = defaultRbacAssignmentContextId) {
+    return this.entries.filter(x => x.contextId === contextId);
   }
 
-  async create(userId: RbacUserId, role: RbacItem['name']) {
-    if (this.entries.find(x => x.userId === userId && x.role === role)) {
-      throw new Error(`Role ${role} is already assigned to user ${userId}.`);
+  async create(raw: RbacAssignment) {
+    const one = new RbacAssignment(raw);
+    if (await this.find(one.userId, one.role, one.contextId)) {
+      throw new RbacAssignmentAlreadyExistsError(one);
     }
-    this.entries.push(new RbacAssignment({ userId, role }));
+    this.entries.push(one);
   }
 
-  async find(userId: RbacUserId, role: RbacItem['name']) {
-    return this.entries.find(x => x.userId === userId && x.role === role) ?? null;
+  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+    return this.entries.find(x => x.userId === userId && x.role === role && x.contextId === contextId) ?? null;
   }
 
-  async findByUserId(userId: RbacUserId) {
-    return this.entries.filter(x => x.userId === userId);
+  async findByUserId(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+    return this.entries.filter(x => x.userId === userId && x.contextId === contextId);
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name']) {
-    const idx = this.entries.findIndex(x => x.userId === userId && x.role === role);
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+    const idx = this.entries.findIndex(x => x.userId === userId && x.role === role && x.contextId === contextId);
     if (idx === -1) {
-      throw new Error(`No assignment between ${userId} and ${role} was found.`);
+      throw new RbacAssignmentNotFoundError({ userId, role, contextId });
     }
     this.entries.splice(idx, 1);
   }
 
-  async deleteByUser(userId: RbacUserId) {
-    this.entries = this.entries.filter(x => x.userId !== userId);
+  async deleteByUser(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+    this.entries = this.entries.filter(x => x.userId !== userId && x.contextId === contextId);
   }
 }

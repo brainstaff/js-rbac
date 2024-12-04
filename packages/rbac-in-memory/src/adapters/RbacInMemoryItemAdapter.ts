@@ -1,21 +1,23 @@
-import { RbacItem, RbacItemAdapter, RbacRule } from "@brainstaff/rbac";
+import { RbacItem, RbacItemAdapter, RbacItemAlreadyExistsError } from "@brainstaff/rbac";
 
 export default class RbacInMemoryItemAdapter implements RbacItemAdapter {
   private entries: RbacItem[] = [];
 
-  async store(values: RbacItem[]) {
-    this.entries = values.map(x => new RbacItem(x));
+  async store(raw: RbacItem[]) {
+    const all = raw.map(x => new RbacItem(x));
+    this.entries = all;
   }
 
   async load() {
     return this.entries;
   }
 
-  async create(name: RbacItem['name'], type: RbacItem['type'], rule?: RbacRule['name']) {
-    if (this.entries.find(x => x.name === name)) {
-      throw new Error(`Item ${name} already exists.`);
+  async create(raw: RbacItem) {
+    const one = new RbacItem(raw);
+    if (await this.find(one.name)) {
+      throw new RbacItemAlreadyExistsError(one);
     }
-    this.entries.push(new RbacItem({ name, type, rule }));
+    this.entries.push(one);
   }
 
   async find(name: RbacItem['name']) {

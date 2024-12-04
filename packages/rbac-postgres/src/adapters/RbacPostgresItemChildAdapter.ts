@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-import { RbacItem, RbacItemChild, RbacItemChildAdapter } from '@brainstaff/rbac';
+import { RbacItem, RbacItemChild, RbacItemChildAdapter, RbacItemChildAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacItemChildModel from '../models/RbacItemChild';
 
@@ -11,9 +11,10 @@ export default class RbacPostgresItemChildAdapter implements RbacItemChildAdapte
     RbacItemChildModel.knex(deps.client);
   }
   
-  async store(values: RbacItemChild[]) {
+  async store(raw: RbacItemChild[]) {
+    const all = raw.map(x => new RbacItemChild(x));
     await RbacItemChildModel.query().delete();
-    await RbacItemChildModel.query().insert(values);
+    await RbacItemChildModel.query().insert(all);
   }
 
   async load() {
@@ -21,11 +22,12 @@ export default class RbacPostgresItemChildAdapter implements RbacItemChildAdapte
     return entries.map(x => new RbacItemChild(x));
   }
 
-  async create(parent: RbacItem['name'], child: RbacItem['name']) {
-    if (await RbacItemChildModel.query().findById([parent, child])) {
-      throw new Error(`Association of ${parent} and ${child} already exists.`);
+  async create(raw: RbacItemChild) {
+    const one = new RbacItemChild(raw);
+    if (await this.find(one.parent, one.child)) {
+      throw new RbacItemChildAlreadyExistsError(one);
     }
-    await RbacItemChildModel.query().insert({ parent, child });
+    await RbacItemChildModel.query().insert(one);
   }
 
   async find(parent: RbacItem['name'], child: RbacItem['name']) {

@@ -12,7 +12,7 @@ class RbacAssignmentModel extends Model {
   }
 
   static get idColumn() {
-    return ['userId', 'role'];
+    return ['userId', 'role', 'contextId'];
   }
 }
 

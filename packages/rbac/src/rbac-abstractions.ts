@@ -1,3 +1,5 @@
+import { NullishBy } from "./utils";
+
 export type RbacUserId = string;
 
 export class RbacRule {
@@ -8,14 +10,12 @@ export class RbacRule {
   }
 }
 
-export type RbacRulePayload = any;
-
-export interface RbacRuleInstance {
+export interface RbacRuleInstance<RbacRulePayload> {
   execute: (payload?: RbacRulePayload) => Promise<boolean>;
 }
 
-export interface RbacRuleFactory {
-  createRule: (name: RbacRule['name']) => RbacRuleInstance;
+export interface RbacRuleFactory<RbacRulePayload> {
+  createRule: (name: RbacRule['name']) => RbacRuleInstance<RbacRulePayload>;
 }
 
 export class RbacItem {
@@ -23,10 +23,10 @@ export class RbacItem {
   name: string;
   rule?: RbacRule['name'];
 
-  constructor(v: RbacItem) {
+  constructor(v: NullishBy<RbacItem, 'rule'>) {
     this.type = v.type;
     this.name = v.name;
-    this.rule = v.rule;
+    this.rule = v.rule ?? undefined;
   }
 }
 
@@ -40,12 +40,25 @@ export class RbacItemChild {
   }
 }
 
+export type RbacAssignmnentContextId = string;
+
+export const defaultRbacAssignmentContextId: RbacAssignmnentContextId = "";
+
 export class RbacAssignment {
   userId: RbacUserId;
   role: RbacItem['name'];
+  contextId: RbacAssignmnentContextId;
 
-  constructor (v: RbacAssignment) {
+  constructor (v: NullishBy<RbacAssignment, 'contextId'>) {
     this.userId = v.userId;
     this.role = v.role;
+    this.contextId = v.contextId ?? defaultRbacAssignmentContextId;
   }
+}
+
+export interface RbacHierarchy {
+  assignments: RbacAssignment[];
+  items: RbacItem[];
+  itemChildren: RbacItemChild[];
+  rules: RbacRule[];
 }

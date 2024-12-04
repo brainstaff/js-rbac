@@ -1,43 +1,36 @@
-import { RbacAssignment, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacAssignmnentContextId, RbacHierarchy, RbacItem, RbacItemChild, RbacRule, RbacUserId } from "./rbac-abstractions";
 
 export interface RbacAssignmentAdapter {
-  store: (assignments: RbacAssignment[]) => Promise<void>;
-  load: () => Promise<RbacAssignment[]>;
-  create: (userId: RbacUserId, role: RbacItem['name']) => Promise<void>;
-  find: (userId: RbacUserId, role: RbacItem['name']) => Promise<RbacAssignment | null>;
-  findByUserId: (userId: RbacUserId) => Promise<RbacAssignment[]>;
-  delete: (userId: RbacUserId, role: RbacItem['name']) => Promise<void>;
-  deleteByUser: (userId: RbacUserId) => Promise<void>;
+  store: (all: RbacAssignment[]) => Promise<void>;
+  load: (contextId?: RbacAssignmnentContextId) => Promise<RbacAssignment[]>;
+  create: (one: RbacAssignment) => Promise<void>;
+  find: (userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId) => Promise<RbacAssignment | null>;
+  findByUserId: (userId: RbacUserId, contextId?: RbacAssignmnentContextId) => Promise<RbacAssignment[]>;
+  delete: (userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId) => Promise<void>;
+  deleteByUser: (userId: RbacUserId, contextId?: RbacAssignmnentContextId) => Promise<void>;
 }
 
 export interface RbacItemAdapter {
-  store: (items: RbacItem[]) => Promise<void>;
+  store: (all: RbacItem[]) => Promise<void>;
   load: () => Promise<RbacItem[]>;
-  create: (name: RbacItem['name'], type: RbacItem['type'], rule?: RbacRule['name']) => Promise<void>;
+  create: (one: RbacItem) => Promise<void>;
   find: (name: RbacItem['name']) => Promise<RbacItem | null>;
   findByType: (type: RbacItem['type']) => Promise<RbacItem[]>;
 }
 
 export interface RbacItemChildAdapter {
-  store: (itemChildren: RbacItemChild[]) => Promise<void>;
+  store: (all: RbacItemChild[]) => Promise<void>;
   load: () => Promise<RbacItemChild[]>;
-  create: (parent: RbacItem['name'], child: RbacItem['name']) => Promise<void>;
+  create: (one: RbacItemChild) => Promise<void>;
   find: (parent: RbacItem['name'], child: RbacItem['name']) => Promise<RbacItemChild | null>;
   findByParent: (name: RbacItem['name']) => Promise<RbacItemChild[]>;
 }
 
 export interface RbacRuleAdapter {
-  store: (rules: RbacRule[]) => Promise<void>;
+  store: (all: RbacRule[]) => Promise<void>;
   load: () => Promise<RbacRule[]>;
-  create: (name: RbacRule['name']) => Promise<void>;
+  create: (one: RbacRule) => Promise<void>;
   find: (name: RbacRule['name']) => Promise<RbacRule | null>;
-}
-
-interface RbacHierarchy {
-  rbacAssignments: RbacAssignment[];
-  rbacItems: RbacItem[];
-  rbacItemChildren: RbacItemChild[];
-  rbacRules: RbacRule[];
 }
   
 export class RbacAdapter {
@@ -58,84 +51,85 @@ export class RbacAdapter {
     this.ruleAdapter = deps.ruleAdapter;
   }
 
-  async store(rbacHierachy: RbacHierarchy): Promise<void> {
-    await this.assignmentAdapter.store(rbacHierachy.rbacAssignments);
-    await this.itemAdapter.store(rbacHierachy.rbacItems);
-    await this.itemChildAdapter.store(rbacHierachy.rbacItemChildren);
-    await this.ruleAdapter.store(rbacHierachy.rbacRules);
+  async store(all: RbacHierarchy): Promise<void> {
+    await this.assignmentAdapter.store(all.assignments);
+    await this.itemAdapter.store(all.items);
+    await this.itemChildAdapter.store(all.itemChildren);
+    await this.ruleAdapter.store(all.rules);
   }
 
   async load(): Promise<RbacHierarchy> {
     return {
-      rbacAssignments: await this.assignmentAdapter.load(),
-      rbacItems: await this.itemAdapter.load(),
-      rbacItemChildren: await this.itemChildAdapter.load(),
-      rbacRules: await this.ruleAdapter.load(),
+      assignments: await this.assignmentAdapter.load(),
+      items: await this.itemAdapter.load(),
+      itemChildren: await this.itemChildAdapter.load(),
+      rules: await this.ruleAdapter.load(),
     };
   }
 
-  async findAllAssignments(): Promise<RbacAssignment[]> {
-    return await this.assignmentAdapter.load();
+  async findAllAssignments(contextId?: RbacAssignmnentContextId): Promise<RbacAssignment[]> {
+    return this.assignmentAdapter.load(contextId);
   }
 
   async findAllItems(): Promise<RbacItem[]> {
-    return await this.itemAdapter.load();
+    return this.itemAdapter.load();
   }
 
   async findAllItemsChild(): Promise<RbacItemChild[]> {
-    return await this.itemChildAdapter.load();
+    return this.itemChildAdapter.load();
   }
 
   async findAllRules(): Promise<RbacRule[]> {
-    return await this.ruleAdapter.load();
+    return this.ruleAdapter.load();
   }
 
-  // Core for checkAccess
+  // Core for checking access
 
-  async findAssignmentsByUserId(userId: RbacUserId): Promise<RbacAssignment[]> {
-    return await this.assignmentAdapter.findByUserId(userId);
+  async findAssignmentsByUserId(userId: RbacUserId, contextId?: RbacAssignmnentContextId): Promise<RbacAssignment[]> {
+    return this.assignmentAdapter.findByUserId(userId, contextId);
   }
 
   async findItem(name: RbacItem['name']): Promise<RbacItem | null | undefined> {
-    return await this.itemAdapter.find(name);
+    return this.itemAdapter.find(name);
   }
 
   async findItemChildrenByParent(name: RbacItem['name']): Promise<RbacItemChild[]> {
-    return await this.itemChildAdapter.findByParent(name);
+    return this.itemChildAdapter.findByParent(name);
   }
 
   // Core for management
 
-  async createAssignment(userId: RbacUserId, role: RbacItem['name']): Promise<void> {
-    return await this.assignmentAdapter.create(userId, role);
+  async createAssignment(one: RbacAssignment): Promise<void> {
+    return this.assignmentAdapter.create(one);
   }
 
-  async findAssignment(userId: RbacUserId, role: RbacItem['name']): Promise<RbacAssignment | null | undefined> {
-    return await this.assignmentAdapter.find(userId, role);
+  async findAssignment(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<RbacAssignment | null | undefined> {
+    return this.assignmentAdapter.find(userId, role, contextId);
   }
 
   async findRoles(): Promise<RbacItem[]> {
-    return await this.itemAdapter.findByType('role');
+    return this.itemAdapter.findByType('role');
   }
 
-  async deleteAssignment(userId: RbacUserId, role?: RbacItem['name']): Promise<void> {
-    if (role) {
-      return await this.assignmentAdapter.delete(userId, role);
-    }
-    return await this.assignmentAdapter.deleteByUser(userId);
+  async deleteAssignment(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<void> {
+    return this.assignmentAdapter.delete(userId, role, contextId);
+  }
+
+  async deleteAssignmentsByUser(userId: RbacUserId, contextId?: RbacAssignmnentContextId): Promise<void> {
+    return this.assignmentAdapter.deleteByUser(userId, contextId);
   }
 
   // Management
 
-  async createItem(name: RbacItem['name'], type: RbacItem['type']): Promise<void> {
-    return await this.itemAdapter.create(name, type);
+  async createItem(one: RbacItem): Promise<void> {
+    return this.itemAdapter.create(one);
   }
 
-  async createItemChild(parent: RbacItem['name'], child: RbacItem['name']): Promise<void> {
-    return await this.itemChildAdapter.create(parent, child);
+  async createItemChild(one: RbacItemChild): Promise<void> {
+    return this.itemChildAdapter.create(one);
   }
 
-  async createRule(name: RbacRule['name']): Promise<void> {
-    return await this.ruleAdapter.create(name);
+  async createRule(one: RbacRule): Promise<void> {
+    return this.ruleAdapter.create(one);
   }
 }
