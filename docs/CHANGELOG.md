@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.13
+
+### feature/context-id
+
+- Add support for assignments context.
+
 ## 1.0.0-beta.12
 
 ### feature/compose-env
