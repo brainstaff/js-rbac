@@ -2,6 +2,11 @@
 
 ## Current
 
+### feature/eslint
+
+- Setup ESLint.
+- Fix lint errors and warnings.
+
 ### feature/prettier
 
 - Setup prettier.
