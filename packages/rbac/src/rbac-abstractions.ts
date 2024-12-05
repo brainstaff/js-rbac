@@ -18,8 +18,15 @@ export interface RbacRuleFactory<RbacRulePayload> {
   createRule: (name: RbacRule['name']) => RbacRuleInstance<RbacRulePayload>;
 }
 
+export enum RbacItemTypeEnum {
+  role = 'role',
+  permission = 'permission',
+}
+
+export type RbacItemType = keyof typeof RbacItemTypeEnum;
+
 export class RbacItem {
-  type: 'role' | 'permission';
+  type: RbacItemType;
   name: string;
   rule?: RbacRule['name'];
 

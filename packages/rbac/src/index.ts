@@ -3,6 +3,8 @@ export {
   RbacRule,
   RbacRuleInstance,
   RbacRuleFactory,
+  RbacItemTypeEnum,
+  RbacItemType,
   RbacItem,
   RbacItemChild,
   RbacAssignmnentContextId,
