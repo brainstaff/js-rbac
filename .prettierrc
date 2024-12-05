@@ -1,0 +1,14 @@
+{
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+  "importOrderParserPlugins": ["typescript", "decorators"],
+  "importOrder": [
+    "",
+    "<BUILTIN_MODULES>",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^dist/",
+    "",
+    "^\\."
+  ]
+}
