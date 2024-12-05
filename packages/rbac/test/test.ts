@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import { RbacInMemoryAssignmentAdapter, RbacInMemoryItemAdapter, RbacInMemoryItemChildAdapter, RbacInMemoryRuleAdapter } from '@brainstaff/rbac-in-memory'
 
-import { RbacAdapter, RbacAssignment, RbacManager } from '../src/index.js';
+import { RbacAdapter, RbacAssignment, RbacError, RbacManager } from '../src/index.js';
 
 const $ = {
   a: "a",
@@ -53,7 +53,7 @@ const createManager = async () => {
               }
             };
           default:
-            throw new Error(`Unexpected rule: ${name}`);
+            throw new RbacError(`Unexpected rule: ${name}`);
         }
       }
     }

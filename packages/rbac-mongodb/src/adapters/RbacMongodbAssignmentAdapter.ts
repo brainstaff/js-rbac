@@ -1,4 +1,4 @@
-import { defaultRbacAssignmentContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from '@brainstaff/rbac';
+import { defaultRbacContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacAssignmentModel from '../models/RbacAssignment';
 
@@ -9,7 +9,7 @@ export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapt
     await RbacAssignmentModel.create(all);
   }
 
-  async load(contextId = defaultRbacAssignmentContextId) {
+  async load(contextId = defaultRbacContextId) {
     const entries = await RbacAssignmentModel.find({ contextId });
     return entries.map(x => new RbacAssignment(x));
   }
@@ -22,17 +22,17 @@ export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapt
     await RbacAssignmentModel.create(one);
   }
 
-  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
     const entry = await RbacAssignmentModel.findOne({ userId, role, contextId });
     return entry == null ? null : new RbacAssignment(entry);
   }
 
-  async findByUserId(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+  async findByUserId(userId: RbacUserId, contextId = defaultRbacContextId) {
     const entry = await RbacAssignmentModel.find({ userId, contextId });
     return entry.map(x => new RbacAssignment(x));
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
     const entry = await this.find(userId, role, contextId);
     if (entry == null) {
       throw new RbacAssignmentNotFoundError({ userId, role, contextId });
@@ -40,7 +40,7 @@ export default class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapt
     await RbacAssignmentModel.deleteOne({userId, role, contextId});
   }
 
-  async deleteByUser(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+  async deleteByUser(userId: RbacUserId, contextId = defaultRbacContextId) {
     await RbacAssignmentModel.deleteMany({ userId, contextId });
   }
 }

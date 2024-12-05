@@ -18,8 +18,15 @@ export interface RbacRuleFactory<RbacRulePayload> {
   createRule: (name: RbacRule['name']) => RbacRuleInstance<RbacRulePayload>;
 }
 
+export enum RbacItemTypeEnum {
+  role = 'role',
+  permission = 'permission',
+}
+
+export type RbacItemType = keyof typeof RbacItemTypeEnum;
+
 export class RbacItem {
-  type: 'role' | 'permission';
+  type: RbacItemType;
   name: string;
   rule?: RbacRule['name'];
 
@@ -40,19 +47,19 @@ export class RbacItemChild {
   }
 }
 
-export type RbacAssignmnentContextId = string;
+export type RbacContextId = string;
 
-export const defaultRbacAssignmentContextId: RbacAssignmnentContextId = "";
+export const defaultRbacContextId: RbacContextId = "";
 
 export class RbacAssignment {
   userId: RbacUserId;
   role: RbacItem['name'];
-  contextId: RbacAssignmnentContextId;
+  contextId: RbacContextId;
 
   constructor (v: NullishBy<RbacAssignment, 'contextId'>) {
     this.userId = v.userId;
     this.role = v.role;
-    this.contextId = v.contextId ?? defaultRbacAssignmentContextId;
+    this.contextId = v.contextId ?? defaultRbacContextId;
   }
 }
 
