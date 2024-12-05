@@ -1,25 +1,32 @@
-import { Knex } from 'knex';
+import {
+  defaultRbacContextId,
+  RbacAssignment,
+  RbacAssignmentAdapter,
+  RbacAssignmentAlreadyExistsError,
+  RbacAssignmentNotFoundError,
+  RbacItem,
+  RbacUserId,
+} from "@brainstaff/rbac";
+import { Knex } from "knex";
 
-import { defaultRbacContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from '@brainstaff/rbac';
+import RbacAssignmentModel from "../models/RbacAssignment";
 
-import RbacAssignmentModel from '../models/RbacAssignment';
-
-export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdapter {
-  constructor(deps: {
-    client: Knex
-  }) {
+export default class RbacPostgresAssignmentAdapter
+  implements RbacAssignmentAdapter
+{
+  constructor(deps: { client: Knex }) {
     RbacAssignmentModel.knex(deps.client);
   }
 
   async store(raw: RbacAssignment[]) {
-    const all = raw.map(x => new RbacAssignment(x));
+    const all = raw.map((x) => new RbacAssignment(x));
     await RbacAssignmentModel.query().delete();
     await RbacAssignmentModel.query().insert(all);
   }
 
   async load(contextId = defaultRbacContextId) {
     const entries = await RbacAssignmentModel.query().where({ contextId });
-    return entries.map(x => new RbacAssignment(x));
+    return entries.map((x) => new RbacAssignment(x));
   }
 
   async create(raw: RbacAssignment) {
@@ -30,17 +37,32 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
     await RbacAssignmentModel.query().insert(one);
   }
 
-  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
-    const entry = await RbacAssignmentModel.query().findById([userId, role, contextId]);
+  async find(
+    userId: RbacUserId,
+    role: RbacItem["name"],
+    contextId = defaultRbacContextId,
+  ) {
+    const entry = await RbacAssignmentModel.query().findById([
+      userId,
+      role,
+      contextId,
+    ]);
     return entry == null ? null : new RbacAssignment(entry);
   }
 
   async findByUserId(userId: RbacUserId, contextId = defaultRbacContextId) {
-    const entries = await RbacAssignmentModel.query().where({ userId, contextId });
-    return entries.map(x => new RbacAssignment(x));
+    const entries = await RbacAssignmentModel.query().where({
+      userId,
+      contextId,
+    });
+    return entries.map((x) => new RbacAssignment(x));
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
+  async delete(
+    userId: RbacUserId,
+    role: RbacItem["name"],
+    contextId = defaultRbacContextId,
+  ) {
     const entry = await this.find(userId, role, contextId);
     if (entry == null) {
       throw new RbacAssignmentNotFoundError({ userId, role, contextId });

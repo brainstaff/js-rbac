@@ -1,4 +1,12 @@
-import { RbacAssignment, RbacContextId, RbacItem, RbacItemChild, RbacRule, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
+import {
+  RbacAssignment,
+  RbacContextId,
+  RbacItem,
+  RbacItemChild,
+  RbacRule,
+  RbacRuleFactory,
+  RbacUserId,
+} from "./rbac-abstractions";
 import { RbacAdapter } from "./rbac-adapter";
 import { RbacError } from "./rbac-errors";
 
@@ -8,10 +16,14 @@ export class RbacManager<RbacRulePayload = unknown> {
   private ruleFactory: RbacRuleFactory<RbacRulePayload>;
   private isCacheLoaded: boolean;
 
-  constructor({ cacheAdapter, persistentAdapter, ruleFactory }: {
-    cacheAdapter: RbacAdapter,
-    persistentAdapter: RbacAdapter,
-    ruleFactory: RbacRuleFactory<RbacRulePayload>,
+  constructor({
+    cacheAdapter,
+    persistentAdapter,
+    ruleFactory,
+  }: {
+    cacheAdapter: RbacAdapter;
+    persistentAdapter: RbacAdapter;
+    ruleFactory: RbacRuleFactory<RbacRulePayload>;
   }) {
     this.cacheAdapter = cacheAdapter;
     this.persistentAdapter = persistentAdapter;
@@ -35,12 +47,16 @@ export class RbacManager<RbacRulePayload = unknown> {
 
   async check(
     userId: RbacUserId,
-    itemName: RbacItem['name'],
+    itemName: RbacItem["name"],
     opts?: {
-      contextId?: RbacContextId,
-      payload?: RbacRulePayload,
-    }): Promise<boolean> {
-    const assignments = await this.currentAdapter.findAssignmentsByUserId(userId, opts?.contextId);
+      contextId?: RbacContextId;
+      payload?: RbacRulePayload;
+    },
+  ): Promise<boolean> {
+    const assignments = await this.currentAdapter.findAssignmentsByUserId(
+      userId,
+      opts?.contextId,
+    );
     for (const assignment of assignments) {
       if (await this.isOk(assignment.role, itemName, opts?.payload)) {
         return true;
@@ -49,16 +65,25 @@ export class RbacManager<RbacRulePayload = unknown> {
     return false;
   }
 
-  private async isOk(current: RbacItem['name'], target: RbacItem['name'], payload?: RbacRulePayload): Promise<boolean> {
+  private async isOk(
+    current: RbacItem["name"],
+    target: RbacItem["name"],
+    payload?: RbacRulePayload,
+  ): Promise<boolean> {
     const item = await this.currentAdapter.findItem(current);
     if (item == null) {
       return false;
     }
-    const ok = item.type !== 'permission' || item.rule == null || await this.ruleFactory.createRule(item.rule).execute(payload);
+    const ok =
+      item.type !== "permission" ||
+      item.rule == null ||
+      (await this.ruleFactory.createRule(item.rule).execute(payload));
     if (item.name === target || !ok) {
       return ok;
     }
-    const children = await this.currentAdapter.findItemChildrenByParent(item.name);
+    const children = await this.currentAdapter.findItemChildrenByParent(
+      item.name,
+    );
     for (const { child } of children) {
       if (await this.isOk(child, target, payload)) {
         return true;
@@ -67,12 +92,19 @@ export class RbacManager<RbacRulePayload = unknown> {
     return false;
   }
 
-  async assign(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId): Promise<void> {
+  async assign(
+    userId: RbacUserId,
+    role: RbacItem["name"],
+    contextId?: RbacContextId,
+  ): Promise<void> {
     const item = await this.currentAdapter.findItem(role);
-    if (item == null || item.type !== 'role') {
+    if (item == null || item.type !== "role") {
       throw new RbacError(`No such role ${role}.`);
     }
-    if (await this.currentAdapter.findAssignment(userId, role, contextId) != null) {
+    if (
+      (await this.currentAdapter.findAssignment(userId, role, contextId)) !=
+      null
+    ) {
       return;
     }
     const assignment = new RbacAssignment({ userId, role, contextId });
@@ -82,8 +114,16 @@ export class RbacManager<RbacRulePayload = unknown> {
     await this.persistentAdapter.createAssignment(assignment);
   }
 
-  async revoke(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId): Promise<void> {
-    const assignment = await this.currentAdapter.findAssignment(userId, role, contextId);
+  async revoke(
+    userId: RbacUserId,
+    role: RbacItem["name"],
+    contextId?: RbacContextId,
+  ): Promise<void> {
+    const assignment = await this.currentAdapter.findAssignment(
+      userId,
+      role,
+      contextId,
+    );
     if (!assignment) {
       throw new RbacError(`Role "${role}" is not attached to the "${userId}".`);
     }
@@ -93,14 +133,20 @@ export class RbacManager<RbacRulePayload = unknown> {
     await this.persistentAdapter.deleteAssignment(userId, role, contextId);
   }
 
-  async revokeAll(userId: RbacUserId, contextId?: RbacContextId): Promise<void> {
+  async revokeAll(
+    userId: RbacUserId,
+    contextId?: RbacContextId,
+  ): Promise<void> {
     if (this.isCacheLoaded) {
       await this.cacheAdapter.deleteAssignmentsByUser(userId, contextId);
     }
     await this.persistentAdapter.deleteAssignmentsByUser(userId, contextId);
   }
 
-  async fetchUserAssignments(userId: RbacUserId, contextId?: RbacContextId): Promise<RbacAssignment[]> {
+  async fetchUserAssignments(
+    userId: RbacUserId,
+    contextId?: RbacContextId,
+  ): Promise<RbacAssignment[]> {
     return this.currentAdapter.findAssignmentsByUserId(userId, contextId);
   }
 
@@ -108,7 +154,9 @@ export class RbacManager<RbacRulePayload = unknown> {
     return this.currentAdapter.findRoles();
   }
 
-  async fetchAllAssignments(contextId?: RbacContextId): Promise<RbacAssignment[]> {
+  async fetchAllAssignments(
+    contextId?: RbacContextId,
+  ): Promise<RbacAssignment[]> {
     return this.currentAdapter.findAllAssignments(contextId);
   }
 

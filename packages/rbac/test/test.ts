@@ -1,8 +1,18 @@
-import assert from 'assert';
+import assert from "assert";
 
-import { RbacInMemoryAssignmentAdapter, RbacInMemoryItemAdapter, RbacInMemoryItemChildAdapter, RbacInMemoryRuleAdapter } from '@brainstaff/rbac-in-memory'
+import {
+  RbacInMemoryAssignmentAdapter,
+  RbacInMemoryItemAdapter,
+  RbacInMemoryItemChildAdapter,
+  RbacInMemoryRuleAdapter,
+} from "@brainstaff/rbac-in-memory";
 
-import { RbacAdapter, RbacAssignment, RbacError, RbacManager } from '../src/index.js';
+import {
+  RbacAdapter,
+  RbacAssignment,
+  RbacError,
+  RbacManager,
+} from "../src/index.js";
 
 const $ = {
   a: "a",
@@ -23,12 +33,12 @@ const $ = {
     a: "a",
     b: "b",
   },
-}
+};
 
 const createManager = async () => {
   type RbacRulePayload = {
-    me?: string,
-    owner?: string,
+    me?: string;
+    owner?: string;
   };
   const manager = new RbacManager<RbacRulePayload>({
     cacheAdapter: new RbacAdapter({
@@ -45,18 +55,18 @@ const createManager = async () => {
     }),
     ruleFactory: {
       createRule(name) {
-        switch(name) {
+        switch (name) {
           case $.rule.isOwnProfile:
             return {
               execute: async ({ me, owner } = {}) => {
                 return me != null && owner != null && me === owner;
-              }
+              },
             };
           default:
             throw new RbacError(`Unexpected rule: ${name}`);
         }
-      }
-    }
+      },
+    },
   });
   await manager.currentAdapter.store({
     assignments: [
@@ -64,11 +74,15 @@ const createManager = async () => {
       new RbacAssignment({ userId: $.m, role: $.item.manager }),
     ],
     items: [
-      { name: $.item.admin, type: 'role', },
-      { name: $.item.manager, type: 'role' },
-      { name: $.item.user, type: 'role' },
-      { name: $.item.updateProfile, type: 'permission' },
-      { name: $.item.updateOwnProfile, type: 'permission', rule: $.rule.isOwnProfile },
+      { name: $.item.admin, type: "role" },
+      { name: $.item.manager, type: "role" },
+      { name: $.item.user, type: "role" },
+      { name: $.item.updateProfile, type: "permission" },
+      {
+        name: $.item.updateOwnProfile,
+        type: "permission",
+        rule: $.rule.isOwnProfile,
+      },
     ],
     itemChildren: [
       { parent: $.item.admin, child: $.item.manager },
@@ -77,61 +91,174 @@ const createManager = async () => {
       { parent: $.item.updateOwnProfile, child: $.item.updateProfile },
       { parent: $.item.admin, child: $.item.updateProfile },
     ],
-    rules: [
-      { name: $.rule.isOwnProfile },
-    ]
+    rules: [{ name: $.rule.isOwnProfile }],
   });
   await manager.loadCache();
   return manager;
 };
 
-describe('RbacManager', function() {
-  it('admin', async () => {
+describe("RbacManager", function () {
+  it("admin", async () => {
     const m = await createManager();
-    assert.equal(await m.check($.a, $.item.admin), true, `should have role ${$.item.admin}`);
-    assert.equal(await m.check($.a, $.item.manager), true, `should have role ${$.item.manager}`);
-    assert.equal(await m.check($.a, $.item.user), true, `should have role ${$.item.user}`);
-    assert.equal(await m.check($.a, $.item.updateProfile, { payload: { me: $.a, owner: $.a } }), true, `should be able to ${$.item.updateProfile} of ${$.a}`);
-    assert.equal(await m.check($.a, $.item.updateProfile, { payload: { me: $.a, owner: $.m } }), true, `should be able to ${$.item.updateProfile} of ${$.m}`);
+    assert.equal(
+      await m.check($.a, $.item.admin),
+      true,
+      `should have role ${$.item.admin}`,
+    );
+    assert.equal(
+      await m.check($.a, $.item.manager),
+      true,
+      `should have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.a, $.item.user),
+      true,
+      `should have role ${$.item.user}`,
+    );
+    assert.equal(
+      await m.check($.a, $.item.updateProfile, {
+        payload: { me: $.a, owner: $.a },
+      }),
+      true,
+      `should be able to ${$.item.updateProfile} of ${$.a}`,
+    );
+    assert.equal(
+      await m.check($.a, $.item.updateProfile, {
+        payload: { me: $.a, owner: $.m },
+      }),
+      true,
+      `should be able to ${$.item.updateProfile} of ${$.m}`,
+    );
   });
 
-  it('manager', async () => {
+  it("manager", async () => {
     const m = await createManager();
-    assert.equal(await m.check($.m, $.item.admin), false, `should not have role ${$.item.admin}`);
-    assert.equal(await m.check($.m, $.item.manager), true, `should have role ${$.item.manager}`);
-    assert.equal(await m.check($.m, $.item.user), true, `should have role ${$.item.user}`);
-    assert.equal(await m.check($.m, $.item.trololo), false, `should not have role ${$.item.trololo}`);
-    assert.equal(await m.check($.m, $.item.updateProfile, { payload: { me: $.m , owner: $.m } }), true, `should be able to ${$.item.updateProfile} of ${$.m}`);
-    assert.equal(await m.check($.m, $.item.updateProfile, { payload: { me: $.m , owner: $.a } }), false, `should not be able to ${$.item.updateProfile} of ${$.a}`);
+    assert.equal(
+      await m.check($.m, $.item.admin),
+      false,
+      `should not have role ${$.item.admin}`,
+    );
+    assert.equal(
+      await m.check($.m, $.item.manager),
+      true,
+      `should have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.m, $.item.user),
+      true,
+      `should have role ${$.item.user}`,
+    );
+    assert.equal(
+      await m.check($.m, $.item.trololo),
+      false,
+      `should not have role ${$.item.trololo}`,
+    );
+    assert.equal(
+      await m.check($.m, $.item.updateProfile, {
+        payload: { me: $.m, owner: $.m },
+      }),
+      true,
+      `should be able to ${$.item.updateProfile} of ${$.m}`,
+    );
+    assert.equal(
+      await m.check($.m, $.item.updateProfile, {
+        payload: { me: $.m, owner: $.a },
+      }),
+      false,
+      `should not be able to ${$.item.updateProfile} of ${$.a}`,
+    );
   });
 
-  it('user', async () => {
+  it("user", async () => {
     const m = await createManager();
-    assert.equal(await m.check($.u, $.item.manager), false, `should not have role ${$.item.manager}`);
+    assert.equal(
+      await m.check($.u, $.item.manager),
+      false,
+      `should not have role ${$.item.manager}`,
+    );
     await m.assign($.u, $.item.manager);
-    assert.equal(await m.check($.u, $.item.manager), true, `should have role ${$.item.manager}`);
+    assert.equal(
+      await m.check($.u, $.item.manager),
+      true,
+      `should have role ${$.item.manager}`,
+    );
     await m.revoke($.u, $.item.manager);
-    assert.equal(await m.check($.u, $.item.manager), false, `should have role ${$.item.manager} revoked`);
-    assert.rejects(m.assign($.u, $.item.trololo), { name: 'Error', message: `No such role ${$.item.trololo}.`});
+    assert.equal(
+      await m.check($.u, $.item.manager),
+      false,
+      `should have role ${$.item.manager} revoked`,
+    );
+    assert.rejects(m.assign($.u, $.item.trololo), {
+      name: "Error",
+      message: `No such role ${$.item.trololo}.`,
+    });
   });
 
   it(`user in context`, async () => {
     const m = await createManager();
-    assert.equal(await m.check($.u, $.item.manager), false, `default: should not have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), false, `${$.contextId.a}: should not have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), false, `${$.contextId.b}: should not have role ${$.item.manager}`);
+    assert.equal(
+      await m.check($.u, $.item.manager),
+      false,
+      `default: should not have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.a }),
+      false,
+      `${$.contextId.a}: should not have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.b }),
+      false,
+      `${$.contextId.b}: should not have role ${$.item.manager}`,
+    );
     await m.assign($.u, $.item.manager);
     await m.assign($.u, $.item.manager, $.contextId.a);
-    assert.equal(await m.check($.u, $.item.manager), true, `default: should have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), true, `${$.contextId.a}: should have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), false, `${$.contextId.b}: should not have role ${$.item.manager}`);
+    assert.equal(
+      await m.check($.u, $.item.manager),
+      true,
+      `default: should have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.a }),
+      true,
+      `${$.contextId.a}: should have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.b }),
+      false,
+      `${$.contextId.b}: should not have role ${$.item.manager}`,
+    );
     await m.revoke($.u, $.item.manager);
-    assert.equal(await m.check($.u, $.item.manager), false, `default: should not have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), true, `${$.contextId.a}: should have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), false, `${$.contextId.b}: should not have role ${$.item.manager}`);
+    assert.equal(
+      await m.check($.u, $.item.manager),
+      false,
+      `default: should not have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.a }),
+      true,
+      `${$.contextId.a}: should have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.b }),
+      false,
+      `${$.contextId.b}: should not have role ${$.item.manager}`,
+    );
     await m.revoke($.u, $.item.manager, $.contextId.a);
-    assert.equal(await m.check($.u, $.item.manager), false, `default: should not have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.a }), false, `${$.contextId.a}: should not have role ${$.item.manager}`);
-    assert.equal(await m.check($.u, $.item.manager, { contextId: $.contextId.b }), false, `${$.contextId.b}: should not have role ${$.item.manager}`);
+    assert.equal(
+      await m.check($.u, $.item.manager),
+      false,
+      `default: should not have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.a }),
+      false,
+      `${$.contextId.a}: should not have role ${$.item.manager}`,
+    );
+    assert.equal(
+      await m.check($.u, $.item.manager, { contextId: $.contextId.b }),
+      false,
+      `${$.contextId.b}: should not have role ${$.item.manager}`,
+    );
   });
 });

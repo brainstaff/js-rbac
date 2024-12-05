@@ -1,35 +1,35 @@
 {
-    "name": "@brainstaff/rbac-in-memory",
-    "version": "1.0.0-beta.13",
-    "description": "RBAC in-memory adapter.",
-    "main": "dist/index.js",
-    "types": "src/index.ts",
-    "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
-    "license": "MIT",
-    "publishConfig": {
-        "access": "public"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/brainstaff/js-rbac.git"
-    },
-    "scripts": {
-        "check": "tsc --noEmit",
-        "clean": "rm -rf dist",
-        "build": "rollup -c rollup.config.mjs",
-        "test": "mocha -r tsx ./test/test.ts"
-    },
-    "dependencies": {
-        "@brainstaff/rbac": "^1.0.0-beta.13"
-    },
-    "devDependencies": {
-        "@rollup/plugin-typescript": "^12.1.1",
-        "@tsconfig/node20": "^20.1.4",
-        "@types/mocha": "^10.0.9",
-        "@types/node": "^22.9.0",
-        "mocha": "^10.8.2",
-        "rollup": "^4.24.4",
-        "tsx": "^4.19.2",
-        "typescript": "^5.6.3"
-    }
+  "name": "@brainstaff/rbac-in-memory",
+  "version": "1.0.0-beta.13",
+  "description": "RBAC in-memory adapter.",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "author": "Alexey Kornilov <alexey.kornilov@kavolorn.ru>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brainstaff/js-rbac.git"
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "build": "rollup -c rollup.config.mjs",
+    "test": "mocha -r tsx ./test/test.ts"
+  },
+  "dependencies": {
+    "@brainstaff/rbac": "^1.0.0-beta.13"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "^22.9.0",
+    "mocha": "^10.8.2",
+    "rollup": "^4.24.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
 }

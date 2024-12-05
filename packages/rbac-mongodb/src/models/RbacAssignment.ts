@@ -1,18 +1,21 @@
-import mongoose from 'mongoose';
-
-import { RbacAssignment } from '@brainstaff/rbac';
+import { RbacAssignment } from "@brainstaff/rbac";
+import mongoose from "mongoose";
 
 const RbacAssignmentSchema = new mongoose.Schema<RbacAssignment>({
   userId: {
-    type: String
+    type: String,
   },
   role: {
     type: String,
-    ref: 'RbacItem'
+    ref: "RbacItem",
   },
   contextId: {
-    type: String
-  }
+    type: String,
+  },
 });
 
-export default mongoose.model('RbacAssignment', RbacAssignmentSchema, 'RbacAssignment');
+export default mongoose.model(
+  "RbacAssignment",
+  RbacAssignmentSchema,
+  "RbacAssignment",
+);

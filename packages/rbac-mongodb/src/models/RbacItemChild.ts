@@ -1,16 +1,19 @@
-import mongoose from 'mongoose';
-
-import { RbacItemChild } from '@brainstaff/rbac';
+import { RbacItemChild } from "@brainstaff/rbac";
+import mongoose from "mongoose";
 
 const RbacItemChildSchema = new mongoose.Schema<RbacItemChild>({
   parent: {
     type: String,
-    ref: 'RbacItem'
+    ref: "RbacItem",
   },
   child: {
     type: String,
-    ref: 'RbacItem'
-  }
+    ref: "RbacItem",
+  },
 });
 
-export default mongoose.model('RbacItemChild', RbacItemChildSchema, 'RbacItemChild');
+export default mongoose.model(
+  "RbacItemChild",
+  RbacItemChildSchema,
+  "RbacItemChild",
+);

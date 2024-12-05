@@ -1,23 +1,19 @@
-import mongoose from 'mongoose';
-
-import { RbacItem } from '@brainstaff/rbac';
+import { RbacItem } from "@brainstaff/rbac";
+import mongoose from "mongoose";
 
 const RbacItemSchema = new mongoose.Schema<RbacItem>({
   name: {
     type: String,
-    unique: true
+    unique: true,
   },
   type: {
     type: String,
-    enum: [
-      'permission',
-      'role'
-    ]
+    enum: ["permission", "role"],
   },
   rule: {
     type: String,
-    ref: 'RbacRule'
-  }
+    ref: "RbacRule",
+  },
 });
 
-export default mongoose.model('RbacItem', RbacItemSchema, 'RbacItem');
+export default mongoose.model("RbacItem", RbacItemSchema, "RbacItem");

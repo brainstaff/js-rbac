@@ -1,12 +1,11 @@
-import mongoose from 'mongoose';
-
-import { RbacRule } from '@brainstaff/rbac';
+import { RbacRule } from "@brainstaff/rbac";
+import mongoose from "mongoose";
 
 const RbacRuleSchema = new mongoose.Schema<RbacRule>({
   name: {
     type: String,
-    unique: true
-  }
+    unique: true,
+  },
 });
 
-export default mongoose.model('RbacRule', RbacRuleSchema, 'RbacRule');
+export default mongoose.model("RbacRule", RbacRuleSchema, "RbacRule");

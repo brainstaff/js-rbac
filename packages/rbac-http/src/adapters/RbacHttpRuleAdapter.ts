@@ -1,21 +1,18 @@
-import { AxiosInstance } from 'axios';
+import { RbacRule, RbacRuleAdapter } from "@brainstaff/rbac";
+import { AxiosInstance } from "axios";
 
-import { RbacRule, RbacRuleAdapter } from '@brainstaff/rbac';
-
-import { rethrow } from '../utils/rethrow';
+import { rethrow } from "../utils/rethrow";
 
 export default class RbacHttpRuleAdapter implements RbacRuleAdapter {
   private client: AxiosInstance;
 
-  constructor(deps: {
-    client: AxiosInstance;
-  }) {
+  constructor(deps: { client: AxiosInstance }) {
     this.client = deps.client;
   }
 
   @rethrow
   async store(raw: RbacRule[]) {
-    const all = raw.map(x => new RbacRule(x));
+    const all = raw.map((x) => new RbacRule(x));
     await this.client.post(`/rbac/rules`, { rbacRules: all });
   }
 
@@ -32,7 +29,7 @@ export default class RbacHttpRuleAdapter implements RbacRuleAdapter {
   }
 
   @rethrow
-  async find(name: RbacRule['name']) {
+  async find(name: RbacRule["name"]) {
     const res = await this.client.get(`/rbac/rules/${name}`);
     return res.data == null ? null : new RbacRule(res.data);
   }

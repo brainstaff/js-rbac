@@ -1,17 +1,21 @@
-import { RbacItem, RbacItemAdapter, RbacItemAlreadyExistsError } from '@brainstaff/rbac';
+import {
+  RbacItem,
+  RbacItemAdapter,
+  RbacItemAlreadyExistsError,
+} from "@brainstaff/rbac";
 
-import RbacItemModel from '../models/RbacItem';
+import RbacItemModel from "../models/RbacItem";
 
 export default class RbacMongodbItemAdapter implements RbacItemAdapter {
   async store(raw: RbacItem[]) {
-    const all = raw.map(x => new RbacItem(x));
+    const all = raw.map((x) => new RbacItem(x));
     await RbacItemModel.deleteMany({});
     await RbacItemModel.create(all);
   }
 
   async load() {
     const entries = await RbacItemModel.find({});
-    return entries.map(x => new RbacItem(x));
+    return entries.map((x) => new RbacItem(x));
   }
 
   async create(raw: RbacItem) {
@@ -22,13 +26,13 @@ export default class RbacMongodbItemAdapter implements RbacItemAdapter {
     await RbacItemModel.create(one);
   }
 
-  async find(name: RbacItem['name']) {
+  async find(name: RbacItem["name"]) {
     const entry = await RbacItemModel.findOne({ name });
     return entry == null ? null : new RbacItem(entry);
   }
 
-  async findByType(type: RbacItem['type']) {
+  async findByType(type: RbacItem["type"]) {
     const entry = await RbacItemModel.find({ type });
-    return entry.map(x => new RbacItem(x));
+    return entry.map((x) => new RbacItem(x));
   }
 }

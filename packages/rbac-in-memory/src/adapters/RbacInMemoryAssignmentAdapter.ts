@@ -1,6 +1,16 @@
-import { defaultRbacContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from "@brainstaff/rbac";
+import {
+  defaultRbacContextId,
+  RbacAssignment,
+  RbacAssignmentAdapter,
+  RbacAssignmentAlreadyExistsError,
+  RbacAssignmentNotFoundError,
+  RbacItem,
+  RbacUserId,
+} from "@brainstaff/rbac";
 
-export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdapter {
+export default class RbacInMemoryAssignmentAdapter
+  implements RbacAssignmentAdapter
+{
   private entries: RbacAssignment[] = [];
 
   async store(raw: RbacAssignment[]) {
@@ -9,7 +19,7 @@ export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdap
   }
 
   async load(contextId = defaultRbacContextId) {
-    return this.entries.filter(x => x.contextId === contextId);
+    return this.entries.filter((x) => x.contextId === contextId);
   }
 
   async create(raw: RbacAssignment) {
@@ -20,16 +30,34 @@ export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdap
     this.entries.push(one);
   }
 
-  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
-    return this.entries.find(x => x.userId === userId && x.role === role && x.contextId === contextId) ?? null;
+  async find(
+    userId: RbacUserId,
+    role: RbacItem["name"],
+    contextId = defaultRbacContextId,
+  ) {
+    return (
+      this.entries.find(
+        (x) =>
+          x.userId === userId && x.role === role && x.contextId === contextId,
+      ) ?? null
+    );
   }
 
   async findByUserId(userId: RbacUserId, contextId = defaultRbacContextId) {
-    return this.entries.filter(x => x.userId === userId && x.contextId === contextId);
+    return this.entries.filter(
+      (x) => x.userId === userId && x.contextId === contextId,
+    );
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
-    const idx = this.entries.findIndex(x => x.userId === userId && x.role === role && x.contextId === contextId);
+  async delete(
+    userId: RbacUserId,
+    role: RbacItem["name"],
+    contextId = defaultRbacContextId,
+  ) {
+    const idx = this.entries.findIndex(
+      (x) =>
+        x.userId === userId && x.role === role && x.contextId === contextId,
+    );
     if (idx === -1) {
       throw new RbacAssignmentNotFoundError({ userId, role, contextId });
     }
@@ -37,6 +65,8 @@ export default class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdap
   }
 
   async deleteByUser(userId: RbacUserId, contextId = defaultRbacContextId) {
-    this.entries = this.entries.filter(x => x.userId !== userId && x.contextId === contextId);
+    this.entries = this.entries.filter(
+      (x) => x.userId !== userId && x.contextId === contextId,
+    );
   }
 }
