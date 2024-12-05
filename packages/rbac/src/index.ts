@@ -7,8 +7,8 @@ export {
   RbacItemType,
   RbacItem,
   RbacItemChild,
-  RbacAssignmnentContextId,
-  defaultRbacAssignmentContextId,
+  RbacContextId,
+  defaultRbacContextId,
   RbacAssignment,
   RbacHierarchy,
 } from "./rbac-abstractions";

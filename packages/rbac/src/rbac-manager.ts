@@ -1,4 +1,4 @@
-import { RbacAssignment, RbacAssignmnentContextId, RbacItem, RbacItemChild, RbacRule, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacContextId, RbacItem, RbacItemChild, RbacRule, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
 import { RbacAdapter } from "./rbac-adapter";
 import { RbacError } from "./rbac-errors";
 
@@ -37,7 +37,7 @@ export class RbacManager<RbacRulePayload = unknown> {
     userId: RbacUserId,
     itemName: RbacItem['name'],
     opts?: {
-      contextId?: RbacAssignmnentContextId,
+      contextId?: RbacContextId,
       payload?: RbacRulePayload,
     }): Promise<boolean> {
     const assignments = await this.currentAdapter.findAssignmentsByUserId(userId, opts?.contextId);
@@ -67,7 +67,7 @@ export class RbacManager<RbacRulePayload = unknown> {
     return false;
   }
 
-  async assign(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<void> {
+  async assign(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId): Promise<void> {
     const item = await this.currentAdapter.findItem(role);
     if (item == null || item.type !== 'role') {
       throw new RbacError(`No such role ${role}.`);
@@ -82,7 +82,7 @@ export class RbacManager<RbacRulePayload = unknown> {
     await this.persistentAdapter.createAssignment(assignment);
   }
 
-  async revoke(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<void> {
+  async revoke(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacContextId): Promise<void> {
     const assignment = await this.currentAdapter.findAssignment(userId, role, contextId);
     if (!assignment) {
       throw new RbacError(`Role "${role}" is not attached to the "${userId}".`);
@@ -93,14 +93,14 @@ export class RbacManager<RbacRulePayload = unknown> {
     await this.persistentAdapter.deleteAssignment(userId, role, contextId);
   }
 
-  async revokeAll(userId: RbacUserId, contextId?: RbacAssignmnentContextId): Promise<void> {
+  async revokeAll(userId: RbacUserId, contextId?: RbacContextId): Promise<void> {
     if (this.isCacheLoaded) {
       await this.cacheAdapter.deleteAssignmentsByUser(userId, contextId);
     }
     await this.persistentAdapter.deleteAssignmentsByUser(userId, contextId);
   }
 
-  async fetchUserAssignments(userId: RbacUserId, contextId?: RbacAssignmnentContextId): Promise<RbacAssignment[]> {
+  async fetchUserAssignments(userId: RbacUserId, contextId?: RbacContextId): Promise<RbacAssignment[]> {
     return this.currentAdapter.findAssignmentsByUserId(userId, contextId);
   }
 
@@ -108,7 +108,7 @@ export class RbacManager<RbacRulePayload = unknown> {
     return this.currentAdapter.findRoles();
   }
 
-  async fetchAllAssignments(contextId?: RbacAssignmnentContextId): Promise<RbacAssignment[]> {
+  async fetchAllAssignments(contextId?: RbacContextId): Promise<RbacAssignment[]> {
     return this.currentAdapter.findAllAssignments(contextId);
   }
 

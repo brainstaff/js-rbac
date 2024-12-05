@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-import { defaultRbacAssignmentContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from '@brainstaff/rbac';
+import { defaultRbacContextId, RbacAssignmentNotFoundError, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId, RbacAssignmentAlreadyExistsError } from '@brainstaff/rbac';
 
 import RbacAssignmentModel from '../models/RbacAssignment';
 
@@ -17,7 +17,7 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
     await RbacAssignmentModel.query().insert(all);
   }
 
-  async load(contextId = defaultRbacAssignmentContextId) {
+  async load(contextId = defaultRbacContextId) {
     const entries = await RbacAssignmentModel.query().where({ contextId });
     return entries.map(x => new RbacAssignment(x));
   }
@@ -30,17 +30,17 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
     await RbacAssignmentModel.query().insert(one);
   }
 
-  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+  async find(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
     const entry = await RbacAssignmentModel.query().findById([userId, role, contextId]);
     return entry == null ? null : new RbacAssignment(entry);
   }
 
-  async findByUserId(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+  async findByUserId(userId: RbacUserId, contextId = defaultRbacContextId) {
     const entries = await RbacAssignmentModel.query().where({ userId, contextId });
     return entries.map(x => new RbacAssignment(x));
   }
 
-  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacAssignmentContextId) {
+  async delete(userId: RbacUserId, role: RbacItem['name'], contextId = defaultRbacContextId) {
     const entry = await this.find(userId, role, contextId);
     if (entry == null) {
       throw new RbacAssignmentNotFoundError({ userId, role, contextId });
@@ -48,7 +48,7 @@ export default class RbacPostgresAssignmentAdapter implements RbacAssignmentAdap
     await RbacAssignmentModel.query().deleteById([userId, role, contextId]);
   }
 
-  async deleteByUser(userId: RbacUserId, contextId = defaultRbacAssignmentContextId) {
+  async deleteByUser(userId: RbacUserId, contextId = defaultRbacContextId) {
     await RbacAssignmentModel.query().where({ userId, contextId }).delete();
   }
 }
