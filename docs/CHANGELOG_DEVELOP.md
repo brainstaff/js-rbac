@@ -2,6 +2,11 @@
 
 ## Current
 
+### feature/prettier
+
+- Setup prettier.
+- Format sources.
+
 ### feature/improvements
 
 - Add RbacItemTypeEnum and RbacItemType.
