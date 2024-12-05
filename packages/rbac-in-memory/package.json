@@ -14,9 +14,7 @@
     "url": "https://github.com/brainstaff/js-rbac.git"
   },
   "scripts": {
-    "check": "tsc --noEmit",
-    "clean": "rm -rf dist",
-    "build": "rollup -c rollup.config.mjs",
+    "build": "tsc --noEmit && rm -rf dist && rollup -c rollup.config.mjs",
     "test": "mocha -r tsx ./test/test.ts"
   },
   "dependencies": {
