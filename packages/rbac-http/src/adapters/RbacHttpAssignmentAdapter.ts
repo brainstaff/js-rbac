@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-import { defaultRbacAssignmentContextId, RbacAssignment, RbacAssignmentAdapter, RbacAssignmnentContextId, RbacItem, RbacUserId } from '@brainstaff/rbac';
+import { defaultRbacAssignmentContextId, RbacAssignment, RbacAssignmentAdapter, RbacItem, RbacUserId } from '@brainstaff/rbac';
 
 import { rethrow } from '../utils/rethrow';
 

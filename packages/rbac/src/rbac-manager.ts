@@ -1,5 +1,6 @@
-import { defaultRbacAssignmentContextId, RbacAssignment, RbacAssignmnentContextId, RbacItem, RbacItemChild, RbacRule, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
+import { RbacAssignment, RbacAssignmnentContextId, RbacItem, RbacItemChild, RbacRule, RbacRuleFactory, RbacUserId } from "./rbac-abstractions";
 import { RbacAdapter } from "./rbac-adapter";
+import { RbacError } from "./rbac-errors";
 
 export class RbacManager<RbacRulePayload = unknown> {
   private cacheAdapter: RbacAdapter;
@@ -69,7 +70,7 @@ export class RbacManager<RbacRulePayload = unknown> {
   async assign(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<void> {
     const item = await this.currentAdapter.findItem(role);
     if (item == null || item.type !== 'role') {
-      throw new Error(`No such role ${role}.`);
+      throw new RbacError(`No such role ${role}.`);
     }
     if (await this.currentAdapter.findAssignment(userId, role, contextId) != null) {
       return;
@@ -84,7 +85,7 @@ export class RbacManager<RbacRulePayload = unknown> {
   async revoke(userId: RbacUserId, role: RbacItem['name'], contextId?: RbacAssignmnentContextId): Promise<void> {
     const assignment = await this.currentAdapter.findAssignment(userId, role, contextId);
     if (!assignment) {
-      throw new Error(`Role "${role}" is not attached to the "${userId}".`);
+      throw new RbacError(`Role "${role}" is not attached to the "${userId}".`);
     }
     if (this.isCacheLoaded) {
       await this.cacheAdapter.deleteAssignment(userId, role, contextId);

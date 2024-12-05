@@ -13,6 +13,7 @@ export {
   RbacHierarchy,
 } from "./rbac-abstractions";
 export {
+  RbacError,
   buildRbacRuleAlreadyExistsErrorMessage,
   RbacRuleAlreadyExistsError,
   buildRbacItemAlreadyExistsErrorMessage,
@@ -23,7 +24,7 @@ export {
   RbacAssignmentAlreadyExistsError,
   buildRbacAssignmentNotFoundErrorMessage,
   RbacAssignmentNotFoundError,
-} from "./rbac-adapter-errors";
+} from "./rbac-errors";
 export {
   RbacAssignmentAdapter,
   RbacItemAdapter,
