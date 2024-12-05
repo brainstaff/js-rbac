@@ -11,18 +11,21 @@
     "url": "https://github.com/brainstaff/js-rbac.git"
   },
   "scripts": {
+    "format": "prettier --write 'packages/*/src/**/*.ts' 'packages/*/test/**/*.ts' '.prettierrc' '**/package.json' '**/tsconfig.json'",
     "check": "lerna run check",
     "clean": "lerna run clean",
     "build": "lerna run build",
     "test": "lerna run test",
-    "pipe": "yarn check ${0:-} && yarn clean ${0:-} && yarn build ${0:-} && yarn test ${0:-}",
+    "pipe": "yarn format && yarn check ${0:-} && yarn clean ${0:-} && yarn build ${0:-} && yarn test ${0:-}",
     "publish-all": "lerna run clean && lerna run build && lerna publish --git-remote origin"
   },
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "^8.1.9"
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
+    "lerna": "^8.1.9",
+    "prettier": "^3.4.2"
   },
   "packageManager": "yarn@4.5.1"
 }

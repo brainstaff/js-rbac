@@ -1,41 +1,41 @@
 {
-    "name": "@brainstaff/rbac-mongodb",
-    "version": "1.0.0-beta.13",
-    "description": "RBAC mongodb adapter.",
-    "main": "dist/index.js",
-    "types": "src/index.ts",
-    "author": "Ilya Lebedev <ilyaleb@gmail.com>",
-    "license": "MIT",
-    "publishConfig": {
-        "access": "public"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/brainstaff/js-rbac.git"
-    },
-    "scripts": {
-        "check": "tsc --noEmit",
-        "clean": "rm -rf dist",
-        "build": "rollup -c rollup.config.mjs",
-        "test": "node --env-file=../../.env ../../node_modules/mocha/bin/mocha -r tsx ./test/test.ts"
-    },
-    "dependencies": {
-        "@brainstaff/rbac": "^1.0.0-beta.13"
-    },
-    "devDependencies": {
-        "@rollup/plugin-typescript": "^12.1.1",
-        "@tsconfig/node20": "^20.1.4",
-        "@types/chai": "^5.0.1",
-        "@types/mocha": "^10.0.9",
-        "@types/node": "^22.9.0",
-        "chai": "^5.1.2",
-        "mocha": "^10.8.2",
-        "mongoose": "^8.8.0",
-        "rollup": "^4.24.4",
-        "tsx": "^4.19.2",
-        "typescript": "^5.6.3"
-    },
-    "peerDependencies": {
-        "mongoose": "^8.8.0"
-    }
+  "name": "@brainstaff/rbac-mongodb",
+  "version": "1.0.0-beta.13",
+  "description": "RBAC mongodb adapter.",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "author": "Ilya Lebedev <ilyaleb@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brainstaff/js-rbac.git"
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "build": "rollup -c rollup.config.mjs",
+    "test": "node --env-file=../../.env ../../node_modules/mocha/bin/mocha -r tsx ./test/test.ts"
+  },
+  "dependencies": {
+    "@brainstaff/rbac": "^1.0.0-beta.13"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/chai": "^5.0.1",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "^22.9.0",
+    "chai": "^5.1.2",
+    "mocha": "^10.8.2",
+    "mongoose": "^8.8.0",
+    "rollup": "^4.24.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "peerDependencies": {
+    "mongoose": "^8.8.0"
+  }
 }

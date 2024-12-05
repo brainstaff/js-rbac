@@ -15,12 +15,12 @@ export interface RbacRuleInstance<RbacRulePayload> {
 }
 
 export interface RbacRuleFactory<RbacRulePayload> {
-  createRule: (name: RbacRule['name']) => RbacRuleInstance<RbacRulePayload>;
+  createRule: (name: RbacRule["name"]) => RbacRuleInstance<RbacRulePayload>;
 }
 
 export enum RbacItemTypeEnum {
-  role = 'role',
-  permission = 'permission',
+  role = "role",
+  permission = "permission",
 }
 
 export type RbacItemType = keyof typeof RbacItemTypeEnum;
@@ -28,9 +28,9 @@ export type RbacItemType = keyof typeof RbacItemTypeEnum;
 export class RbacItem {
   type: RbacItemType;
   name: string;
-  rule?: RbacRule['name'];
+  rule?: RbacRule["name"];
 
-  constructor(v: NullishBy<RbacItem, 'rule'>) {
+  constructor(v: NullishBy<RbacItem, "rule">) {
     this.type = v.type;
     this.name = v.name;
     this.rule = v.rule ?? undefined;
@@ -38,10 +38,10 @@ export class RbacItem {
 }
 
 export class RbacItemChild {
-  parent: RbacItem['name'];
-  child: RbacItem['name'];
+  parent: RbacItem["name"];
+  child: RbacItem["name"];
 
-  constructor (v: RbacItemChild) {
+  constructor(v: RbacItemChild) {
     this.parent = v.parent;
     this.child = v.child;
   }
@@ -53,10 +53,10 @@ export const defaultRbacContextId: RbacContextId = "";
 
 export class RbacAssignment {
   userId: RbacUserId;
-  role: RbacItem['name'];
+  role: RbacItem["name"];
   contextId: RbacContextId;
 
-  constructor (v: NullishBy<RbacAssignment, 'contextId'>) {
+  constructor(v: NullishBy<RbacAssignment, "contextId">) {
     this.userId = v.userId;
     this.role = v.role;
     this.contextId = v.contextId ?? defaultRbacContextId;
