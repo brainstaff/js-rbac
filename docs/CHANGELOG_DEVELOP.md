@@ -2,6 +2,11 @@
 
 ## Current
 
+### feature/flbt
+
+- Merge check, clean and build scripts.
+- Replace pipe by flbt scripts.
+
 ### feature/eslint
 
 - Setup ESLint.

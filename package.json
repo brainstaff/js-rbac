@@ -13,11 +13,12 @@
   "scripts": {
     "format": "prettier --write 'packages/*/src/**/*.ts' 'packages/*/test/**/*.ts' '.prettierrc' 'eslint.config.mjs' '**/package.json' '**/tsconfig.json'",
     "lint": "eslint 'packages/*/src/**/*.ts' 'packages/*/test/**/*.ts'",
-    "check": "lerna run check",
-    "clean": "lerna run clean",
     "build": "lerna run build",
     "test": "lerna run test",
-    "pipe": "yarn format && yarn check ${0:-} && yarn clean ${0:-} && yarn build ${0:-} && yarn test ${0:-}",
+    "f": "yarn format",
+    "fl": "yarn f && yarn lint",
+    "flb": "yarn fl && yarn build",
+    "flbt": "yarn flb && yarn test",
     "publish-all": "lerna run clean && lerna run build && lerna publish --git-remote origin"
   },
   "workspaces": [
