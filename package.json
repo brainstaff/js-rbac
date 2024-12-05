@@ -15,7 +15,10 @@
     "lint": "eslint 'packages/*/src/**/*.ts' 'packages/*/test/**/*.ts'",
     "build": "lerna run build",
     "test": "lerna run test",
-    "pipe": "yarn format && yarn check ${0:-} && yarn clean ${0:-} && yarn build ${0:-} && yarn test ${0:-}",
+    "f": "yarn format",
+    "fl": "yarn f && yarn lint",
+    "flb": "yarn fl && yarn build",
+    "flbt": "yarn flb && yarn test",
     "publish-all": "lerna run clean && lerna run build && lerna publish --git-remote origin"
   },
   "workspaces": [
