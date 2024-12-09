@@ -1,13 +1,13 @@
 import { RbacRule, RbacRuleAdapter } from "@brainstaff/rbac";
-import { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios";
 
 import { rethrow } from "../utils/rethrow";
 
 export default class RbacHttpRuleAdapter implements RbacRuleAdapter {
   private client: AxiosInstance;
 
-  constructor(deps: { client: AxiosInstance }) {
-    this.client = deps.client;
+  constructor(config: { baseURL: string }) {
+    this.client = axios.create(config);
   }
 
   @rethrow
