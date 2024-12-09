@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 1.0.0-beta.15
+
+### feature/encapsulate-axios
+
+- Accept HTTP client config instead of the client.
+
+
 ## 1.0.0-beta.14
 
 ### feature/flbt
