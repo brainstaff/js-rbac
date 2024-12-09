@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.16
+
+### bugfix/load-assignments
+
+- Load assignments without filtering by contextId (required for caching).
+
 
 ## 1.0.0-beta.15
 
