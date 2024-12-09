@@ -101,10 +101,12 @@ export class RbacManager<RbacRulePayload = unknown> {
     if (item == null || item.type !== "role") {
       throw new RbacError(`No such role ${role}.`);
     }
-    if (
-      (await this.currentAdapter.findAssignment(userId, role, contextId)) !=
-      null
-    ) {
+    const existingAssignment = await this.currentAdapter.findAssignment(
+      userId,
+      role,
+      contextId,
+    );
+    if (existingAssignment != null) {
       return;
     }
     const assignment = new RbacAssignment({ userId, role, contextId });

@@ -21,7 +21,6 @@ import {
   RbacInMemoryItemChildAdapter,
   RbacInMemoryRuleAdapter,
 } from "@brainstaff/rbac-in-memory";
-import axios from "axios";
 import express from "express";
 
 import {
@@ -31,10 +30,7 @@ import {
   RbacHttpRuleAdapter,
 } from "../src/index.js";
 
-const client = axios.create({
-  baseURL: "http://localhost:4001",
-  headers: {},
-});
+const baseURL = "http://localhost:4001";
 
 const timeout = 10000;
 
@@ -81,19 +77,19 @@ describe("RbacHttpAssignmentAdapter", function () {
     });
     app.get("/rbac/assignments/:userId/:role", (req, res) => {
       const handleErr = newErrHandler(res);
-      const { userId, role } = req.params,
-        { contextId } = req.query;
+      const { userId, role } = req.params;
+      const { contextId } = req.query;
       if (typeof contextId !== "string" || typeof contextId === "undefined") {
         return handleErr(400);
       }
       db.find(userId, role, contextId)
-        .then((entries) => res.json(entries))
+        .then((entry) => res.json(entry))
         .catch(handleErr);
     });
     app.get("/rbac/assignments/:userId", (req, res) => {
       const handleErr = newErrHandler(res);
-      const { userId } = req.params,
-        { contextId } = req.query;
+      const { userId } = req.params;
+      const { contextId } = req.query;
       if (typeof contextId !== "string" || typeof contextId === "undefined") {
         return handleErr(400);
       }
@@ -103,24 +99,24 @@ describe("RbacHttpAssignmentAdapter", function () {
     });
     app.delete("/rbac/assignments/:userId/:role", (req, res) => {
       const handleErr = newErrHandler(res);
-      const { userId, role } = req.params,
-        { contextId } = req.query;
+      const { userId, role } = req.params;
+      const { contextId } = req.query;
       if (typeof contextId !== "string" || typeof contextId === "undefined") {
         return handleErr(400);
       }
       db.delete(userId, role, contextId)
-        .then((entry) => res.json(entry))
+        .then(() => res.send())
         .catch(handleErr);
     });
     app.delete("/rbac/assignments/:userId", (req, res) => {
       const handleErr = newErrHandler(res);
-      const { userId } = req.params,
-        { contextId } = req.query;
+      const { userId } = req.params;
+      const { contextId } = req.query;
       if (typeof contextId !== "string" || typeof contextId === "undefined") {
         return handleErr(400);
       }
       db.deleteByUser(userId, contextId)
-        .then((entry) => res.json(entry))
+        .then(() => res.send())
         .catch(handleErr);
     });
   });
@@ -130,7 +126,7 @@ describe("RbacHttpAssignmentAdapter", function () {
   });
 
   const adapter: RbacAssignmentAdapter = new RbacHttpAssignmentAdapter({
-    client,
+    baseURL,
   });
 
   const $ = {
@@ -232,7 +228,7 @@ describe("RbacHttpItemAdapter", function () {
     server.close(done);
   });
 
-  const adapter: RbacItemAdapter = new RbacHttpItemAdapter({ client });
+  const adapter: RbacItemAdapter = new RbacHttpItemAdapter({ baseURL });
 
   const $ = {
     admin: new RbacItem({ name: "admin", type: "role" }),
@@ -333,7 +329,7 @@ describe("RbacHttpItemChildAdapter", function () {
   });
 
   const adapter: RbacItemChildAdapter = new RbacHttpItemChildAdapter({
-    client,
+    baseURL,
   });
 
   const $ = {
@@ -424,7 +420,7 @@ describe("RbacHttpRuleAdapter", function () {
     server.close(done);
   });
 
-  const adapter: RbacRuleAdapter = new RbacHttpRuleAdapter({ client });
+  const adapter: RbacRuleAdapter = new RbacHttpRuleAdapter({ baseURL });
 
   const $ = {
     IsOwnProfile: new RbacRule({ name: "IsOwnProfile" }),
@@ -500,10 +496,10 @@ describe("RbacHttpAdapter", function () {
   });
 
   const adapter = new RbacAdapter({
-    assignmentAdapter: new RbacHttpAssignmentAdapter({ client }),
-    itemAdapter: new RbacHttpItemAdapter({ client }),
-    itemChildAdapter: new RbacHttpItemChildAdapter({ client }),
-    ruleAdapter: new RbacHttpRuleAdapter({ client }),
+    assignmentAdapter: new RbacHttpAssignmentAdapter({ baseURL }),
+    itemAdapter: new RbacHttpItemAdapter({ baseURL }),
+    itemChildAdapter: new RbacHttpItemChildAdapter({ baseURL }),
+    ruleAdapter: new RbacHttpRuleAdapter({ baseURL }),
   });
 
   it("should load data via load() function", async () => {
