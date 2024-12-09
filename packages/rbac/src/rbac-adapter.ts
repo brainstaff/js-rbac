@@ -10,7 +10,7 @@ import {
 
 export interface RbacAssignmentAdapter {
   store: (all: RbacAssignment[]) => Promise<void>;
-  load: (contextId?: RbacContextId) => Promise<RbacAssignment[]>;
+  load: () => Promise<RbacAssignment[]>;
   create: (one: RbacAssignment) => Promise<void>;
   find: (
     userId: RbacUserId,
@@ -92,10 +92,8 @@ export class RbacAdapter {
     };
   }
 
-  async findAllAssignments(
-    contextId?: RbacContextId,
-  ): Promise<RbacAssignment[]> {
-    return this.assignmentAdapter.load(contextId);
+  async findAllAssignments(): Promise<RbacAssignment[]> {
+    return this.assignmentAdapter.load();
   }
 
   async findAllItems(): Promise<RbacItem[]> {

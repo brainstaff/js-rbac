@@ -4,7 +4,7 @@ import {
   RbacRuleAlreadyExistsError,
 } from "@brainstaff/rbac";
 
-export default class RbacInMemoryRuleAdapter implements RbacRuleAdapter {
+class RbacInMemoryRuleAdapter implements RbacRuleAdapter {
   private entries: RbacRule[] = [];
 
   async store(raw: RbacRule[]) {
@@ -28,3 +28,5 @@ export default class RbacInMemoryRuleAdapter implements RbacRuleAdapter {
     return this.entries.find((x) => x.name === name) ?? null;
   }
 }
+
+export default RbacInMemoryRuleAdapter;

@@ -67,11 +67,7 @@ describe("RbacHttpAssignmentAdapter", function () {
     });
     app.get("/rbac/assignments", (req, res) => {
       const handleErr = newErrHandler(res);
-      const { contextId } = req.query;
-      if (typeof contextId !== "string" || typeof contextId === "undefined") {
-        return handleErr(400);
-      }
-      db.load(contextId)
+      db.load()
         .then((entries) => res.json(entries))
         .catch(handleErr);
     });
@@ -125,9 +121,7 @@ describe("RbacHttpAssignmentAdapter", function () {
     server.close(done);
   });
 
-  const adapter: RbacAssignmentAdapter = new RbacHttpAssignmentAdapter({
-    baseURL,
-  });
+  const adapter: RbacAssignmentAdapter = new RbacHttpAssignmentAdapter(baseURL);
 
   const $ = {
     alexey: new RbacAssignment({ userId: "alexey", role: "admin" }),
@@ -228,7 +222,7 @@ describe("RbacHttpItemAdapter", function () {
     server.close(done);
   });
 
-  const adapter: RbacItemAdapter = new RbacHttpItemAdapter({ baseURL });
+  const adapter: RbacItemAdapter = new RbacHttpItemAdapter(baseURL);
 
   const $ = {
     admin: new RbacItem({ name: "admin", type: "role" }),
@@ -328,9 +322,7 @@ describe("RbacHttpItemChildAdapter", function () {
     server.close(done);
   });
 
-  const adapter: RbacItemChildAdapter = new RbacHttpItemChildAdapter({
-    baseURL,
-  });
+  const adapter: RbacItemChildAdapter = new RbacHttpItemChildAdapter(baseURL);
 
   const $ = {
     admin_manager: new RbacItemChild({ parent: "admin", child: "manager" }),
@@ -420,7 +412,7 @@ describe("RbacHttpRuleAdapter", function () {
     server.close(done);
   });
 
-  const adapter: RbacRuleAdapter = new RbacHttpRuleAdapter({ baseURL });
+  const adapter: RbacRuleAdapter = new RbacHttpRuleAdapter(baseURL);
 
   const $ = {
     IsOwnProfile: new RbacRule({ name: "IsOwnProfile" }),
@@ -496,10 +488,10 @@ describe("RbacHttpAdapter", function () {
   });
 
   const adapter = new RbacAdapter({
-    assignmentAdapter: new RbacHttpAssignmentAdapter({ baseURL }),
-    itemAdapter: new RbacHttpItemAdapter({ baseURL }),
-    itemChildAdapter: new RbacHttpItemChildAdapter({ baseURL }),
-    ruleAdapter: new RbacHttpRuleAdapter({ baseURL }),
+    assignmentAdapter: new RbacHttpAssignmentAdapter(baseURL),
+    itemAdapter: new RbacHttpItemAdapter(baseURL),
+    itemChildAdapter: new RbacHttpItemChildAdapter(baseURL),
+    ruleAdapter: new RbacHttpRuleAdapter(baseURL),
   });
 
   it("should load data via load() function", async () => {

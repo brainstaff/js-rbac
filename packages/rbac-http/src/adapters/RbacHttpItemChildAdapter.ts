@@ -7,11 +7,11 @@ import axios, { AxiosInstance } from "axios";
 
 import { rethrow } from "../utils/rethrow";
 
-export default class RbacHttpItemChildAdapter implements RbacItemChildAdapter {
+class RbacHttpItemChildAdapter implements RbacItemChildAdapter {
   private client: AxiosInstance;
 
-  constructor(config: { baseURL: string }) {
-    this.client = axios.create(config);
+  constructor(baseURL: string) {
+    this.client = axios.create({ baseURL });
   }
 
   @rethrow
@@ -44,3 +44,5 @@ export default class RbacHttpItemChildAdapter implements RbacItemChildAdapter {
     return res.data.map((x: any) => new RbacItemChild(x));
   }
 }
+
+export default RbacHttpItemChildAdapter;

@@ -8,9 +8,7 @@ import {
   RbacUserId,
 } from "@brainstaff/rbac";
 
-export default class RbacInMemoryAssignmentAdapter
-  implements RbacAssignmentAdapter
-{
+class RbacInMemoryAssignmentAdapter implements RbacAssignmentAdapter {
   private entries: RbacAssignment[] = [];
 
   async store(raw: RbacAssignment[]) {
@@ -18,8 +16,8 @@ export default class RbacInMemoryAssignmentAdapter
     this.entries = all;
   }
 
-  async load(contextId = defaultRbacContextId) {
-    return this.entries.filter((x) => x.contextId === contextId);
+  async load() {
+    return this.entries;
   }
 
   async create(raw: RbacAssignment) {
@@ -70,3 +68,5 @@ export default class RbacInMemoryAssignmentAdapter
     );
   }
 }
+
+export default RbacInMemoryAssignmentAdapter;

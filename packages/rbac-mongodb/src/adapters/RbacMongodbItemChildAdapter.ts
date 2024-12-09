@@ -7,9 +7,7 @@ import { RbacItemChildAdapter } from "@brainstaff/rbac/src/rbac-adapter";
 
 import RbacItemChildModel from "../models/RbacItemChild";
 
-export default class RbacMongodbItemChildAdapter
-  implements RbacItemChildAdapter
-{
+class RbacMongodbItemChildAdapter implements RbacItemChildAdapter {
   async store(raw: RbacItemChild[]) {
     const all = raw.map((x) => new RbacItemChild(x));
     await RbacItemChildModel.deleteMany({});
@@ -39,3 +37,5 @@ export default class RbacMongodbItemChildAdapter
     return entries.map((x) => new RbacItemChild(x));
   }
 }
+
+export default RbacMongodbItemChildAdapter;

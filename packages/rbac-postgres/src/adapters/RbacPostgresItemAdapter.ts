@@ -7,7 +7,7 @@ import { Knex } from "knex";
 
 import RbacItemModel from "../models/RbacItem";
 
-export default class RbacPostgresItemAdapter implements RbacItemAdapter {
+class RbacPostgresItemAdapter implements RbacItemAdapter {
   constructor(deps: { client: Knex }) {
     RbacItemModel.knex(deps.client);
   }
@@ -41,3 +41,5 @@ export default class RbacPostgresItemAdapter implements RbacItemAdapter {
     return entries.map((x) => new RbacItem(x));
   }
 }
+
+export default RbacPostgresItemAdapter;

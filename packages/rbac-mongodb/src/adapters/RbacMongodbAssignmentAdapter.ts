@@ -10,18 +10,16 @@ import {
 
 import RbacAssignmentModel from "../models/RbacAssignment";
 
-export default class RbacMongodbAssignmentAdapter
-  implements RbacAssignmentAdapter
-{
+class RbacMongodbAssignmentAdapter implements RbacAssignmentAdapter {
   async store(raw: RbacAssignment[]) {
     const all = raw.map((x) => new RbacAssignment(x));
     await RbacAssignmentModel.deleteMany({});
     await RbacAssignmentModel.create(all);
   }
 
-  async load(contextId = defaultRbacContextId) {
-    const entries = await RbacAssignmentModel.find({ contextId });
-    return entries.map((x) => new RbacAssignment(x));
+  async load() {
+    const all = await RbacAssignmentModel.find();
+    return all.map((x) => new RbacAssignment(x));
   }
 
   async create(raw: RbacAssignment) {
@@ -66,3 +64,5 @@ export default class RbacMongodbAssignmentAdapter
     await RbacAssignmentModel.deleteMany({ userId, contextId });
   }
 }
+
+export default RbacMongodbAssignmentAdapter;
