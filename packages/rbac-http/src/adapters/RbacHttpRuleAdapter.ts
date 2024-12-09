@@ -3,11 +3,11 @@ import axios, { AxiosInstance } from "axios";
 
 import { rethrow } from "../utils/rethrow";
 
-export default class RbacHttpRuleAdapter implements RbacRuleAdapter {
+class RbacHttpRuleAdapter implements RbacRuleAdapter {
   private client: AxiosInstance;
 
-  constructor(config: { baseURL: string }) {
-    this.client = axios.create(config);
+  constructor(baseURL: string) {
+    this.client = axios.create({ baseURL });
   }
 
   @rethrow
@@ -34,3 +34,5 @@ export default class RbacHttpRuleAdapter implements RbacRuleAdapter {
     return res.data == null ? null : new RbacRule(res.data);
   }
 }
+
+export default RbacHttpRuleAdapter;

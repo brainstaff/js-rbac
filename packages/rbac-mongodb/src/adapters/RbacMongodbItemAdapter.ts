@@ -6,7 +6,7 @@ import {
 
 import RbacItemModel from "../models/RbacItem";
 
-export default class RbacMongodbItemAdapter implements RbacItemAdapter {
+class RbacMongodbItemAdapter implements RbacItemAdapter {
   async store(raw: RbacItem[]) {
     const all = raw.map((x) => new RbacItem(x));
     await RbacItemModel.deleteMany({});
@@ -36,3 +36,5 @@ export default class RbacMongodbItemAdapter implements RbacItemAdapter {
     return entry.map((x) => new RbacItem(x));
   }
 }
+
+export default RbacMongodbItemAdapter;

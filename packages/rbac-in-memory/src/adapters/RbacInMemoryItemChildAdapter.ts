@@ -5,9 +5,7 @@ import {
   RbacItemChildAlreadyExistsError,
 } from "@brainstaff/rbac";
 
-export default class RbacInMemoryItemChildAdapter
-  implements RbacItemChildAdapter
-{
+class RbacInMemoryItemChildAdapter implements RbacItemChildAdapter {
   private entries: RbacItemChild[] = [];
 
   async store(raw: RbacItemChild[]) {
@@ -37,3 +35,5 @@ export default class RbacInMemoryItemChildAdapter
     return this.entries.filter((x) => x.parent === parent);
   }
 }
+
+export default RbacInMemoryItemChildAdapter;

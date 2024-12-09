@@ -11,9 +11,7 @@ import { Knex } from "knex";
 
 import RbacAssignmentModel from "../models/RbacAssignment";
 
-export default class RbacPostgresAssignmentAdapter
-  implements RbacAssignmentAdapter
-{
+class RbacPostgresAssignmentAdapter implements RbacAssignmentAdapter {
   constructor(deps: { client: Knex }) {
     RbacAssignmentModel.knex(deps.client);
   }
@@ -24,9 +22,9 @@ export default class RbacPostgresAssignmentAdapter
     await RbacAssignmentModel.query().insert(all);
   }
 
-  async load(contextId = defaultRbacContextId) {
-    const entries = await RbacAssignmentModel.query().where({ contextId });
-    return entries.map((x) => new RbacAssignment(x));
+  async load() {
+    const all = await RbacAssignmentModel.query();
+    return all.map((x) => new RbacAssignment(x));
   }
 
   async create(raw: RbacAssignment) {
@@ -74,3 +72,5 @@ export default class RbacPostgresAssignmentAdapter
     await RbacAssignmentModel.query().where({ userId, contextId }).delete();
   }
 }
+
+export default RbacPostgresAssignmentAdapter;

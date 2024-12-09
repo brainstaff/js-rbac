@@ -7,7 +7,7 @@ import { Knex } from "knex";
 
 import RbacRuleModel from "../models/RbacRule";
 
-export default class RbacPostgresRuleAdapter implements RbacRuleAdapter {
+class RbacPostgresRuleAdapter implements RbacRuleAdapter {
   constructor(deps: { client: Knex }) {
     RbacRuleModel.knex(deps.client);
   }
@@ -36,3 +36,5 @@ export default class RbacPostgresRuleAdapter implements RbacRuleAdapter {
     return entry == null ? null : new RbacRule(entry);
   }
 }
+
+export default RbacPostgresRuleAdapter;

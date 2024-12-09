@@ -9,13 +9,11 @@ import axios, { AxiosInstance } from "axios";
 
 import { rethrow } from "../utils/rethrow";
 
-export default class RbacHttpAssignmentAdapter
-  implements RbacAssignmentAdapter
-{
+class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter {
   private client: AxiosInstance;
 
-  constructor(config: { baseURL: string }) {
-    this.client = axios.create(config);
+  constructor(baseURL: string) {
+    this.client = axios.create({ baseURL });
   }
 
   @rethrow
@@ -25,10 +23,8 @@ export default class RbacHttpAssignmentAdapter
   }
 
   @rethrow
-  async load(contextId = defaultRbacContextId) {
-    const res = await this.client.get(`/rbac/assignments`, {
-      params: { contextId },
-    });
+  async load() {
+    const res = await this.client.get(`/rbac/assignments`);
     return res.data.map((x: any) => new RbacAssignment(x));
   }
 
@@ -76,3 +72,5 @@ export default class RbacHttpAssignmentAdapter
     });
   }
 }
+
+export default RbacHttpAssignmentAdapter;

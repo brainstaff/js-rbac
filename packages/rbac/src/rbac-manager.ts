@@ -156,10 +156,8 @@ export class RbacManager<RbacRulePayload = unknown> {
     return this.currentAdapter.findRoles();
   }
 
-  async fetchAllAssignments(
-    contextId?: RbacContextId,
-  ): Promise<RbacAssignment[]> {
-    return this.currentAdapter.findAllAssignments(contextId);
+  async fetchAllAssignments(): Promise<RbacAssignment[]> {
+    return this.currentAdapter.findAllAssignments();
   }
 
   async fetchAllItems(): Promise<RbacItem[]> {

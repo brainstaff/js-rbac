@@ -6,7 +6,7 @@ import {
 
 import RbacRuleModel from "../models/RbacRule";
 
-export default class RbacMongodbRuleAdapter implements RbacRuleAdapter {
+class RbacMongodbRuleAdapter implements RbacRuleAdapter {
   async store(raw: RbacRule[]) {
     const all = raw.map((x) => new RbacRule(x));
     await RbacRuleModel.deleteMany({});
@@ -31,3 +31,5 @@ export default class RbacMongodbRuleAdapter implements RbacRuleAdapter {
     return entry == null ? null : new RbacRule(entry);
   }
 }
+
+export default RbacMongodbRuleAdapter;
