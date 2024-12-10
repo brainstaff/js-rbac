@@ -1,5 +1,13 @@
 # Changelog
 
+
+## 1.0.0-beta.17
+
+### feature/http-urls
+
+- Adjust HTTP URLs.
+
+
 ## 1.0.0-beta.16
 
 ### bugfix/load-assignments
