@@ -9,6 +9,8 @@ import axios, { AxiosInstance } from "axios";
 
 import { rethrow } from "../utils/rethrow";
 
+export const assignmentsUrl = "/rbac-assignments";
+
 class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter {
   private client: AxiosInstance;
 
@@ -19,19 +21,19 @@ class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter {
   @rethrow
   async store(raw: RbacAssignment[]) {
     const all = raw.map((x) => new RbacAssignment(x));
-    await this.client.post(`/rbac/assignments`, { rbacAssignments: all });
+    await this.client.post(assignmentsUrl, { rbacAssignments: all });
   }
 
   @rethrow
   async load() {
-    const res = await this.client.get(`/rbac/assignments`);
+    const res = await this.client.get(assignmentsUrl);
     return res.data.map((x: any) => new RbacAssignment(x));
   }
 
   @rethrow
   async create(raw: RbacAssignment) {
     const one = new RbacAssignment(raw);
-    await this.client.post(`/rbac/assignments`, one);
+    await this.client.post(assignmentsUrl, one);
   }
 
   @rethrow
@@ -40,7 +42,7 @@ class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter {
     role: RbacItem["name"],
     contextId = defaultRbacContextId,
   ) {
-    const res = await this.client.get(`/rbac/assignments/${userId}/${role}`, {
+    const res = await this.client.get(`${assignmentsUrl}/${userId}/${role}`, {
       params: { contextId },
     });
     return res.data == null ? null : new RbacAssignment(res.data);
@@ -48,7 +50,7 @@ class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter {
 
   @rethrow
   async findByUserId(userId: RbacUserId, contextId = defaultRbacContextId) {
-    const res = await this.client.get(`/rbac/assignments/${userId}`, {
+    const res = await this.client.get(`${assignmentsUrl}/${userId}`, {
       params: { contextId },
     });
     return res.data.map((x: any) => new RbacAssignment(x));
@@ -60,14 +62,14 @@ class RbacHttpAssignmentAdapter implements RbacAssignmentAdapter {
     role: RbacItem["name"],
     contextId = defaultRbacContextId,
   ) {
-    await this.client.delete(`/rbac/assignments/${userId}/${role}`, {
+    await this.client.delete(`${assignmentsUrl}/${userId}/${role}`, {
       params: { contextId },
     });
   }
 
   @rethrow
   async deleteByUser(userId: RbacUserId, contextId = defaultRbacContextId) {
-    await this.client.delete(`/rbac/assignments/${userId}`, {
+    await this.client.delete(`${assignmentsUrl}/${userId}`, {
       params: { contextId },
     });
   }

@@ -7,6 +7,8 @@ import axios, { AxiosInstance } from "axios";
 
 import { rethrow } from "../utils/rethrow";
 
+export const itemChildrenUrl = "/rbac-item-children";
+
 class RbacHttpItemChildAdapter implements RbacItemChildAdapter {
   private client: AxiosInstance;
 
@@ -17,30 +19,30 @@ class RbacHttpItemChildAdapter implements RbacItemChildAdapter {
   @rethrow
   async store(raw: RbacItemChild[]) {
     const all = raw.map((x) => new RbacItemChild(x));
-    await this.client.post(`/rbac/item-children`, { rbacItemChildren: all });
+    await this.client.post(itemChildrenUrl, { rbacItemChildren: all });
   }
 
   @rethrow
   async load() {
-    const res = await this.client.get(`/rbac/item-children`);
+    const res = await this.client.get(itemChildrenUrl);
     return res.data.map((x: any) => new RbacItemChild(x));
   }
 
   @rethrow
   async create(raw: RbacItemChild) {
     const one = new RbacItemChild(raw);
-    await this.client.post(`/rbac/item-children`, one);
+    await this.client.post(itemChildrenUrl, one);
   }
 
   @rethrow
   async find(parent: RbacItem["name"], child: RbacItem["name"]) {
-    const res = await this.client.get(`/rbac/item-children/${parent}/${child}`);
+    const res = await this.client.get(`${itemChildrenUrl}/${parent}/${child}`);
     return res.data == null ? null : new RbacItemChild(res.data);
   }
 
   @rethrow
   async findByParent(parent: RbacItem["name"]) {
-    const res = await this.client.get(`/rbac/item-children/${parent}`);
+    const res = await this.client.get(`${itemChildrenUrl}/${parent}`);
     return res.data.map((x: any) => new RbacItemChild(x));
   }
 }
