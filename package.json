@@ -19,7 +19,7 @@
     "fl": "yarn f && yarn lint",
     "flb": "yarn fl && yarn build",
     "flbt": "yarn flb && yarn test",
-    "publish-all": "lerna run clean && lerna run build && lerna publish --git-remote origin"
+    "publish-all": "yarn flbt && lerna publish --git-remote origin"
   },
   "workspaces": [
     "packages/*"

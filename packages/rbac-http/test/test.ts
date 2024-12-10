@@ -23,6 +23,10 @@ import {
 } from "@brainstaff/rbac-in-memory";
 import express from "express";
 
+import { assignmentsUrl } from "../src/adapters/RbacHttpAssignmentAdapter.js";
+import { itemsUrl } from "../src/adapters/RbacHttpItemAdapter.js";
+import { itemChildrenUrl } from "../src/adapters/RbacHttpItemChildAdapter.js";
+import { rulesUrl } from "../src/adapters/RbacHttpRuleAdapter.js";
 import {
   RbacHttpAssignmentAdapter,
   RbacHttpItemAdapter,
@@ -52,7 +56,7 @@ describe("RbacHttpAssignmentAdapter", function () {
     server = app.listen(4001);
     app.use(express.json());
     const db = new RbacInMemoryAssignmentAdapter();
-    app.post("/rbac/assignments", (req, res) => {
+    app.post(assignmentsUrl, (req, res) => {
       const errHandler = newErrHandler(res);
       const { rbacAssignments, userId, role } = req.body;
       if (rbacAssignments) {
@@ -65,13 +69,13 @@ describe("RbacHttpAssignmentAdapter", function () {
           .catch(errHandler);
       }
     });
-    app.get("/rbac/assignments", (req, res) => {
+    app.get(assignmentsUrl, (req, res) => {
       const handleErr = newErrHandler(res);
       db.load()
         .then((entries) => res.json(entries))
         .catch(handleErr);
     });
-    app.get("/rbac/assignments/:userId/:role", (req, res) => {
+    app.get(`${assignmentsUrl}/:userId/:role`, (req, res) => {
       const handleErr = newErrHandler(res);
       const { userId, role } = req.params;
       const { contextId } = req.query;
@@ -82,7 +86,7 @@ describe("RbacHttpAssignmentAdapter", function () {
         .then((entry) => res.json(entry))
         .catch(handleErr);
     });
-    app.get("/rbac/assignments/:userId", (req, res) => {
+    app.get(`${assignmentsUrl}/:userId`, (req, res) => {
       const handleErr = newErrHandler(res);
       const { userId } = req.params;
       const { contextId } = req.query;
@@ -93,7 +97,7 @@ describe("RbacHttpAssignmentAdapter", function () {
         .then((entry) => res.json(entry))
         .catch(handleErr);
     });
-    app.delete("/rbac/assignments/:userId/:role", (req, res) => {
+    app.delete(`${assignmentsUrl}/:userId/:role`, (req, res) => {
       const handleErr = newErrHandler(res);
       const { userId, role } = req.params;
       const { contextId } = req.query;
@@ -104,7 +108,7 @@ describe("RbacHttpAssignmentAdapter", function () {
         .then(() => res.send())
         .catch(handleErr);
     });
-    app.delete("/rbac/assignments/:userId", (req, res) => {
+    app.delete(`${assignmentsUrl}/:userId`, (req, res) => {
       const handleErr = newErrHandler(res);
       const { userId } = req.params;
       const { contextId } = req.query;
@@ -188,7 +192,7 @@ describe("RbacHttpItemAdapter", function () {
     server = app.listen(4001);
     app.use(express.json());
     const db = new RbacInMemoryItemAdapter();
-    app.post("/rbac/items", (req, res) => {
+    app.post(itemsUrl, (req, res) => {
       const errHandler = newErrHandler(res);
       const { rbacItems, name, type, rule } = req.body;
       if (rbacItems) {
@@ -201,17 +205,17 @@ describe("RbacHttpItemAdapter", function () {
           .catch(errHandler);
       }
     });
-    app.get("/rbac/items", (_req, res) => {
+    app.get(itemsUrl, (_req, res) => {
       db.load()
         .then((entries) => res.json(entries))
         .catch(newErrHandler(res));
     });
-    app.get("/rbac/items/roles", (_req, res) => {
+    app.get(`${itemsUrl}/roles`, (_req, res) => {
       db.findByType("role")
         .then((entries) => res.json(entries))
         .catch(newErrHandler(res));
     });
-    app.get("/rbac/items/:name", (req, res) => {
+    app.get(`${itemsUrl}/:name`, (req, res) => {
       db.find(req.params.name)
         .then((entry) => res.json(entry))
         .catch(newErrHandler(res));
@@ -288,7 +292,7 @@ describe("RbacHttpItemChildAdapter", function () {
     server = app.listen(4001);
     app.use(express.json());
     const db = new RbacInMemoryItemChildAdapter();
-    app.post("/rbac/item-children", (req, res) => {
+    app.post(itemChildrenUrl, (req, res) => {
       const errHandler = newErrHandler(res);
       const { rbacItemChildren, parent, child } = req.body;
       if (rbacItemChildren) {
@@ -301,17 +305,17 @@ describe("RbacHttpItemChildAdapter", function () {
           .catch(errHandler);
       }
     });
-    app.get("/rbac/item-children", (_req, res) => {
+    app.get(itemChildrenUrl, (_req, res) => {
       db.load()
         .then((entries) => res.json(entries))
         .catch(newErrHandler(res));
     });
-    app.get("/rbac/item-children/:parent/:child", (req, res) => {
+    app.get(`${itemChildrenUrl}/:parent/:child`, (req, res) => {
       db.find(req.params.parent, req.params.child)
         .then((entries) => res.json(entries))
         .catch(newErrHandler(res));
     });
-    app.get("/rbac/item-children/:parent", (req, res) => {
+    app.get(`${itemChildrenUrl}/:parent`, (req, res) => {
       db.findByParent(req.params.parent)
         .then((entry) => res.json(entry))
         .catch(newErrHandler(res));
@@ -383,7 +387,7 @@ describe("RbacHttpRuleAdapter", function () {
     server = app.listen(4001);
     app.use(express.json());
     const db = new RbacInMemoryRuleAdapter();
-    app.post("/rbac/rules", (req, res) => {
+    app.post(rulesUrl, (req, res) => {
       const errHandler = newErrHandler(res);
       const { rbacRules, name } = req.body;
       if (rbacRules) {
@@ -396,12 +400,12 @@ describe("RbacHttpRuleAdapter", function () {
           .catch(errHandler);
       }
     });
-    app.get("/rbac/rules", (_req, res) => {
+    app.get(rulesUrl, (_req, res) => {
       db.load()
         .then((entries) => res.json(entries))
         .catch(newErrHandler(res));
     });
-    app.get("/rbac/rules/:name", (req, res) => {
+    app.get(`${rulesUrl}/:name`, (req, res) => {
       db.find(req.params.name)
         .then((entry) => res.json(entry))
         .catch(newErrHandler(res));
@@ -469,16 +473,16 @@ describe("RbacHttpAdapter", function () {
     const app = express();
     server = app.listen(4001);
     app.use(express.json());
-    app.get("/rbac/assignments", (_req, res) => {
+    app.get(assignmentsUrl, (_req, res) => {
       res.json($.assignments);
     });
-    app.get("/rbac/items", (_req, res) => {
+    app.get(itemsUrl, (_req, res) => {
       res.json($.items);
     });
-    app.get("/rbac/item-children", (_req, res) => {
+    app.get(itemChildrenUrl, (_req, res) => {
       res.json($.itemChildren);
     });
-    app.get("/rbac/rules", (_req, res) => {
+    app.get(rulesUrl, (_req, res) => {
       res.json($.rules);
     });
   });
